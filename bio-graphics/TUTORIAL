@@ -1,0 +1,108 @@
+
+link:../images/example.png
+
+= Bio::Graphics tutorial
+Copyright (C) 2007 Jan Aerts <jan.aerts@bbsrc.ac.uk>
+
+License: The Ruby License
+
+Homepage: http://bio-graphics.rubyforge.org
+
+== Overview and terms used
+This Bio::Graphics library allows for drawing overviews of genomic regions, similar to the pictures drawn by gbrowse[http://www.gmod.org/wiki/index.php/Gbrowse]. Basically, it allows creating simple images that display features on a linear map. The code is based on the equivalent code in the bioperl[http://www.bioperl.org/wiki/Main_Page] project.
+
+Any Bio::Graphics image consists of the following parts (nomenclature identical to that from bioperl):
+* one panel: container of all tracks
+* one or more tracks: container of the features. Multiple tracks can exist in the same graphic to allow for differential visualization of different feature types (e.g. genes as blue rectangles and polymorphisms as red triangles)
+* one or more features in each track: these are the actual features that you want to display (e.g. 'gene 1', 'SNP 123445')
+* a ruler on top of the panel: is added automatically
+
+Schematically:
+
+ panel
+  +-> track 1
+  |     +-> feature 1
+  |     +-> feature 2
+  |     +-> feature 3
+  +-> track 2
+  |     +-> feature 4
+  |     +-> feature 5
+  +-> ruler
+
+Below is an annotated version of the picture at the top of the page. The whole picture makes up the panel, which contains one ruler and 3 tracks ('scaffolds', 'markers' and 'clones'). Each of these tracks has zero or more features.
+
+link:../images/terms.png
+
+As a feature can only exist within the confines of a track and a track can only exist within the confines of a panel, these classes are encapsuled. This means that the Track class is not Bio::Graphics::Track, but Bio::Graphics::Panel::Track; the same goes for Bio::Graphics::Panel::Track::Feature.
+
+== Glyphs
+
+According to Wikipedia, a _glyph_ is "the shape given in a particular typeface to a specific grapheme or symbol". In the context of Bio::Graphics, a glyph is just the thing that represents one single feature. Several kinds of glyph exist to allow for features that are on a particular strand as well as for spliced features. See the picture below for an overview.
+
+link:../images/glyph_showcase.png
+
+If the view is really zoomed out, arrow on the directed glyphs are not shown, as they would be bigger than the glyph itself.
+
+== Use
+The code below was used to create the picture showing all the different glyphs mentioned above. This is not the nicest piece of code, but it is the simplest. It is straightforward to parse a GFF file and create a picture based on that. See my blog[http://saaientist.blogspot.com/2007/09/graphics-genomics-and-ruby.html] for an nicer example.
+
+For an explanation of the arguments with each method for this example, see the Bio::Graphics::Panel and Bio::Graphics::Panel::Track object documentation.
+  1   # Load the library
+  2   require 'bio-graphics' # or require_gem 'bio-graphics'
+  3   
+  4   # Create the panel
+  5   my_panel = Bio::Graphics::Panel.new(500, 600, true, 1, 500)
+  6   
+  7   # Create the tracks
+  8   generic_track = my_panel.add_track('generic')
+  9   directed_track = my_panel.add_track('directed',[0,1,0],'directed_generic')
+  10  triangle_track = my_panel.add_track('triangle',[1,0,0],'triangle')
+  11  spliced_track = my_panel.add_track('spliced',[1,0,0],'spliced')
+  12  directed_spliced_track = my_panel.add_track('directed_spliced',[1,0,1],'directed_spliced')
+  13  
+  14  # Add features to each track
+  15  generic_track.add_feature('clone1','250..375', 'http://www.newsforge.com')
+  16  generic_track.add_feature('clone2','54..124', 'http://www.thearkdb.org')
+  17  generic_track.add_feature('clone3','100..449', 'http://www.google.com')
+  18  
+  19  directed_track.add_feature('marker1','50..60', 'http://www.google.com')
+  20  directed_track.add_feature('marker2','complement(80..120)', 'http://www.sourceforge.net')
+  21  
+  22  triangle_track.add_feature('snp1','56')
+  23  triangle_track.add_feature('snp2','103','http://digg.com')
+  24  
+  25  spliced_track.add_feature('gene1','join(34..52,109..183)','http://news.bbc.co.uk')
+  26  spliced_track.add_feature('gene2','complement(join(170..231,264..299,350..360,409..445))')
+  27  spliced_track.add_feature('gene3','join(134..152,209..283)')
+  28  
+  29  directed_spliced_track.add_feature('gene4','join(34..52,109..183)', 'http://www.vrtnieuws.net')
+  30  directed_spliced_track.add_feature('gene5','complement(join(170..231,264..299,350..360,409..445))')
+  31  directed_spliced_track.add_feature('gene6','join(134..152,209..283)')
+  32  
+  33  # Draw the thing
+  34  my_panel.draw('glyph_showcase.png')
+
+Let's walk through this:
+* Line 2: load the actual library code. Make sure that the library is in your RUBYLIB path.
+* Line 5: Create the panel, which is nothing more than the canvas you'll be working on. The following parameters were used:
+  * The sequence is 500 bp long.
+  * The width of the picture will be 600 points.
+  * A HTML page will be created to make hyperlinks possible (the _true_)
+  * The picture will be zoomed in from bp 1 to 500 (i.e. completely zoomed out).
+* Lines 8-12: Create the different tracks. Parameters are:
+  * name.
+  * colour. At the moment in RGB. (This will probably change to colour names in the future).
+  * type. See the picture above and Bio::Graphics::Panel::Track#new for allowed values.
+* Lines 15-31: Add features to each track. Parameters are:
+  * name.
+  * location. This should be a location parsable by bioruby's[http://www.bioruby.org] Bio::Locations object.
+  * link.
+* Line 34: Create the actual picture. If the third parameter to the initial Panel#new call (in line 5) is 'true', a HTML file is created as well.
+
+=== Hyperlinks
+There are no graphic formats that are inherently clickable (SVG is a special case and the _display_ of it is not the SVG itself). Therefore, in case the user wants a clickable graphic, an accompanying HTML file is created with the same name as the picture but obviously the .html extension. This file contains the map and will display a clickable picture when loaded in a webbrowser.
+
+== Prerequisites
+You'll need to have the following installed to use this library:
+* bioruby (http://www.bioruby.org), to parse the feature locations. On linux systems, type "gem install bio".
+* cairo (http://cairographics.org), to do the actual drawing. On Ubuntu, type "sudo apt-get install libcairo-ruby".
