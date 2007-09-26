@@ -1,5 +1,5 @@
 
-link:../images/example.png
+link:images/example.png
 
 = Bio::Graphics tutorial
 Copyright (C) 2007 Jan Aerts <jan.aerts@bbsrc.ac.uk>
@@ -31,7 +31,7 @@ Schematically:
 
 Below is an annotated version of the picture at the top of the page. The whole picture makes up the panel, which contains one ruler and 3 tracks ('scaffolds', 'markers' and 'clones'). Each of these tracks has zero or more features.
 
-link:../images/terms.png
+link:images/terms.png
 
 As a feature can only exist within the confines of a track and a track can only exist within the confines of a panel, these classes are encapsuled. This means that the Track class is not Bio::Graphics::Track, but Bio::Graphics::Panel::Track; the same goes for Bio::Graphics::Panel::Track::Feature.
 
@@ -39,7 +39,7 @@ As a feature can only exist within the confines of a track and a track can only 
 
 According to Wikipedia, a _glyph_ is "the shape given in a particular typeface to a specific grapheme or symbol". In the context of Bio::Graphics, a glyph is just the thing that represents one single feature. Several kinds of glyph exist to allow for features that are on a particular strand as well as for spliced features. See the picture below for an overview.
 
-link:../images/glyph_showcase.png
+link:images/glyph_showcase.png
 
 If the view is really zoomed out, arrow on the directed glyphs are not shown, as they would be bigger than the glyph itself.
 
@@ -101,6 +101,13 @@ Let's walk through this:
 
 === Hyperlinks
 There are no graphic formats that are inherently clickable (SVG is a special case and the _display_ of it is not the SVG itself). Therefore, in case the user wants a clickable graphic, an accompanying HTML file is created with the same name as the picture but obviously the .html extension. This file contains the map and will display a clickable picture when loaded in a webbrowser.
+
+== Download and installation
+Development of the library is at http://rubyforge.org/projects/bio-graphics/
+
+There are different ways to install the library.
+* Export for SVN (for the latest development version): "svn checkout svn+ssh://jandot@rubyforge.org//var/svn/bio-graphics"
+* As a rubygem: download the bio-graphics-1.0.gem from the website, and do "gem install bio-graphics-1.0.gem"
 
 == Prerequisites
 You'll need to have the following installed to use this library:
