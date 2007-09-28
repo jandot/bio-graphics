@@ -1,5 +1,5 @@
 #
-# = bio/graphics/image_map.rb - extension of ImageMap
+# = bio/graphics/image_map.rb - create the image map for clickable images
 #
 # Copyright::   Copyright (C) 2007
 #               Jan Aerts <jan.aerts@bbsrc.ac.uk>

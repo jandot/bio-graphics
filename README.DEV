@@ -1,0 +1,55 @@
+Copyright (C) 2007 Jan Aerts <jan.aerts@bbsrc.ac.uk>
+
+== README for developers
+What this README is mainly meant for, is to explain how the code works (rather than how to _use_ the library). It should help if you're interested in contributing, or if you think you found a bug.
+
+=== Overview
+I've tried to document as much as possible in the code itself, see for example the comments that accompany the setting of the defaults for Bio::Graphics in the panel.rb file. However, the bigger picture can not be explained that way.
+
+=== The files
+There's one file for each class: panel, track, feature, ruler and image_map. See the tutorial on a breakdown what each of these do. All of these except the image_map make up a picture. The image_map is used to describe the HTML map that can be created to make a picture clickable.
+
+Classes are embedded in each other: instead of
+  Bio::Graphics::Panel
+  Bio::Graphics::Ruler
+  Bio::Graphics::Track
+  Bio::Graphics::Feature
+we have:
+  Bio::Graphics::Panel
+  Bio::Graphics::Panel::Ruler
+  Bio::Graphics::Panel::Track
+  Bio::Graphics::Panel::Track::Feature
+
+There's a reason for this. A track can only exist within the confines of a panel (i.e. a panel is a container for tracks), and a feature can only exist within the confines of a track. In addition, there are quite some instances where information from the panel is necessary for the track, and from the track for the features.
+
+=== The workflow
+==== Creating the panel
+The user has to start with a
+  my_panel = Bio::Graphics::Panel.new(length, width, clickable, display_start, display_stop)
+
+When this happens, among other things, the instance variable @tracks is created that will later contain the actual Track objects. In addition, there's @number_of_times_bumped. You'll later see that each Track object also has its @number_of_times_bumped. The panel needs this information to know how far it has to go down before it can start drawing a track: the first track will be just below the ruler, but the vertical coordinates of the second one depend on the height of all the ones that were drawn previously. And _that_ in turn is defined by the number of times a feature would overlap with another one and therefore had to be _bumped_ down.
+
+@display_start and @display_stop are used for zooming in on a region. Even though the full @length of the sequence can be really long, setting @display_start and @display_stop will only consider that region.
+
+Then there is @rescale_factor, which plays a crucial role in drawing the stuff: it tells the script how many basepairs are contained in one pixel. This variable will be used _very_ extensively in the drawing code.
+
+This covered the Panel#initialize
+
+==== Adding tracks to the panel
+Because tracks are inherently part of a panel and cannot exist on their own, they can only be created by using a Panel method rather than a Track method.
+  my_track_1 = my_panel.add_track(name, feature_colour = [0,0,1], feature_glyph = 'generic')
+
+This creates a new Track object and adds it to the @tracks array of the Panel object. Several instance variables are set for the Track object, including @features (which is an array of Feature objects for that track) and @number_of_times_bumped. Every time a feature cannot be drawn because it would overlap with another one, it will be 'bumped' down until it can be drawn. This effectively results in _rows_ that contain the features. The @number_of_times_bumped is just the number of rows (to be able to calculate the height of the track afterwards). I admit that this variable should be renamed to something like @number_of_feature_rows or something, because the value is actually the number of times bumped + 1. In the example below, @number_of_times_bumped is 3 (instead of 2). (I'll change that later...)
+
+  ------------------------------------------------------
+    *******    ****  *********         *****    *****
+         *****                       ********
+                                    **
+
+The Panel#add_track method returns the Track object itself, because it has to be accessible to be able to assign features to it.
+
+==== Adding features to a track
+
+
+
+==== Drawing the thing

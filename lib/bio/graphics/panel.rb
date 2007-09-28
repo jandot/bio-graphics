@@ -59,13 +59,16 @@ module Bio
   #
   module Graphics
 
-    DEFAULT_PANEL_WIDTH = 800
-    TRACK_HEADER_HEIGHT = 12
-    FEATURE_HEIGHT = 10
-    FEATURE_V_DISTANCE = 5
-    FEATURE_ARROW_LENGTH = 5
-    RULER_TEXT_HEIGHT = 10
-    RULER_MIN_DISTANCE_TICKS_PIXEL = 5
+    # The defaults
+    DEFAULT_PANEL_WIDTH = 800  # How many pixels wide do we want the picture to be?
+    TRACK_HEADER_HEIGHT = 12   # The track header will contain the title.
+    FEATURE_HEIGHT = 10        # The height in pixels of a glyph.
+    FEATURE_V_DISTANCE = 5     # The vertical distance in pixels between glyphs
+    FEATURE_ARROW_LENGTH = 5   # In pixels again.
+    RULER_TEXT_HEIGHT = 10     # And again...
+    RULER_MIN_DISTANCE_TICKS_PIXEL = 5  # There should be at least 5 pixels between
+                                        #   consecutive ticks. This is used for the
+                                        #   calculation of tick distance.
 
     # The Bio::Graphics::Panel class describes the complete graph and contains
     # all tracks. See Bio::Graphics documentation for explanation of interplay
@@ -110,7 +113,7 @@ module Bio
         @rescale_factor = (@display_stop - @display_start).to_f / @width
 #        STDERR.puts @rescale_factor.to_s
       end
-      attr_accessor :length, :width, :height, :rescale_factor, :svg, :tracks, :number_of_times_bumped, :clickable, :image_map, :display_start, :display_stop
+      attr_accessor :length, :width, :height, :rescale_factor, :tracks, :number_of_times_bumped, :clickable, :image_map, :display_start, :display_stop
 
       # Adds a Bio::Graphics::Track container to this panel. A panel contains a
       # logical grouping of features, e.g. (for sequence annotation:) genes,
