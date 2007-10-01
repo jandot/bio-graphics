@@ -99,8 +99,8 @@ module Bio
       # * _display_stop_ :: stop coordinate to be displayed (default: length of sequence)
       # *Returns*:: Bio::Graphics::Panel object
       def initialize(length, width = DEFAULT_PANEL_WIDTH, clickable = false, display_start = nil, display_stop = nil)
-        @length = length.to_f
-        @width = width.to_f
+        @length = length.to_i
+        @width = width.to_i
         @tracks = Array.new
         @number_of_times_bumped = 0
         @clickable = clickable
@@ -111,7 +111,6 @@ module Bio
           raise "[ERROR] Start coordinate to be displayed has to be smaller than stop coordinate."
         end
         @rescale_factor = (@display_stop - @display_start).to_f / @width
-#        STDERR.puts @rescale_factor.to_s
       end
       attr_accessor :length, :width, :height, :rescale_factor, :tracks, :number_of_times_bumped, :clickable, :image_map, :display_start, :display_stop
 
@@ -179,7 +178,6 @@ module Bio
           height += 10
         end
 
-
         resized_panel_drawing = nil
         resized_panel_drawing = Cairo::ImageSurface.new(1, @width, height)
         resizing_context = Cairo::Context.new(resized_panel_drawing)
@@ -187,27 +185,17 @@ module Bio
         resizing_context.rectangle(0,0,@width, height).fill
 
         # And print to file
-        if ! @clickable
-          resized_panel_drawing.write_to_png(file_name)
-        else # create png and map
-          resized_panel_drawing.write_to_png(file_name)
+        resized_panel_drawing.write_to_png(file_name)
+        if @clickable # create png and map
           html_filename = file_name.sub(/\.[^.]+$/, '.html')
           html = File.open(html_filename,'w')
           html.puts "<html>"
           html.puts "<body>"
           html.puts @image_map.to_s
-#          html.puts "<map name='image_map'>"
-#          html.puts "  <area shape='rect' coords='0 0 100 100' href='http://www.google.com'/>"
-#          html.puts "</map>"
           html.puts "<img border='1' src='" + file_name + "' usemap='#image_map' />"
-#          html.puts "<a href='bla'>"
-#          html.puts "<img border='1' src='" + file_name + "' ismap>"
-#          html.puts "</a>"
           html.puts "</body>"
           html.puts "</html>"
         end
-
-
       end
 
 

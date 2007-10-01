@@ -32,8 +32,9 @@ module Bio
           #   feature belongs to
           # * _name_ (required) :: Name of the feature
           # * _location_ :: Bio::Locations object. Default = whole panel, forward strand
+          # * _link_ :: URL for clickable images
           # *Returns*:: Bio::Graphics::Track::Feature object
-          def initialize(track, name, location = Bio::Locations.new('0..' + (track.width * track.rescale_factor).to_s), link = nil)
+          def initialize(track, name, location = Bio::Locations.new('1..' + track.panel.length.to_s), link = nil)
             @track = track
             @name = name
             @location = location

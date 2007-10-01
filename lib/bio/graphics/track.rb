@@ -73,33 +73,32 @@ module Bio
         # * _location_ :: String. Default: whole of panel, forward strand.
         # * _link_ :: URL to link to for this glyph
         # *Returns*:: Bio::Graphics::Track::Feature object that was created or nil
-        def add_feature(name, location_string = '0..' + (@panel.width * @panel.rescale_factor).to_s, link = nil)
+        def add_feature(name, location_string = '1..' + @panel.length.to_s, link = nil)
           if link == ''
             link = nil
           end
+          
+          # Calculate the ultimate start and stop of the feature: the start
+          # of the first subfeature (e.g. exon) and the stop of the last one.
+          # The only reason we want to know these positions, is because we want
+          # to determine if the feature falls within the view of the image or
+          # not (see below).
           location_object = Bio::Locations.new(location_string)
           start = location_object.collect{|l| l.from}.min.to_i
           stop = location_object.collect{|l| l.to}.max.to_i
 
-          #if start < 0 or stop > (panel.width.to_f * panel.rescale_factor.to_f).to_i
-          #  raise "ERROR: feature " + name + " has coordinates that lie outside of panel"
-          #end
-          #@features.push(Bio::Graphics::Panel::Track::Feature.new(self, name, location_object, link))
-          #return @features[-1]
-
-          if stop < panel.display_start or start > panel.display_stop
+          # If the feature wouldn't show because it's not in the region we're
+          # looking at, don't bother storing the stuff. I think this makes huge
+          # speed and memory differences if you've got a chromosome with
+          # thousands of features.
+          if stop <= panel.display_start or start >= panel.display_stop
             return nil
           else #elsif start >= panel.display_start and stop <= panel.display_stop
             @features.push(Bio::Graphics::Panel::Track::Feature.new(self, name, location_object, link))
             return @features[-1]
-          # TODO: chop bits of that extend beyond display
-          #elsif ( start >= panel.display_start and stop > panel.display_stop ) #Feature extends beyond right border
-          #  new_location_object = Bio::Locations.new
-          #  location_object.each do |l|
-          #    if l.to <= panel.display_stop
-          #      new_location_object.push(Bio::Location.new('l
-          #    end
           end
+          
+          return self
         end
 
 
@@ -135,12 +134,19 @@ module Bio
             track_drawing.set_source_rgb(@feature_colour)
 
             # Now draw the features
+            # These are the basic steps:
+            #   A. find out what row to draw it on
+            #   B. see if we want to change the glyph type from directed to
+            #      undirected
+            #   C. draw the thing
             @features.each do |feature|
+              # Don't even bother if the feature is not in the view
               if feature.stop <= self.panel.display_start or feature.start >= self.panel.display_stop
                 next
               else
-                
                 feature_drawn = false
+                
+                # A. find out what row to draw it on
                 feature_range = (feature.start.floor..feature.stop.ceil)
                 row = 1
                 row_available = true
@@ -162,6 +168,8 @@ module Bio
                     end
                     grid[row].push(feature_range)
 
+                    # B. see if we want to change the glyph type from directed to
+                    #    undirected
                     # There are 2 cases where we don't want to draw arrows on
                     # features:
                     # (a) when the picture is really zoomed out, features are
@@ -191,9 +199,10 @@ module Bio
                       local_feature_glyph = feature_glyph
                     end
   
+                    # C. And draw the thing.
                     top_pixel_of_feature = FEATURE_V_DISTANCE + (FEATURE_HEIGHT+FEATURE_V_DISTANCE)*row
                     bottom_pixel_of_feature = top_pixel_of_feature + FEATURE_HEIGHT
-  
+
                     case local_feature_glyph
                       # triangles are typical for features which have a 1 bp position (start == stop)
                       when 'triangle'
@@ -325,7 +334,23 @@ module Bio
                           track_drawing.line_to(to, top_pixel_of_feature+2)
                           track_drawing.stroke
                         end
-  
+
+                        if feature.hidden_subfeatures_at_stop
+                          from = feature.pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
+                          to = panel.width
+                          track_drawing.move_to(from, top_pixel_of_feature+5)
+                          track_drawing.line_to(to, top_pixel_of_feature+5)
+                          track_drawing.stroke
+                        end
+                        
+                        if feature.hidden_subfeatures_at_start
+                          from = 1
+                          to = feature.pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
+                          track_drawing.move_to(from, top_pixel_of_feature+5)
+                          track_drawing.line_to(to, top_pixel_of_feature+5)
+                          track_drawing.stroke
+                        end
+
                       else #treat as 'generic'
                         left_pixel_of_feature, right_pixel_of_feature = feature.pixel_range_collection[0].start_pixel, feature.pixel_range_collection[0].stop_pixel
                         track_drawing.rectangle(left_pixel_of_feature, top_pixel_of_feature, (right_pixel_of_feature - left_pixel_of_feature), FEATURE_HEIGHT).fill

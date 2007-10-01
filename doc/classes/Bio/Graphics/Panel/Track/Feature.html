@@ -99,7 +99,7 @@ features.
       <h3 class="section-bar">Methods</h3>
 
       <div class="name-list">
-      <a href="#M000014">new</a>&nbsp;&nbsp;
+      <a href="#M000011">new</a>&nbsp;&nbsp;
       </div>
     </div>
 
@@ -232,20 +232,20 @@ The track that this feature belongs to
     <div id="methods">
       <h3 class="section-bar">Public Class methods</h3>
 
-      <div id="method-M000014" class="method-detail">
-        <a name="M000014"></a>
+      <div id="method-M000011" class="method-detail">
+        <a name="M000011"></a>
 
         <div class="method-heading">
-          <a href="Feature.src/M000014.html" target="Code" class="method-signature"
-            onclick="popupCode('Feature.src/M000014.html');return false;">
-          <span class="method-name">new</span><span class="method-args">(track, name, location = Bio::Locations.new('0..' + (track.width * track.rescale_factor).to_s), link = nil)</span>
+          <a href="Feature.src/M000011.html" target="Code" class="method-signature"
+            onclick="popupCode('Feature.src/M000011.html');return false;">
+          <span class="method-name">new</span><span class="method-args">(track, name, location = Bio::Locations.new('1..' + track.panel.length.to_s), link = nil)</span>
           </a>
         </div>
       
         <div class="method-description">
           <p>
 !!Not to be used directly. Use <a
-href="../Track.html#M000012">Bio::Graphics::Panel::Track.add_feature</a>
+href="../Track.html#M000009">Bio::Graphics::Panel::Track.add_feature</a>
 instead!! A feature can not exist except within the confines of a <a
 href="../Track.html">Bio::Graphics::Panel::Track</a> object.
 </p>
@@ -263,6 +263,9 @@ feature belongs to
 </li>
 <li><em>location</em> :: Bio::Locations object. Default = whole panel, forward
 strand
+
+</li>
+<li><em>link</em> :: URL for clickable images
 
 </li>
 </ul>

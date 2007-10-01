@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
 </head>
 <body class="standalone-code">
-  <pre><span class="ruby-comment cmt"># File lib/bio/graphics/panel.rb, line 149</span>
+  <pre><span class="ruby-comment cmt"># File lib/bio/graphics/panel.rb, line 148</span>
       <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">draw</span>(<span class="ruby-identifier">file_name</span>)
         <span class="ruby-comment cmt"># Create a panel that is huge vertically</span>
         <span class="ruby-identifier">huge_height</span> = <span class="ruby-value">2000</span>
@@ -44,7 +44,6 @@
           <span class="ruby-identifier">height</span> <span class="ruby-operator">+=</span> <span class="ruby-value">10</span>
         <span class="ruby-keyword kw">end</span>
 
-
         <span class="ruby-identifier">resized_panel_drawing</span> = <span class="ruby-keyword kw">nil</span>
         <span class="ruby-identifier">resized_panel_drawing</span> = <span class="ruby-constant">Cairo</span><span class="ruby-operator">::</span><span class="ruby-constant">ImageSurface</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">1</span>, <span class="ruby-ivar">@width</span>, <span class="ruby-identifier">height</span>)
         <span class="ruby-identifier">resizing_context</span> = <span class="ruby-constant">Cairo</span><span class="ruby-operator">::</span><span class="ruby-constant">Context</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">resized_panel_drawing</span>)
@@ -52,27 +51,17 @@
         <span class="ruby-identifier">resizing_context</span>.<span class="ruby-identifier">rectangle</span>(<span class="ruby-value">0</span>,<span class="ruby-value">0</span>,<span class="ruby-ivar">@width</span>, <span class="ruby-identifier">height</span>).<span class="ruby-identifier">fill</span>
 
         <span class="ruby-comment cmt"># And print to file</span>
-        <span class="ruby-keyword kw">if</span> <span class="ruby-operator">!</span> <span class="ruby-ivar">@clickable</span>
-          <span class="ruby-identifier">resized_panel_drawing</span>.<span class="ruby-identifier">write_to_png</span>(<span class="ruby-identifier">file_name</span>)
-        <span class="ruby-keyword kw">else</span> <span class="ruby-comment cmt"># create png and map</span>
-          <span class="ruby-identifier">resized_panel_drawing</span>.<span class="ruby-identifier">write_to_png</span>(<span class="ruby-identifier">file_name</span>)
+        <span class="ruby-identifier">resized_panel_drawing</span>.<span class="ruby-identifier">write_to_png</span>(<span class="ruby-identifier">file_name</span>)
+        <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@clickable</span> <span class="ruby-comment cmt"># create png and map</span>
           <span class="ruby-identifier">html_filename</span> = <span class="ruby-identifier">file_name</span>.<span class="ruby-identifier">sub</span>(<span class="ruby-regexp re">/\.[^.]+$/</span>, <span class="ruby-value str">'.html'</span>)
           <span class="ruby-identifier">html</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">html_filename</span>,<span class="ruby-value str">'w'</span>)
           <span class="ruby-identifier">html</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;&lt;html&gt;&quot;</span>
           <span class="ruby-identifier">html</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;&lt;body&gt;&quot;</span>
           <span class="ruby-identifier">html</span>.<span class="ruby-identifier">puts</span> <span class="ruby-ivar">@image_map</span>.<span class="ruby-identifier">to_s</span>
-<span class="ruby-comment cmt">#          html.puts &quot;&lt;map name='image_map'&gt;&quot;</span>
-<span class="ruby-comment cmt">#          html.puts &quot;  &lt;area shape='rect' coords='0 0 100 100' href='http://www.google.com'/&gt;&quot;</span>
-<span class="ruby-comment cmt">#          html.puts &quot;&lt;/map&gt;&quot;</span>
           <span class="ruby-identifier">html</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;&lt;img border='1' src='&quot;</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">file_name</span> <span class="ruby-operator">+</span> <span class="ruby-value str">&quot;' usemap='#image_map' /&gt;&quot;</span>
-<span class="ruby-comment cmt">#          html.puts &quot;&lt;a href='bla'&gt;&quot;</span>
-<span class="ruby-comment cmt">#          html.puts &quot;&lt;img border='1' src='&quot; + file_name + &quot;' ismap&gt;&quot;</span>
-<span class="ruby-comment cmt">#          html.puts &quot;&lt;/a&gt;&quot;</span>
           <span class="ruby-identifier">html</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;&lt;/body&gt;&quot;</span>
           <span class="ruby-identifier">html</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;&lt;/html&gt;&quot;</span>
         <span class="ruby-keyword kw">end</span>
-
-
       <span class="ruby-keyword kw">end</span></pre>
 </body>
 </html>

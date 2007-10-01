@@ -8,6 +8,8 @@ License: The Ruby License
 
 Homepage: http://bio-graphics.rubyforge.org
 
+(If you'd like to know how the code itself works, please see the README.DEV)
+
 == Overview and terms used
 This Bio::Graphics library allows for drawing overviews of genomic regions, similar to the pictures drawn by gbrowse[http://www.gmod.org/wiki/index.php/Gbrowse]. Basically, it allows creating simple images that display features on a linear map. The code is based on the equivalent code in the bioperl[http://www.bioperl.org/wiki/Main_Page] project.
 

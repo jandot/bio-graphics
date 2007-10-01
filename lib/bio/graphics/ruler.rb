@@ -34,7 +34,7 @@ module Bio
 
         def calculate_tick_distance
           min_tick_distance_requirement_met = false
-          self.minor_tick_distance = 1 # in basepairs. Start with at least 10 bp distance
+          self.minor_tick_distance = 1 # in basepairs.
           while ! min_tick_distance_requirement_met
             if self.minor_tick_distance/panel.rescale_factor >= RULER_MIN_DISTANCE_TICKS_PIXEL
               min_tick_distance_requirement_met = true
@@ -58,6 +58,11 @@ module Bio
 
           # Draw ticks
           #  * Find position of first tick.
+          #    Most of the time, we don't want the first tick on the very first
+          #    basepair of the view. Suppose that would be position 333 in the
+          #    sequence. Then the numbers under the major tickmarks would be:
+          #    343, 353, 363, 373 and so on. Instead, we want 350, 360, 370, 380.
+          #    So we want to find the position of the first tick.
           first_tick_position = panel.display_start
           while first_tick_position.modulo(minor_tick_distance) != 0
             first_tick_position += 1
