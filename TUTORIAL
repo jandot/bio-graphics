@@ -108,7 +108,7 @@ There are no graphic formats that are inherently clickable (SVG is a special cas
 Development of the library is at http://rubyforge.org/projects/bio-graphics/
 
 There are different ways to install the library.
-* Export for SVN (for the latest development version): "svn checkout svn+ssh://jandot@rubyforge.org//var/svn/bio-graphics"
+* Export for SVN (for the latest development version): "svn checkout svn://rubyforge.org/var/svn/bio-graphics"
 * As a rubygem: download the bio-graphics-1.0.gem from the website, and do "gem install bio-graphics-1.0.gem"
 
 == Prerequisites
