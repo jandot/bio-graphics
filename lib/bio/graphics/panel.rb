@@ -105,8 +105,8 @@ module Bio
         @number_of_times_bumped = 0
         @clickable = clickable
         @image_map = ( clickable ) ? ImageMap.new : nil
-        @display_start = ( display_start.nil? ) ? 0 : display_start
-        @display_stop = ( display_stop.nil? ) ? @length : display_stop
+        @display_start = ( display_start.nil? or display_start < 0 ) ? 0 : display_start
+        @display_stop = ( display_stop.nil? or display_stop > @length ) ? @length : display_stop
         if @display_stop <= @display_start
           raise "[ERROR] Start coordinate to be displayed has to be smaller than stop coordinate."
         end
