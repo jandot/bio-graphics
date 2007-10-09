@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>new (Bio::Graphics::Panel)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/bio/graphics/panel.rb, line 101</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">length</span>, <span class="ruby-identifier">width</span> = <span class="ruby-constant">DEFAULT_PANEL_WIDTH</span>, <span class="ruby-identifier">clickable</span> = <span class="ruby-keyword kw">false</span>, <span class="ruby-identifier">display_start</span> = <span class="ruby-keyword kw">nil</span>, <span class="ruby-identifier">display_stop</span> = <span class="ruby-keyword kw">nil</span>)
+        <span class="ruby-ivar">@length</span> = <span class="ruby-identifier">length</span>.<span class="ruby-identifier">to_i</span>
+        <span class="ruby-ivar">@width</span> = <span class="ruby-identifier">width</span>.<span class="ruby-identifier">to_i</span>
+        <span class="ruby-ivar">@tracks</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>
+        <span class="ruby-ivar">@number_of_times_bumped</span> = <span class="ruby-value">0</span>
+        <span class="ruby-ivar">@clickable</span> = <span class="ruby-identifier">clickable</span>
+        <span class="ruby-ivar">@image_map</span> = ( <span class="ruby-identifier">clickable</span> ) <span class="ruby-operator">?</span> <span class="ruby-constant">ImageMap</span>.<span class="ruby-identifier">new</span> <span class="ruby-operator">:</span> <span class="ruby-keyword kw">nil</span>
+        <span class="ruby-ivar">@display_start</span> = ( <span class="ruby-identifier">display_start</span>.<span class="ruby-identifier">nil?</span> ) <span class="ruby-operator">?</span> <span class="ruby-value">0</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">display_start</span>
+        <span class="ruby-ivar">@display_stop</span> = ( <span class="ruby-identifier">display_stop</span>.<span class="ruby-identifier">nil?</span> ) <span class="ruby-operator">?</span> <span class="ruby-ivar">@length</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">display_stop</span>
+        <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@display_stop</span> <span class="ruby-operator">&lt;=</span> <span class="ruby-ivar">@display_start</span>
+          <span class="ruby-identifier">raise</span> <span class="ruby-value str">&quot;[ERROR] Start coordinate to be displayed has to be smaller than stop coordinate.&quot;</span>
+        <span class="ruby-keyword kw">end</span>
+        <span class="ruby-ivar">@rescale_factor</span> = (<span class="ruby-ivar">@display_stop</span> <span class="ruby-operator">-</span> <span class="ruby-ivar">@display_start</span>).<span class="ruby-identifier">to_f</span> <span class="ruby-operator">/</span> <span class="ruby-ivar">@width</span>
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

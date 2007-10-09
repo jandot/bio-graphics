@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>File: TUTORIAL</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href=".././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+  <div id="fileHeader">
+    <h1>TUTORIAL</h1>
+    <table class="header-table">
+    <tr class="top-aligned-row">
+      <td><strong>Path:</strong></td>
+      <td>TUTORIAL
+      </td>
+    </tr>
+    <tr class="top-aligned-row">
+      <td><strong>Last Update:</strong></td>
+      <td>Tue Oct 09 10:03:13 +0100 2007</td>
+    </tr>
+    </table>
+  </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+<img src="../images/example.png" />
+</p>
+<h1><a href="../classes/Bio/Graphics.html">Bio::Graphics</a> tutorial</h1>
+<p>
+Copyright (C) 2007 Jan Aerts &lt;jan.aerts@bbsrc.ac.uk&gt;
+</p>
+<p>
+License: The Ruby License
+</p>
+<p>
+Homepage: <a
+href="http://bio-graphics.rubyforge.org">bio-graphics.rubyforge.org</a>
+</p>
+<p>
+(If you&#8216;d like to know how the code itself works, please see the
+README.DEV)
+</p>
+<h2>Overview and terms used</h2>
+<p>
+This <a href="../classes/Bio/Graphics.html">Bio::Graphics</a> library
+allows for drawing overviews of genomic regions, similar to the pictures
+drawn by <a href="http://www.gmod.org/wiki/index.php/Gbrowse">gbrowse</a>.
+Basically, it allows creating simple images that display features on a
+linear map. The code is based on the equivalent code in the <a
+href="http://www.bioperl.org/wiki/Main_Page">bioperl</a> project.
+</p>
+<p>
+Any <a href="../classes/Bio/Graphics.html">Bio::Graphics</a> image consists
+of the following parts (nomenclature identical to that from bioperl):
+</p>
+<ul>
+<li>one panel: container of all tracks
+
+</li>
+<li>one or more tracks: container of the features. Multiple tracks can exist in
+the same graphic to allow for differential visualization of different
+feature types (e.g. genes as blue rectangles and polymorphisms as red
+triangles)
+
+</li>
+<li>one or more features in each track: these are the actual features that you
+want to display (e.g. &#8216;gene 1&#8217;, &#8216;SNP 123445&#8217;)
+
+</li>
+<li>a ruler on top of the panel: is added automatically
+
+</li>
+</ul>
+<p>
+Schematically:
+</p>
+<pre>
+ panel
+  +-&gt; track 1
+  |     +-&gt; feature 1
+  |     +-&gt; feature 2
+  |     +-&gt; feature 3
+  +-&gt; track 2
+  |     +-&gt; feature 4
+  |     +-&gt; feature 5
+  +-&gt; ruler
+</pre>
+<p>
+Below is an annotated version of the picture at the top of the page. The
+whole picture makes up the panel, which contains one ruler and 3 tracks
+(&#8216;scaffolds&#8217;, &#8216;markers&#8217; and &#8216;clones&#8217;).
+Each of these tracks has zero or more features.
+</p>
+<p>
+<img src="../images/terms.png" />
+</p>
+<p>
+As a feature can only exist within the confines of a track and a track can
+only exist within the confines of a panel, these classes are encapsuled.
+This means that the Track class is not Bio::Graphics::Track, but <a
+href="../classes/Bio/Graphics/Panel/Track.html">Bio::Graphics::Panel::Track</a>;
+the same goes for <a
+href="../classes/Bio/Graphics/Panel/Track/Feature.html">Bio::Graphics::Panel::Track::Feature</a>.
+</p>
+<h2>Glyphs</h2>
+<p>
+According to Wikipedia, a <em>glyph</em> is &quot;the shape given in a
+particular typeface to a specific grapheme or symbol&quot;. In the context
+of <a href="../classes/Bio/Graphics.html">Bio::Graphics</a>, a glyph is
+just the thing that represents one single feature. Several kinds of glyph
+exist to allow for features that are on a particular strand as well as for
+spliced features. See the picture below for an overview.
+</p>
+<p>
+<img src="../images/glyph_showcase.png" />
+</p>
+<p>
+If the view is really zoomed out, arrow on the directed glyphs are not
+shown, as they would be bigger than the glyph itself.
+</p>
+<h2>Use</h2>
+<p>
+The code below was used to create the picture showing all the different
+glyphs mentioned above. This is not the nicest piece of code, but it is the
+simplest. It is straightforward to parse a GFF file and create a picture
+based on that. See my <a
+href="http://saaientist.blogspot.com/2007/09/graphics-genomics-and-ruby.html">blog</a>
+for an nicer example.
+</p>
+<p>
+For an explanation of the arguments with each method for this example, see
+the <a href="../classes/Bio/Graphics/Panel.html">Bio::Graphics::Panel</a>
+and <a
+href="../classes/Bio/Graphics/Panel/Track.html">Bio::Graphics::Panel::Track</a>
+object documentation.
+</p>
+<pre>
+  1   # Load the library
+  2   require 'bio-graphics' # or require_gem 'bio-graphics'
+  3
+  4   # Create the panel
+  5   my_panel = Bio::Graphics::Panel.new(500, 600, true, 1, 500)
+  6
+  7   # Create the tracks
+  8   generic_track = my_panel.add_track('generic')
+  9   directed_track = my_panel.add_track('directed',[0,1,0],'directed_generic')
+  10  triangle_track = my_panel.add_track('triangle',[1,0,0],'triangle')
+  11  spliced_track = my_panel.add_track('spliced',[1,0,0],'spliced')
+  12  directed_spliced_track = my_panel.add_track('directed_spliced',[1,0,1],'directed_spliced')
+  13
+  14  # Add features to each track
+  15  generic_track.add_feature('clone1','250..375', 'http://www.newsforge.com')
+  16  generic_track.add_feature('clone2','54..124', 'http://www.thearkdb.org')
+  17  generic_track.add_feature('clone3','100..449', 'http://www.google.com')
+  18
+  19  directed_track.add_feature('marker1','50..60', 'http://www.google.com')
+  20  directed_track.add_feature('marker2','complement(80..120)', 'http://www.sourceforge.net')
+  21
+  22  triangle_track.add_feature('snp1','56')
+  23  triangle_track.add_feature('snp2','103','http://digg.com')
+  24
+  25  spliced_track.add_feature('gene1','join(34..52,109..183)','http://news.bbc.co.uk')
+  26  spliced_track.add_feature('gene2','complement(join(170..231,264..299,350..360,409..445))')
+  27  spliced_track.add_feature('gene3','join(134..152,209..283)')
+  28
+  29  directed_spliced_track.add_feature('gene4','join(34..52,109..183)', 'http://www.vrtnieuws.net')
+  30  directed_spliced_track.add_feature('gene5','complement(join(170..231,264..299,350..360,409..445))')
+  31  directed_spliced_track.add_feature('gene6','join(134..152,209..283)')
+  32
+  33  # Draw the thing
+  34  my_panel.draw('glyph_showcase.png')
+</pre>
+<p>
+Let&#8216;s walk through this:
+</p>
+<ul>
+<li>Line 2: load the actual library code. Make sure that the library is in your
+RUBYLIB path.
+
+</li>
+<li>Line 5: Create the panel, which is nothing more than the canvas
+you&#8216;ll be working on. The following parameters were used:
+
+<ul>
+<li>The sequence is 500 bp long.
+
+</li>
+<li>The width of the picture will be 600 points.
+
+</li>
+<li>A HTML page will be created to make hyperlinks possible (the <em>true</em>)
+
+</li>
+<li>The picture will be zoomed in from bp 1 to 500 (i.e. completely zoomed
+out).
+
+</li>
+</ul>
+</li>
+<li>Lines 8-12: Create the different tracks. Parameters are:
+
+<ul>
+<li>name.
+
+</li>
+<li>colour. At the moment in RGB. (This will probably change to colour names in
+the future).
+
+</li>
+<li>type. See the picture above and Bio::Graphics::Panel::Track#new for allowed
+values.
+
+</li>
+</ul>
+</li>
+<li>Lines 15-31: Add features to each track. Parameters are:
+
+<ul>
+<li>name.
+
+</li>
+<li>location. This should be a location parsable by <a
+href="http://www.bioruby.org">bioruby's</a> Bio::Locations object.
+
+</li>
+<li>link.
+
+</li>
+</ul>
+</li>
+<li>Line 34: Create the actual picture. If the third parameter to the initial
+Panel#new call (in line 5) is &#8216;true&#8217;, a HTML file is created as
+well.
+
+</li>
+</ul>
+<h3>Hyperlinks</h3>
+<p>
+There are no graphic formats that are inherently clickable (SVG is a
+special case and the <em>display</em> of it is not the SVG itself).
+Therefore, in case the user wants a clickable graphic, an accompanying HTML
+file is created with the same name as the picture but obviously the .html
+extension. This file contains the map and will display a clickable picture
+when loaded in a webbrowser.
+</p>
+<h2>Download and installation</h2>
+<p>
+Development of the library is at <a
+href="http://rubyforge.org/projects/bio-graphics">rubyforge.org/projects/bio-graphics</a>/
+</p>
+<p>
+There are different ways to install the library.
+</p>
+<ul>
+<li>Export for SVN (for the latest development version): &quot;svn checkout
+svn://rubyforge.org/var/svn/bio-graphics&quot;
+
+</li>
+<li>As a rubygem: download the bio-graphics-1.0.gem from the website, and do
+&quot;gem install bio-graphics-1.0.gem&quot;
+
+</li>
+</ul>
+<h2>Prerequisites</h2>
+<p>
+You&#8216;ll need to have the following installed to use this library:
+</p>
+<ul>
+<li>bioruby (<a href="http://www.bioruby.org">www.bioruby.org</a>), to parse
+the feature locations. On linux systems, type &quot;gem install bio&quot;.
+
+</li>
+<li>cairo (<a href="http://cairographics.org">cairographics.org</a>), to do the
+actual drawing. On Ubuntu, type &quot;sudo apt-get install
+libcairo-ruby&quot;.
+
+</li>
+</ul>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

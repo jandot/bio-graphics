@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>new (Bio::Graphics::Panel::Track::Feature)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/bio/graphics/feature.rb, line 36</span>
+          <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">track</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">location</span> = <span class="ruby-constant">Bio</span><span class="ruby-operator">::</span><span class="ruby-constant">Locations</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value str">'0..'</span> <span class="ruby-operator">+</span> (<span class="ruby-identifier">track</span>.<span class="ruby-identifier">width</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">rescale_factor</span>).<span class="ruby-identifier">to_s</span>), <span class="ruby-identifier">link</span> = <span class="ruby-keyword kw">nil</span>)
+            <span class="ruby-ivar">@track</span> = <span class="ruby-identifier">track</span>
+            <span class="ruby-ivar">@name</span> = <span class="ruby-identifier">name</span>
+            <span class="ruby-ivar">@location</span> = <span class="ruby-identifier">location</span>
+            <span class="ruby-ivar">@start</span> = <span class="ruby-identifier">location</span>.<span class="ruby-identifier">collect</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">l</span><span class="ruby-operator">|</span> <span class="ruby-identifier">l</span>.<span class="ruby-identifier">from</span>}.<span class="ruby-identifier">min</span>.<span class="ruby-identifier">to_i</span>
+            <span class="ruby-ivar">@stop</span> = <span class="ruby-identifier">location</span>.<span class="ruby-identifier">collect</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">l</span><span class="ruby-operator">|</span> <span class="ruby-identifier">l</span>.<span class="ruby-identifier">to</span>}.<span class="ruby-identifier">max</span>.<span class="ruby-identifier">to_i</span>
+            <span class="ruby-ivar">@strand</span> = <span class="ruby-identifier">location</span>[<span class="ruby-value">0</span>].<span class="ruby-identifier">strand</span>.<span class="ruby-identifier">to_i</span>
+            <span class="ruby-ivar">@link</span> = <span class="ruby-identifier">link</span>
+            <span class="ruby-ivar">@pixel_range_collection</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>
+            <span class="ruby-ivar">@chopped_at_start</span> = <span class="ruby-keyword kw">false</span>
+            <span class="ruby-ivar">@chopped_at_stop</span> = <span class="ruby-keyword kw">false</span>
+            <span class="ruby-ivar">@hidden_subfeatures_at_start</span> = <span class="ruby-keyword kw">false</span>
+            <span class="ruby-ivar">@hidden_subfeatures_at_stop</span> = <span class="ruby-keyword kw">false</span>
+
+            <span class="ruby-comment cmt"># Get all pixel ranges for the subfeatures</span>
+            <span class="ruby-identifier">location</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">l</span><span class="ruby-operator">|</span>
+              <span class="ruby-comment cmt">#   xxxxxx  [          ]</span>
+              <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">l</span>.<span class="ruby-identifier">to</span> <span class="ruby-operator">&lt;</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_start</span>
+                <span class="ruby-ivar">@hidden_subfeatures_at_start</span> = <span class="ruby-keyword kw">true</span>
+                <span class="ruby-keyword kw">next</span>
+              <span class="ruby-comment cmt">#           [          ]   xxxxx</span>
+              <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">l</span>.<span class="ruby-identifier">from</span> <span class="ruby-operator">&gt;</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_stop</span>
+                <span class="ruby-ivar">@hidden_subfeatures_at_stop</span> = <span class="ruby-keyword kw">true</span>
+                <span class="ruby-keyword kw">next</span>
+              <span class="ruby-comment cmt">#      xxxx[xxx       ]</span>
+              <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">l</span>.<span class="ruby-identifier">from</span> <span class="ruby-operator">&lt;</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_start</span> <span class="ruby-keyword kw">and</span> <span class="ruby-identifier">l</span>.<span class="ruby-identifier">to</span> <span class="ruby-operator">&gt;</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_start</span>
+                <span class="ruby-identifier">start_pixel</span> = <span class="ruby-value">1</span>
+                <span class="ruby-identifier">stop_pixel</span> = ( <span class="ruby-identifier">l</span>.<span class="ruby-identifier">to</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_start</span> ).<span class="ruby-identifier">to_f</span> <span class="ruby-operator">/</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">rescale_factor</span>
+                <span class="ruby-ivar">@chopped_at_start</span> = <span class="ruby-keyword kw">true</span>
+              <span class="ruby-comment cmt">#          [      xxxx]xxxx</span>
+              <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">l</span>.<span class="ruby-identifier">from</span> <span class="ruby-operator">&lt;</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_stop</span> <span class="ruby-keyword kw">and</span> <span class="ruby-identifier">l</span>.<span class="ruby-identifier">to</span> <span class="ruby-operator">&gt;</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_stop</span>
+                <span class="ruby-identifier">start_pixel</span> = ( <span class="ruby-identifier">l</span>.<span class="ruby-identifier">from</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_start</span> ).<span class="ruby-identifier">to_f</span> <span class="ruby-operator">/</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">rescale_factor</span>
+                <span class="ruby-identifier">stop_pixel</span> = <span class="ruby-identifier">track</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">width</span>
+                <span class="ruby-ivar">@chopped_at_stop</span> = <span class="ruby-keyword kw">true</span>
+              <span class="ruby-comment cmt">#      xxxx[xxxxxxxxxx]xxxx</span>
+              <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">l</span>.<span class="ruby-identifier">from</span> <span class="ruby-operator">&lt;</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_start</span> <span class="ruby-keyword kw">and</span> <span class="ruby-identifier">l</span>.<span class="ruby-identifier">to</span> <span class="ruby-operator">&gt;</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_stop</span>
+                <span class="ruby-identifier">start_pixel</span> = <span class="ruby-value">1</span>
+                <span class="ruby-identifier">stop_pixel</span> = <span class="ruby-identifier">track</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">width</span>
+                <span class="ruby-ivar">@chopped_at_start</span> = <span class="ruby-keyword kw">true</span>
+                <span class="ruby-ivar">@chopped_at_stop</span> = <span class="ruby-keyword kw">true</span>
+              <span class="ruby-comment cmt">#          [   xxxxx  ]</span>
+              <span class="ruby-keyword kw">else</span>
+                <span class="ruby-identifier">start_pixel</span> = ( <span class="ruby-identifier">l</span>.<span class="ruby-identifier">from</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_start</span> ).<span class="ruby-identifier">to_f</span> <span class="ruby-operator">/</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">rescale_factor</span>
+                <span class="ruby-identifier">stop_pixel</span> = ( <span class="ruby-identifier">l</span>.<span class="ruby-identifier">to</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_start</span> ).<span class="ruby-identifier">to_f</span> <span class="ruby-operator">/</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">rescale_factor</span>
+              <span class="ruby-keyword kw">end</span>
+              
+              <span class="ruby-ivar">@pixel_range_collection</span>.<span class="ruby-identifier">push</span>(<span class="ruby-constant">PixelRange</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">start_pixel</span>, <span class="ruby-identifier">stop_pixel</span>))
+              
+            <span class="ruby-keyword kw">end</span>
+          <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

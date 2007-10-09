@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>draw (Bio::Graphics::Panel)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/bio/graphics/panel.rb, line 148</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">draw</span>(<span class="ruby-identifier">file_name</span>)
+        <span class="ruby-comment cmt"># Create a panel that is huge vertically</span>
+        <span class="ruby-identifier">huge_height</span> = <span class="ruby-value">2000</span>
+
+        <span class="ruby-identifier">huge_panel_drawing</span> = <span class="ruby-keyword kw">nil</span>
+        <span class="ruby-identifier">huge_panel_drawing</span> = <span class="ruby-constant">Cairo</span><span class="ruby-operator">::</span><span class="ruby-constant">ImageSurface</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">1</span>, <span class="ruby-ivar">@width</span>, <span class="ruby-identifier">huge_height</span>)
+
+        <span class="ruby-identifier">background</span> = <span class="ruby-constant">Cairo</span><span class="ruby-operator">::</span><span class="ruby-constant">Context</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">huge_panel_drawing</span>)
+        <span class="ruby-identifier">background</span>.<span class="ruby-identifier">set_source_rgb</span>(<span class="ruby-value">1</span>,<span class="ruby-value">1</span>,<span class="ruby-value">1</span>)
+        <span class="ruby-identifier">background</span>.<span class="ruby-identifier">rectangle</span>(<span class="ruby-value">0</span>,<span class="ruby-value">0</span>,<span class="ruby-ivar">@width</span>,<span class="ruby-identifier">huge_height</span>).<span class="ruby-identifier">fill</span>
+
+        <span class="ruby-comment cmt"># Add ruler</span>
+        <span class="ruby-identifier">vertical_offset</span> = <span class="ruby-value">0</span>
+        <span class="ruby-identifier">ruler</span> = <span class="ruby-constant">Bio</span><span class="ruby-operator">::</span><span class="ruby-constant">Graphics</span><span class="ruby-operator">::</span><span class="ruby-constant">Panel</span><span class="ruby-operator">::</span><span class="ruby-constant">Ruler</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword kw">self</span>)
+        <span class="ruby-identifier">ruler</span>.<span class="ruby-identifier">draw</span>(<span class="ruby-identifier">huge_panel_drawing</span>, <span class="ruby-identifier">vertical_offset</span>)
+        <span class="ruby-identifier">vertical_offset</span> <span class="ruby-operator">+=</span> <span class="ruby-identifier">ruler</span>.<span class="ruby-identifier">height</span>
+
+        <span class="ruby-comment cmt"># Add tracks</span>
+        <span class="ruby-ivar">@tracks</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">track</span><span class="ruby-operator">|</span>
+          <span class="ruby-identifier">track</span>.<span class="ruby-identifier">draw</span>(<span class="ruby-identifier">huge_panel_drawing</span>, <span class="ruby-identifier">vertical_offset</span>)
+          <span class="ruby-ivar">@number_of_times_bumped</span> <span class="ruby-operator">+=</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">number_of_times_bumped</span>
+          <span class="ruby-identifier">vertical_offset</span> <span class="ruby-operator">+=</span> ( <span class="ruby-identifier">track</span>.<span class="ruby-identifier">number_of_times_bumped</span><span class="ruby-operator">*</span>(<span class="ruby-constant">FEATURE_HEIGHT</span><span class="ruby-operator">+</span><span class="ruby-constant">FEATURE_V_DISTANCE</span><span class="ruby-operator">+</span><span class="ruby-value">5</span>)) <span class="ruby-operator">+</span> <span class="ruby-value">10</span> <span class="ruby-comment cmt"># '10' is for the header</span>
+        <span class="ruby-keyword kw">end</span>
+
+        <span class="ruby-comment cmt"># And create a smaller version of the panel</span>
+        <span class="ruby-identifier">height</span> = <span class="ruby-identifier">ruler</span>.<span class="ruby-identifier">height</span>
+        <span class="ruby-ivar">@number_of_times_bumped</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword kw">do</span>
+          <span class="ruby-identifier">height</span> <span class="ruby-operator">+=</span> <span class="ruby-value">20</span>
+        <span class="ruby-keyword kw">end</span>
+        <span class="ruby-ivar">@tracks</span>.<span class="ruby-identifier">length</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword kw">do</span> <span class="ruby-comment cmt">#To correct for the track headers</span>
+          <span class="ruby-identifier">height</span> <span class="ruby-operator">+=</span> <span class="ruby-value">10</span>
+        <span class="ruby-keyword kw">end</span>
+
+        <span class="ruby-identifier">resized_panel_drawing</span> = <span class="ruby-keyword kw">nil</span>
+        <span class="ruby-identifier">resized_panel_drawing</span> = <span class="ruby-constant">Cairo</span><span class="ruby-operator">::</span><span class="ruby-constant">ImageSurface</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">1</span>, <span class="ruby-ivar">@width</span>, <span class="ruby-identifier">height</span>)
+        <span class="ruby-identifier">resizing_context</span> = <span class="ruby-constant">Cairo</span><span class="ruby-operator">::</span><span class="ruby-constant">Context</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">resized_panel_drawing</span>)
+        <span class="ruby-identifier">resizing_context</span>.<span class="ruby-identifier">set_source</span>(<span class="ruby-identifier">huge_panel_drawing</span>, <span class="ruby-value">0</span>,<span class="ruby-value">0</span>)
+        <span class="ruby-identifier">resizing_context</span>.<span class="ruby-identifier">rectangle</span>(<span class="ruby-value">0</span>,<span class="ruby-value">0</span>,<span class="ruby-ivar">@width</span>, <span class="ruby-identifier">height</span>).<span class="ruby-identifier">fill</span>
+
+        <span class="ruby-comment cmt"># And print to file</span>
+        <span class="ruby-identifier">resized_panel_drawing</span>.<span class="ruby-identifier">write_to_png</span>(<span class="ruby-identifier">file_name</span>)
+        <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@clickable</span> <span class="ruby-comment cmt"># create png and map</span>
+          <span class="ruby-identifier">html_filename</span> = <span class="ruby-identifier">file_name</span>.<span class="ruby-identifier">sub</span>(<span class="ruby-regexp re">/\.[^.]+$/</span>, <span class="ruby-value str">'.html'</span>)
+          <span class="ruby-identifier">html</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">html_filename</span>,<span class="ruby-value str">'w'</span>)
+          <span class="ruby-identifier">html</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;&lt;html&gt;&quot;</span>
+          <span class="ruby-identifier">html</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;&lt;body&gt;&quot;</span>
+          <span class="ruby-identifier">html</span>.<span class="ruby-identifier">puts</span> <span class="ruby-ivar">@image_map</span>.<span class="ruby-identifier">to_s</span>
+          <span class="ruby-identifier">html</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;&lt;img border='1' src='&quot;</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">file_name</span> <span class="ruby-operator">+</span> <span class="ruby-value str">&quot;' usemap='#image_map' /&gt;&quot;</span>
+          <span class="ruby-identifier">html</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;&lt;/body&gt;&quot;</span>
+          <span class="ruby-identifier">html</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;&lt;/html&gt;&quot;</span>
+        <span class="ruby-keyword kw">end</span>
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>
