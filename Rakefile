@@ -12,16 +12,28 @@ require 'rake/rdoctask'
 
 task :default => :svn_commit
 
+file_list = Dir.glob("lib/**/*.rb")
+
 desc "Create RDoc documentation"
-task :rdoc do
+file 'doc/index.html' => file_list do
   puts "######## Creating RDoc documentation"
-  system "rdoc -m TUTORIAL TUTORIAL README.DEV lib/"
+  system "rdoc --title 'Bio::Graphics documentation' -m TUTORIAL TUTORIAL README.DEV lib/"
+end
+
+desc "An alias for creating the RDoc documentation"
+task :rdoc do
+  Rake::Task['doc/index.html'].invoke
 end
 
 desc "Create a new gem"
-task :create_gem do
+file 'bio-graphics-1.0.gem' => file_list do
   puts "######## Creating new gem"
   system "gem build bio-graphics.gemspec"
+end
+
+desc "An alias for creating the gem"
+task :create_gem do
+  Rake::Task['bio-graphics-1.0.gem'].invoke
 end
 
 desc "Check SVN status"
