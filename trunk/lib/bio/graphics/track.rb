@@ -35,15 +35,16 @@ module Bio
         #   If you try to draw a feature that is longer with triangles, an error
         #   will be shown.
         # *Returns*:: Bio::Graphics::Track object
-        def initialize(panel, name, feature_colour = [0,0,1], feature_glyph = 'generic')
+        def initialize(panel, name, colour = [0,0,1], glyph = 'generic')
           @panel = panel
           @name = name
-          @feature_colour = feature_colour
-          @feature_glyph = feature_glyph
+          @colour = colour
+          @glyph = glyph
           @features = Array.new
           @number_of_times_bumped = 0
+          @vertical_offset = 0
         end
-        attr_accessor :panel, :name, :feature_colour, :feature_glyph, :features, :number_of_times_bumped, :height
+        attr_accessor :panel, :name, :colour, :glyph, :features, :number_of_times_bumped, :height, :vertical_offset
 
         # Adds a Bio::Graphics::Panel::Track::Feature to this track. A track contains
         # features of the same type, e.g. (for sequence annotation:) genes,
@@ -91,7 +92,7 @@ module Bio
           # looking at, don't bother storing the stuff. I think this makes huge
           # speed and memory differences if you've got a chromosome with
           # thousands of features.
-          if stop <= panel.display_start or start >= panel.display_stop
+          if stop <= self.panel.display_start or start >= self.panel.display_stop
             return nil
           else #elsif start >= panel.display_start and stop <= panel.display_stop
             @features.push(Bio::Graphics::Panel::Track::Feature.new(self, name, location_object, link))
@@ -107,38 +108,30 @@ module Bio
         # ---
         # *Arguments*:
         # * _paneldrawing_ (required) :: the panel cairo object
-        # * _verticaloffset_ (required) :: number of pixels to offset the track downwards,
-        #   based on the height of other tracks that were drawn above it
         # *Returns*:: FIXME: I don't know
-        def draw(panel_drawing, vertical_offset)
+        def draw(panel_drawing)
           track_drawing = Cairo::Context.new(panel_drawing)
 
           # Draw thin line above title
           track_drawing.set_source_rgb(0.75,0.75,0.75)
-          track_drawing.move_to(0, vertical_offset)
-          track_drawing.line_to(panel.width, vertical_offset)
+          track_drawing.move_to(0, self.vertical_offset)
+          track_drawing.line_to(self.panel.width, self.vertical_offset)
           track_drawing.stroke
 
           # Draw track title
           track_drawing.set_source_rgb(0,0,0)
           track_drawing.select_font_face('Georgia',1,1)
           track_drawing.set_font_size(TRACK_HEADER_HEIGHT)
-          track_drawing.move_to(0,TRACK_HEADER_HEIGHT + vertical_offset + 10)
+          track_drawing.move_to(0,TRACK_HEADER_HEIGHT + self.vertical_offset + 10)
           track_drawing.show_text(self.name)
 
           # Draw the features
           grid = Hash.new
 
           track_drawing.save do
-            track_drawing.translate(0, vertical_offset + TRACK_HEADER_HEIGHT)
-            track_drawing.set_source_rgb(@feature_colour)
+            track_drawing.translate(0, self.vertical_offset + TRACK_HEADER_HEIGHT)
+            track_drawing.set_source_rgb(@colour)
 
-            # Now draw the features
-            # These are the basic steps:
-            #   A. find out what row to draw it on
-            #   B. see if we want to change the glyph type from directed to
-            #      undirected
-            #   C. draw the thing
             @features.each do |feature|
               # Don't even bother if the feature is not in the view
               if feature.stop <= self.panel.display_start or feature.start >= self.panel.display_stop
@@ -146,7 +139,11 @@ module Bio
               else
                 feature_drawn = false
                 
-                # A. find out what row to draw it on
+                # We've got to find out what row to draw the feature on. If two 
+                # features overlap, one of them has to be 'bumped' down. So we'll
+                # first try to draw a new feature at the top of the track. If
+                # it however would overlap with another one, we'll bump it down
+                # to the next row.
                 feature_range = (feature.start.floor..feature.stop.ceil)
                 row = 1
                 row_available = true
@@ -162,212 +159,15 @@ module Bio
                   if ! row_available
                     row += 1
                     row_available = true
-                  else
+                  else # We've found the place where to draw the feature.
                     if grid[row].nil?
                       grid[row] = Array.new
                     end
                     grid[row].push(feature_range)
 
-                    # B. see if we want to change the glyph type from directed to
-                    #    undirected
-                    # There are 2 cases where we don't want to draw arrows on
-                    # features:
-                    # (a) when the picture is really zoomed out, features are
-                    #     so small that the arrow itself is too big
-                    # (b) if a directed feature on the fw strand extends beyond
-                    #     the end of the picture, the arrow is out of view. This
-                    #     is the same as considering the feature as undirected.
-                    #     The same obviously goes for features on the reverse
-                    #     strand that extend beyond the left side of the image.
-                    #
-                    # (a) Zoomed out
-                    replace_directed_with_undirected = false
-                    if (feature.stop - feature.start).to_f/panel.rescale_factor.to_f < 2
-                      replace_directed_with_undirected = true
-                    end
-                    # (b) Extending beyond borders picture
-                    if ( feature.chopped_at_stop and feature.strand = 1 ) or ( feature.chopped_at_start and feature.strand = -1 )
-                      replace_directed_with_undirected = true
-                    end
-
-                    local_feature_glyph = nil
-                    if feature_glyph == 'directed_generic' and replace_directed_with_undirected
-                      local_feature_glyph = 'generic'
-                    elsif feature_glyph == 'directed_spliced' and replace_directed_with_undirected
-                      local_feature_glyph = 'spliced'
-                    else
-                      local_feature_glyph = feature_glyph
-                    end
-  
-                    # C. And draw the thing.
-                    top_pixel_of_feature = FEATURE_V_DISTANCE + (FEATURE_HEIGHT+FEATURE_V_DISTANCE)*row
-                    bottom_pixel_of_feature = top_pixel_of_feature + FEATURE_HEIGHT
-
-                    case local_feature_glyph
-                      # triangles are typical for features which have a 1 bp position (start == stop)
-                      when 'triangle'
-                        raise "Start and stop are not the same (necessary if you want triangle glyphs)" if feature.start != feature.stop
-  
-                        # Need to get this for the imagemap
-                        left_pixel_of_feature = feature.pixel_range_collection[0].start_pixel - 3
-                        right_pixel_of_feature = feature.pixel_range_collection[0].stop_pixel + 3
-                        track_drawing.move_to(left_pixel_of_feature + 3, top_pixel_of_feature)
-                        track_drawing.rel_line_to(-3, FEATURE_HEIGHT)
-                        track_drawing.rel_line_to(6, 0)
-                        track_drawing.close_path.fill
-  
-                      when 'directed_generic'
-                        # Need to get this for the imagemap
-                        left_pixel_of_feature = feature.pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
-                        right_pixel_of_feature = feature.pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
-                        if feature.strand == -1 # Reverse strand
-                          # Draw main box
-                          track_drawing.rectangle(left_pixel_of_feature+FEATURE_ARROW_LENGTH, top_pixel_of_feature, right_pixel_of_feature - left_pixel_of_feature - FEATURE_ARROW_LENGTH, FEATURE_HEIGHT).fill
-  
-                          # Draw arrow
-                          track_drawing.move_to(left_pixel_of_feature+FEATURE_ARROW_LENGTH, top_pixel_of_feature)
-                          track_drawing.rel_line_to(-FEATURE_ARROW_LENGTH, FEATURE_HEIGHT/2)
-                          track_drawing.rel_line_to(FEATURE_ARROW_LENGTH, FEATURE_HEIGHT/2)
-                          track_drawing.close_path.fill
-  
-                        else #default is forward strand
-                          track_drawing.rectangle(left_pixel_of_feature, top_pixel_of_feature, right_pixel_of_feature - left_pixel_of_feature - FEATURE_ARROW_LENGTH, FEATURE_HEIGHT).fill
-                          track_drawing.move_to(right_pixel_of_feature - FEATURE_ARROW_LENGTH, top_pixel_of_feature)
-                          track_drawing.rel_line_to(FEATURE_ARROW_LENGTH, FEATURE_HEIGHT/2)
-                          track_drawing.rel_line_to(-FEATURE_ARROW_LENGTH, FEATURE_HEIGHT/2)
-                          track_drawing.close_path.fill
-                        end
-                      when 'spliced'
-                        gap_starts = Array.new
-                        gap_stops = Array.new
-  
-                        # Need to get this for the imagemap
-                        left_pixel_of_feature = feature.pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
-                        right_pixel_of_feature = feature.pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
-  
-                        # First draw the parts
-                        feature.pixel_range_collection.sort_by{|pr| pr.start_pixel}.each do |pr|
-                          track_drawing.rectangle(pr.start_pixel, top_pixel_of_feature, (pr.stop_pixel - pr.start_pixel), FEATURE_HEIGHT).fill
-                          gap_starts.push(pr.stop_pixel)
-                          gap_stops.push(pr.start_pixel)
-                        end
-  
-                        # And then draw the connections in the gaps
-                        # Start with removing the very first start and the very last stop.
-                        gap_starts.sort!.pop
-                        gap_stops.sort!.shift
-  
-                        gap_starts.length.times do |gap_number|
-                          from = gap_starts[gap_number].to_f
-                          to = gap_stops[gap_number].to_f
-                          middle = from + ((to - from)/2)
-                          track_drawing.move_to(from, top_pixel_of_feature+2)
-                          track_drawing.line_to(middle, top_pixel_of_feature+7)
-                          track_drawing.line_to(to, top_pixel_of_feature+2)
-                          track_drawing.stroke
-                        end
-                        
-                        if feature.hidden_subfeatures_at_stop
-                          from = feature.pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
-                          to = panel.width
-                          track_drawing.move_to(from, top_pixel_of_feature+5)
-                          track_drawing.line_to(to, top_pixel_of_feature+5)
-                          track_drawing.stroke
-                        end
-                        
-                        if feature.hidden_subfeatures_at_start
-                          from = 1
-                          to = feature.pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
-                          track_drawing.move_to(from, top_pixel_of_feature+5)
-                          track_drawing.line_to(to, top_pixel_of_feature+5)
-                          track_drawing.stroke
-                        end
-  
-                      when 'directed_spliced'
-                        gap_starts = Array.new
-                        gap_stops = Array.new
-                        # First draw the parts
-                        locations = feature.location.sort_by{|l| l.from}
-  
-                        # Need to get this for the imagemap
-                        left_pixel_of_feature = feature.pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
-                        right_pixel_of_feature = feature.pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
-  
-                        #   Start with the one with the arrow
-                        pixel_ranges = feature.pixel_range_collection.sort_by{|pr| pr.start_pixel}
-                        range_with_arrow = nil
-                        if feature.strand == -1 # reverse strand => box with arrow is first one
-                          range_with_arrow = pixel_ranges.shift
-                          track_drawing.rectangle((range_with_arrow.start_pixel)+FEATURE_ARROW_LENGTH, top_pixel_of_feature, range_with_arrow.stop_pixel - range_with_arrow.start_pixel, FEATURE_HEIGHT).fill
-                          track_drawing.move_to(range_with_arrow.start_pixel+FEATURE_ARROW_LENGTH, top_pixel_of_feature)
-                          track_drawing.rel_line_to(-FEATURE_ARROW_LENGTH, FEATURE_HEIGHT/2)
-                          track_drawing.rel_line_to(FEATURE_ARROW_LENGTH, FEATURE_HEIGHT/2)
-                          track_drawing.close_path.fill
-                        else # forward strand => box with arrow is last one
-                          range_with_arrow = pixel_ranges.pop
-                          track_drawing.rectangle(range_with_arrow.start_pixel-FEATURE_ARROW_LENGTH, top_pixel_of_feature, range_with_arrow.stop_pixel - range_with_arrow.start_pixel, FEATURE_HEIGHT).fill
-                          track_drawing.move_to(range_with_arrow.stop_pixel-FEATURE_ARROW_LENGTH, top_pixel_of_feature)
-                          track_drawing.rel_line_to(FEATURE_ARROW_LENGTH, FEATURE_HEIGHT/2)
-                          track_drawing.rel_line_to(-FEATURE_ARROW_LENGTH, FEATURE_HEIGHT/2)
-                        end
-                        gap_starts.push(range_with_arrow.stop_pixel)
-                        gap_stops.push(range_with_arrow.start_pixel)
-  
-                        #   And then add the others
-                        pixel_ranges.each do |range|
-                          track_drawing.rectangle(range.start_pixel, top_pixel_of_feature, range.stop_pixel - range.start_pixel, FEATURE_HEIGHT).fill
-                          gap_starts.push(range.stop_pixel)
-                          gap_stops.push(range.start_pixel)
-                        end
-  
-                        # And then draw the connections in the gaps
-                        # Start with removing the very first start and the very last stop.
-                        gap_starts.sort!.pop
-                        gap_stops.sort!.shift
-  
-                        gap_starts.length.times do |gap_number|
-                          from = gap_starts[gap_number].to_f
-                          to = gap_stops[gap_number].to_f
-                          middle = from + ((to - from)/2)
-                          track_drawing.move_to(from, top_pixel_of_feature+2)
-                          track_drawing.line_to(middle, top_pixel_of_feature+7)
-                          track_drawing.line_to(to, top_pixel_of_feature+2)
-                          track_drawing.stroke
-                        end
-
-                        if feature.hidden_subfeatures_at_stop
-                          from = feature.pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
-                          to = panel.width
-                          track_drawing.move_to(from, top_pixel_of_feature+5)
-                          track_drawing.line_to(to, top_pixel_of_feature+5)
-                          track_drawing.stroke
-                        end
-                        
-                        if feature.hidden_subfeatures_at_start
-                          from = 1
-                          to = feature.pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
-                          track_drawing.move_to(from, top_pixel_of_feature+5)
-                          track_drawing.line_to(to, top_pixel_of_feature+5)
-                          track_drawing.stroke
-                        end
-
-                      else #treat as 'generic'
-                        left_pixel_of_feature, right_pixel_of_feature = feature.pixel_range_collection[0].start_pixel, feature.pixel_range_collection[0].stop_pixel
-                        track_drawing.rectangle(left_pixel_of_feature, top_pixel_of_feature, (right_pixel_of_feature - left_pixel_of_feature), FEATURE_HEIGHT).fill
-                    end
-  
-                    # And add the region to the image map
-                    if panel.clickable
-                      # Comment: we have to add the vertical_offset and TRACK_HEADER_HEIGHT!
-                      panel.image_map.elements.push(ImageMap::ImageMapElement.new(left_pixel_of_feature,
-                                                                                  top_pixel_of_feature + vertical_offset + TRACK_HEADER_HEIGHT,
-                                                                                  right_pixel_of_feature,
-                                                                                  bottom_pixel_of_feature + vertical_offset + TRACK_HEADER_HEIGHT,
-                                                                                  feature.link
-                                                                                  ))
-                    end
-  
-  
+                    # And draw the thing
+                    feature.draw(track_drawing, row)
+                      
                     feature_drawn = true
                   end
                 end

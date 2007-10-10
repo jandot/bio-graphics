@@ -164,7 +164,8 @@ module Bio
 
         # Add tracks
         @tracks.each do |track|
-          track.draw(huge_panel_drawing, vertical_offset)
+          track.vertical_offset = vertical_offset
+          track.draw(huge_panel_drawing)
           @number_of_times_bumped += track.number_of_times_bumped
           vertical_offset += ( track.number_of_times_bumped*(FEATURE_HEIGHT+FEATURE_V_DISTANCE+5)) + 10 # '10' is for the header
         end

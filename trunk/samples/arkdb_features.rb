@@ -10,10 +10,10 @@ scaffold_track = my_panel.add_track('scaffold')
 marker_track = my_panel.add_track('marker')
 clone_track = my_panel.add_track('clone')
 
-scaffold_track.feature_colour = [1,0,0]
-marker_track.feature_colour = [0,1,0]
-marker_track.feature_glyph = 'triangle'
-clone_track.feature_colour = [0,0,1]
+scaffold_track.colour = [1,0,0]
+marker_track.colour = [0,1,0]
+marker_track.glyph = 'triangle'
+clone_track.colour = [0,0,1]
 
 # Add data to tracks
 File.open('data.txt').each do |line|

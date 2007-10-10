@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="../../../../.././rdoc-style.css" type="text/css" media="screen" />
 </head>
 <body class="standalone-code">
-  <pre><span class="ruby-comment cmt"># File lib/bio/graphics/track.rb, line 76</span>
+  <pre><span class="ruby-comment cmt"># File lib/bio/graphics/track.rb, line 77</span>
         <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">add_feature</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">location_string</span> = <span class="ruby-value str">'1..'</span> <span class="ruby-operator">+</span> <span class="ruby-ivar">@panel</span>.<span class="ruby-identifier">length</span>.<span class="ruby-identifier">to_s</span>, <span class="ruby-identifier">link</span> = <span class="ruby-keyword kw">nil</span>)
           <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">link</span> <span class="ruby-operator">==</span> <span class="ruby-value str">''</span>
             <span class="ruby-identifier">link</span> = <span class="ruby-keyword kw">nil</span>
@@ -29,7 +29,7 @@
           <span class="ruby-comment cmt"># looking at, don't bother storing the stuff. I think this makes huge</span>
           <span class="ruby-comment cmt"># speed and memory differences if you've got a chromosome with</span>
           <span class="ruby-comment cmt"># thousands of features.</span>
-          <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">stop</span> <span class="ruby-operator">&lt;=</span> <span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_start</span> <span class="ruby-keyword kw">or</span> <span class="ruby-identifier">start</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_stop</span>
+          <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">stop</span> <span class="ruby-operator">&lt;=</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_start</span> <span class="ruby-keyword kw">or</span> <span class="ruby-identifier">start</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_stop</span>
             <span class="ruby-keyword kw">return</span> <span class="ruby-keyword kw">nil</span>
           <span class="ruby-keyword kw">else</span> <span class="ruby-comment cmt">#elsif start &gt;= panel.display_start and stop &lt;= panel.display_stop</span>
             <span class="ruby-ivar">@features</span>.<span class="ruby-identifier">push</span>(<span class="ruby-constant">Bio</span><span class="ruby-operator">::</span><span class="ruby-constant">Graphics</span><span class="ruby-operator">::</span><span class="ruby-constant">Panel</span><span class="ruby-operator">::</span><span class="ruby-constant">Track</span><span class="ruby-operator">::</span><span class="ruby-constant">Feature</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword kw">self</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">location_object</span>, <span class="ruby-identifier">link</span>))

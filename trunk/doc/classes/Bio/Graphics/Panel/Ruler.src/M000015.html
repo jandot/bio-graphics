@@ -5,55 +5,24 @@
 
 <html>
 <head>
-  <title>draw (Bio::Graphics::Panel::Ruler)</title>
+  <title>calculate_tick_distance (Bio::Graphics::Panel::Ruler)</title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
   <link rel="stylesheet" href="../../../../.././rdoc-style.css" type="text/css" media="screen" />
 </head>
 <body class="standalone-code">
-  <pre><span class="ruby-comment cmt"># File lib/bio/graphics/ruler.rb, line 49</span>
-        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">draw</span>(<span class="ruby-identifier">panel_drawing</span>, <span class="ruby-identifier">vertical_offset</span>)
-          <span class="ruby-identifier">ruler_drawing</span> = <span class="ruby-constant">Cairo</span><span class="ruby-operator">::</span><span class="ruby-constant">Context</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">panel_drawing</span>)
-
-          <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">calculate_tick_distance</span>
-
-          <span class="ruby-comment cmt"># Draw line</span>
-          <span class="ruby-identifier">ruler_drawing</span>.<span class="ruby-identifier">move_to</span>(<span class="ruby-value">0</span>,<span class="ruby-value">10</span>)
-          <span class="ruby-identifier">ruler_drawing</span>.<span class="ruby-identifier">line_to</span>(<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">width</span>, <span class="ruby-value">10</span>)
-          <span class="ruby-identifier">ruler_drawing</span>.<span class="ruby-identifier">stroke</span>
-
-          <span class="ruby-comment cmt"># Draw ticks</span>
-          <span class="ruby-comment cmt">#  * Find position of first tick.</span>
-          <span class="ruby-comment cmt">#    Most of the time, we don't want the first tick on the very first</span>
-          <span class="ruby-comment cmt">#    basepair of the view. Suppose that would be position 333 in the</span>
-          <span class="ruby-comment cmt">#    sequence. Then the numbers under the major tickmarks would be:</span>
-          <span class="ruby-comment cmt">#    343, 353, 363, 373 and so on. Instead, we want 350, 360, 370, 380.</span>
-          <span class="ruby-comment cmt">#    So we want to find the position of the first tick.</span>
-          <span class="ruby-identifier">first_tick_position</span> = <span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_start</span>
-          <span class="ruby-keyword kw">while</span> <span class="ruby-identifier">first_tick_position</span>.<span class="ruby-identifier">modulo</span>(<span class="ruby-identifier">minor_tick_distance</span>) <span class="ruby-operator">!=</span> <span class="ruby-value">0</span>
-            <span class="ruby-identifier">first_tick_position</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span>
-          <span class="ruby-keyword kw">end</span>
-          
-          <span class="ruby-comment cmt">#  * And start drawing the rest.</span>
-          <span class="ruby-identifier">first_tick_position</span>.<span class="ruby-identifier">step</span>(<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_stop</span>, <span class="ruby-identifier">minor_tick_distance</span>) <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">tick</span><span class="ruby-operator">|</span>
-            <span class="ruby-identifier">tick_pixel_position</span> = (<span class="ruby-identifier">tick</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_start</span>) <span class="ruby-operator">/</span> <span class="ruby-identifier">panel</span>.<span class="ruby-identifier">rescale_factor</span>
-            <span class="ruby-identifier">ruler_drawing</span>.<span class="ruby-identifier">move_to</span>(<span class="ruby-identifier">tick_pixel_position</span>.<span class="ruby-identifier">floor</span>, <span class="ruby-value">5</span>)
-            <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">tick</span>.<span class="ruby-identifier">modulo</span>(<span class="ruby-identifier">major_tick_distance</span>) <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
-              <span class="ruby-identifier">ruler_drawing</span>.<span class="ruby-identifier">rel_line_to</span>(<span class="ruby-value">0</span>, <span class="ruby-value">15</span>)
-              
-              <span class="ruby-comment cmt"># Draw tick number</span>
-              <span class="ruby-identifier">ruler_drawing</span>.<span class="ruby-identifier">select_font_face</span>(<span class="ruby-value str">'Georgia'</span>, <span class="ruby-value">1</span>, <span class="ruby-value">1</span>)
-              <span class="ruby-identifier">ruler_drawing</span>.<span class="ruby-identifier">set_font_size</span>(<span class="ruby-constant">RULER_TEXT_HEIGHT</span>)
-              <span class="ruby-identifier">ruler_drawing</span>.<span class="ruby-identifier">move_to</span>(<span class="ruby-identifier">tick_pixel_position</span>.<span class="ruby-identifier">floor</span>, <span class="ruby-value">20</span> <span class="ruby-operator">+</span> <span class="ruby-constant">RULER_TEXT_HEIGHT</span>)
-              <span class="ruby-identifier">ruler_drawing</span>.<span class="ruby-identifier">show_text</span>(<span class="ruby-identifier">tick</span>.<span class="ruby-identifier">to_i</span>.<span class="ruby-identifier">to_s</span>)
+  <pre><span class="ruby-comment cmt"># File lib/bio/graphics/ruler.rb, line 35</span>
+        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">calculate_tick_distance</span>
+          <span class="ruby-identifier">min_tick_distance_requirement_met</span> = <span class="ruby-keyword kw">false</span>
+          <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">minor_tick_distance</span> = <span class="ruby-value">1</span> <span class="ruby-comment cmt"># in basepairs.</span>
+          <span class="ruby-keyword kw">while</span> <span class="ruby-operator">!</span> <span class="ruby-identifier">min_tick_distance_requirement_met</span>
+            <span class="ruby-keyword kw">if</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">minor_tick_distance</span><span class="ruby-operator">/</span><span class="ruby-identifier">panel</span>.<span class="ruby-identifier">rescale_factor</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-constant">RULER_MIN_DISTANCE_TICKS_PIXEL</span>
+              <span class="ruby-identifier">min_tick_distance_requirement_met</span> = <span class="ruby-keyword kw">true</span>
             <span class="ruby-keyword kw">else</span>
-              <span class="ruby-identifier">ruler_drawing</span>.<span class="ruby-identifier">rel_line_to</span>(<span class="ruby-value">0</span>, <span class="ruby-value">5</span>)
-              
+              <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">minor_tick_distance</span> = <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">minor_tick_distance</span><span class="ruby-operator">*</span><span class="ruby-value">5</span>
             <span class="ruby-keyword kw">end</span>
-            <span class="ruby-identifier">ruler_drawing</span>.<span class="ruby-identifier">stroke</span>
           <span class="ruby-keyword kw">end</span>
-          
 
-          <span class="ruby-ivar">@height</span> = <span class="ruby-value">25</span> <span class="ruby-operator">+</span> <span class="ruby-constant">RULER_TEXT_HEIGHT</span>
+          <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">major_tick_distance</span> = <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">minor_tick_distance</span> <span class="ruby-operator">*</span> <span class="ruby-value">10</span>
         <span class="ruby-keyword kw">end</span></pre>
 </body>
 </html>
