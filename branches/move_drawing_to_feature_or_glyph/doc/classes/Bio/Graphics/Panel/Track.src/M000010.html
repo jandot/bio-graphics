@@ -1,285 +1,0 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE html 
-     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html>
-<head>
-  <title>draw (Bio::Graphics::Panel::Track)</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-  <link rel="stylesheet" href="../../../../.././rdoc-style.css" type="text/css" media="screen" />
-</head>
-<body class="standalone-code">
-  <pre><span class="ruby-comment cmt"># File lib/bio/graphics/track.rb, line 113</span>
-        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">draw</span>(<span class="ruby-identifier">panel_drawing</span>, <span class="ruby-identifier">vertical_offset</span>)
-          <span class="ruby-identifier">track_drawing</span> = <span class="ruby-constant">Cairo</span><span class="ruby-operator">::</span><span class="ruby-constant">Context</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">panel_drawing</span>)
-
-          <span class="ruby-comment cmt"># Draw thin line above title</span>
-          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">set_source_rgb</span>(<span class="ruby-value">0</span><span class="ruby-value">.75</span>,<span class="ruby-value">0</span><span class="ruby-value">.75</span>,<span class="ruby-value">0</span><span class="ruby-value">.75</span>)
-          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">move_to</span>(<span class="ruby-value">0</span>, <span class="ruby-identifier">vertical_offset</span>)
-          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">line_to</span>(<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">width</span>, <span class="ruby-identifier">vertical_offset</span>)
-          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">stroke</span>
-
-          <span class="ruby-comment cmt"># Draw track title</span>
-          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">set_source_rgb</span>(<span class="ruby-value">0</span>,<span class="ruby-value">0</span>,<span class="ruby-value">0</span>)
-          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">select_font_face</span>(<span class="ruby-value str">'Georgia'</span>,<span class="ruby-value">1</span>,<span class="ruby-value">1</span>)
-          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">set_font_size</span>(<span class="ruby-constant">TRACK_HEADER_HEIGHT</span>)
-          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">move_to</span>(<span class="ruby-value">0</span>,<span class="ruby-constant">TRACK_HEADER_HEIGHT</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">vertical_offset</span> <span class="ruby-operator">+</span> <span class="ruby-value">10</span>)
-          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">show_text</span>(<span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">name</span>)
-
-          <span class="ruby-comment cmt"># Draw the features</span>
-          <span class="ruby-identifier">grid</span> = <span class="ruby-constant">Hash</span>.<span class="ruby-identifier">new</span>
-
-          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">save</span> <span class="ruby-keyword kw">do</span>
-            <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">translate</span>(<span class="ruby-value">0</span>, <span class="ruby-identifier">vertical_offset</span> <span class="ruby-operator">+</span> <span class="ruby-constant">TRACK_HEADER_HEIGHT</span>)
-            <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">set_source_rgb</span>(<span class="ruby-ivar">@feature_colour</span>)
-
-            <span class="ruby-comment cmt"># Now draw the features</span>
-            <span class="ruby-comment cmt"># These are the basic steps:</span>
-            <span class="ruby-comment cmt">#   A. find out what row to draw it on</span>
-            <span class="ruby-comment cmt">#   B. see if we want to change the glyph type from directed to</span>
-            <span class="ruby-comment cmt">#      undirected</span>
-            <span class="ruby-comment cmt">#   C. draw the thing</span>
-            <span class="ruby-ivar">@features</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">feature</span><span class="ruby-operator">|</span>
-              <span class="ruby-comment cmt"># Don't even bother if the feature is not in the view</span>
-              <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">stop</span> <span class="ruby-operator">&lt;=</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_start</span> <span class="ruby-keyword kw">or</span> <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">start</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_stop</span>
-                <span class="ruby-keyword kw">next</span>
-              <span class="ruby-keyword kw">else</span>
-                <span class="ruby-identifier">feature_drawn</span> = <span class="ruby-keyword kw">false</span>
-                
-                <span class="ruby-comment cmt"># A. find out what row to draw it on</span>
-                <span class="ruby-identifier">feature_range</span> = (<span class="ruby-identifier">feature</span>.<span class="ruby-identifier">start</span>.<span class="ruby-identifier">floor</span><span class="ruby-operator">..</span><span class="ruby-identifier">feature</span>.<span class="ruby-identifier">stop</span>.<span class="ruby-identifier">ceil</span>)
-                <span class="ruby-identifier">row</span> = <span class="ruby-value">1</span>
-                <span class="ruby-identifier">row_available</span> = <span class="ruby-keyword kw">true</span>
-                <span class="ruby-keyword kw">until</span> <span class="ruby-identifier">feature_drawn</span>
-                  <span class="ruby-keyword kw">if</span> <span class="ruby-operator">!</span> <span class="ruby-identifier">grid</span>[<span class="ruby-identifier">row</span>].<span class="ruby-identifier">nil?</span>
-                    <span class="ruby-identifier">grid</span>[<span class="ruby-identifier">row</span>].<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">covered</span><span class="ruby-operator">|</span>
-                      <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">feature_range</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">covered</span>.<span class="ruby-identifier">first</span>) <span class="ruby-keyword kw">or</span> <span class="ruby-identifier">covered</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">feature_range</span>.<span class="ruby-identifier">first</span>)
-                        <span class="ruby-identifier">row_available</span> = <span class="ruby-keyword kw">false</span>
-                      <span class="ruby-keyword kw">end</span>
-                    <span class="ruby-keyword kw">end</span>
-                  <span class="ruby-keyword kw">end</span>
-  
-                  <span class="ruby-keyword kw">if</span> <span class="ruby-operator">!</span> <span class="ruby-identifier">row_available</span>
-                    <span class="ruby-identifier">row</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span>
-                    <span class="ruby-identifier">row_available</span> = <span class="ruby-keyword kw">true</span>
-                  <span class="ruby-keyword kw">else</span>
-                    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">grid</span>[<span class="ruby-identifier">row</span>].<span class="ruby-identifier">nil?</span>
-                      <span class="ruby-identifier">grid</span>[<span class="ruby-identifier">row</span>] = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>
-                    <span class="ruby-keyword kw">end</span>
-                    <span class="ruby-identifier">grid</span>[<span class="ruby-identifier">row</span>].<span class="ruby-identifier">push</span>(<span class="ruby-identifier">feature_range</span>)
-
-                    <span class="ruby-comment cmt"># B. see if we want to change the glyph type from directed to</span>
-                    <span class="ruby-comment cmt">#    undirected</span>
-                    <span class="ruby-comment cmt"># There are 2 cases where we don't want to draw arrows on</span>
-                    <span class="ruby-comment cmt"># features:</span>
-                    <span class="ruby-comment cmt"># (a) when the picture is really zoomed out, features are</span>
-                    <span class="ruby-comment cmt">#     so small that the arrow itself is too big</span>
-                    <span class="ruby-comment cmt"># (b) if a directed feature on the fw strand extends beyond</span>
-                    <span class="ruby-comment cmt">#     the end of the picture, the arrow is out of view. This</span>
-                    <span class="ruby-comment cmt">#     is the same as considering the feature as undirected.</span>
-                    <span class="ruby-comment cmt">#     The same obviously goes for features on the reverse</span>
-                    <span class="ruby-comment cmt">#     strand that extend beyond the left side of the image.</span>
-                    <span class="ruby-comment cmt">#</span>
-                    <span class="ruby-comment cmt"># (a) Zoomed out</span>
-                    <span class="ruby-identifier">replace_directed_with_undirected</span> = <span class="ruby-keyword kw">false</span>
-                    <span class="ruby-keyword kw">if</span> (<span class="ruby-identifier">feature</span>.<span class="ruby-identifier">stop</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">start</span>).<span class="ruby-identifier">to_f</span><span class="ruby-operator">/</span><span class="ruby-identifier">panel</span>.<span class="ruby-identifier">rescale_factor</span>.<span class="ruby-identifier">to_f</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">2</span>
-                      <span class="ruby-identifier">replace_directed_with_undirected</span> = <span class="ruby-keyword kw">true</span>
-                    <span class="ruby-keyword kw">end</span>
-                    <span class="ruby-comment cmt"># (b) Extending beyond borders picture</span>
-                    <span class="ruby-keyword kw">if</span> ( <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">chopped_at_stop</span> <span class="ruby-keyword kw">and</span> <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">strand</span> = <span class="ruby-value">1</span> ) <span class="ruby-keyword kw">or</span> ( <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">chopped_at_start</span> <span class="ruby-keyword kw">and</span> <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">strand</span> = <span class="ruby-value">-1</span> )
-                      <span class="ruby-identifier">replace_directed_with_undirected</span> = <span class="ruby-keyword kw">true</span>
-                    <span class="ruby-keyword kw">end</span>
-
-                    <span class="ruby-identifier">local_feature_glyph</span> = <span class="ruby-keyword kw">nil</span>
-                    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">feature_glyph</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'directed_generic'</span> <span class="ruby-keyword kw">and</span> <span class="ruby-identifier">replace_directed_with_undirected</span>
-                      <span class="ruby-identifier">local_feature_glyph</span> = <span class="ruby-value str">'generic'</span>
-                    <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">feature_glyph</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'directed_spliced'</span> <span class="ruby-keyword kw">and</span> <span class="ruby-identifier">replace_directed_with_undirected</span>
-                      <span class="ruby-identifier">local_feature_glyph</span> = <span class="ruby-value str">'spliced'</span>
-                    <span class="ruby-keyword kw">else</span>
-                      <span class="ruby-identifier">local_feature_glyph</span> = <span class="ruby-identifier">feature_glyph</span>
-                    <span class="ruby-keyword kw">end</span>
-  
-                    <span class="ruby-comment cmt"># C. And draw the thing.</span>
-                    <span class="ruby-identifier">top_pixel_of_feature</span> = <span class="ruby-constant">FEATURE_V_DISTANCE</span> <span class="ruby-operator">+</span> (<span class="ruby-constant">FEATURE_HEIGHT</span><span class="ruby-operator">+</span><span class="ruby-constant">FEATURE_V_DISTANCE</span>)<span class="ruby-operator">*</span><span class="ruby-identifier">row</span>
-                    <span class="ruby-identifier">bottom_pixel_of_feature</span> = <span class="ruby-identifier">top_pixel_of_feature</span> <span class="ruby-operator">+</span> <span class="ruby-constant">FEATURE_HEIGHT</span>
-
-                    <span class="ruby-keyword kw">case</span> <span class="ruby-identifier">local_feature_glyph</span>
-                      <span class="ruby-comment cmt"># triangles are typical for features which have a 1 bp position (start == stop)</span>
-                      <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'triangle'</span>
-                        <span class="ruby-identifier">raise</span> <span class="ruby-value str">&quot;Start and stop are not the same (necessary if you want triangle glyphs)&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">start</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">stop</span>
-  
-                        <span class="ruby-comment cmt"># Need to get this for the imagemap</span>
-                        <span class="ruby-identifier">left_pixel_of_feature</span> = <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">pixel_range_collection</span>[<span class="ruby-value">0</span>].<span class="ruby-identifier">start_pixel</span> <span class="ruby-operator">-</span> <span class="ruby-value">3</span>
-                        <span class="ruby-identifier">right_pixel_of_feature</span> = <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">pixel_range_collection</span>[<span class="ruby-value">0</span>].<span class="ruby-identifier">stop_pixel</span> <span class="ruby-operator">+</span> <span class="ruby-value">3</span>
-                        <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">move_to</span>(<span class="ruby-identifier">left_pixel_of_feature</span> <span class="ruby-operator">+</span> <span class="ruby-value">3</span>, <span class="ruby-identifier">top_pixel_of_feature</span>)
-                        <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">rel_line_to</span>(<span class="ruby-value">-3</span>, <span class="ruby-constant">FEATURE_HEIGHT</span>)
-                        <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">rel_line_to</span>(<span class="ruby-value">6</span>, <span class="ruby-value">0</span>)
-                        <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">close_path</span>.<span class="ruby-identifier">fill</span>
-  
-                      <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'directed_generic'</span>
-                        <span class="ruby-comment cmt"># Need to get this for the imagemap</span>
-                        <span class="ruby-identifier">left_pixel_of_feature</span> = <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">pixel_range_collection</span>.<span class="ruby-identifier">sort_by</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">pr</span><span class="ruby-operator">|</span> <span class="ruby-identifier">pr</span>.<span class="ruby-identifier">start_pixel</span>}[<span class="ruby-value">0</span>].<span class="ruby-identifier">start_pixel</span>
-                        <span class="ruby-identifier">right_pixel_of_feature</span> = <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">pixel_range_collection</span>.<span class="ruby-identifier">sort_by</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">pr</span><span class="ruby-operator">|</span> <span class="ruby-identifier">pr</span>.<span class="ruby-identifier">start_pixel</span>}[<span class="ruby-value">-1</span>].<span class="ruby-identifier">stop_pixel</span>
-                        <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">strand</span> <span class="ruby-operator">==</span> <span class="ruby-value">-1</span> <span class="ruby-comment cmt"># Reverse strand</span>
-                          <span class="ruby-comment cmt"># Draw main box</span>
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">rectangle</span>(<span class="ruby-identifier">left_pixel_of_feature</span><span class="ruby-operator">+</span><span class="ruby-constant">FEATURE_ARROW_LENGTH</span>, <span class="ruby-identifier">top_pixel_of_feature</span>, <span class="ruby-identifier">right_pixel_of_feature</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">left_pixel_of_feature</span> <span class="ruby-operator">-</span> <span class="ruby-constant">FEATURE_ARROW_LENGTH</span>, <span class="ruby-constant">FEATURE_HEIGHT</span>).<span class="ruby-identifier">fill</span>
-  
-                          <span class="ruby-comment cmt"># Draw arrow</span>
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">move_to</span>(<span class="ruby-identifier">left_pixel_of_feature</span><span class="ruby-operator">+</span><span class="ruby-constant">FEATURE_ARROW_LENGTH</span>, <span class="ruby-identifier">top_pixel_of_feature</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">rel_line_to</span>(<span class="ruby-operator">-</span><span class="ruby-constant">FEATURE_ARROW_LENGTH</span>, <span class="ruby-constant">FEATURE_HEIGHT</span><span class="ruby-operator">/</span><span class="ruby-value">2</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">rel_line_to</span>(<span class="ruby-constant">FEATURE_ARROW_LENGTH</span>, <span class="ruby-constant">FEATURE_HEIGHT</span><span class="ruby-operator">/</span><span class="ruby-value">2</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">close_path</span>.<span class="ruby-identifier">fill</span>
-  
-                        <span class="ruby-keyword kw">else</span> <span class="ruby-comment cmt">#default is forward strand</span>
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">rectangle</span>(<span class="ruby-identifier">left_pixel_of_feature</span>, <span class="ruby-identifier">top_pixel_of_feature</span>, <span class="ruby-identifier">right_pixel_of_feature</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">left_pixel_of_feature</span> <span class="ruby-operator">-</span> <span class="ruby-constant">FEATURE_ARROW_LENGTH</span>, <span class="ruby-constant">FEATURE_HEIGHT</span>).<span class="ruby-identifier">fill</span>
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">move_to</span>(<span class="ruby-identifier">right_pixel_of_feature</span> <span class="ruby-operator">-</span> <span class="ruby-constant">FEATURE_ARROW_LENGTH</span>, <span class="ruby-identifier">top_pixel_of_feature</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">rel_line_to</span>(<span class="ruby-constant">FEATURE_ARROW_LENGTH</span>, <span class="ruby-constant">FEATURE_HEIGHT</span><span class="ruby-operator">/</span><span class="ruby-value">2</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">rel_line_to</span>(<span class="ruby-operator">-</span><span class="ruby-constant">FEATURE_ARROW_LENGTH</span>, <span class="ruby-constant">FEATURE_HEIGHT</span><span class="ruby-operator">/</span><span class="ruby-value">2</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">close_path</span>.<span class="ruby-identifier">fill</span>
-                        <span class="ruby-keyword kw">end</span>
-                      <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'spliced'</span>
-                        <span class="ruby-identifier">gap_starts</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>
-                        <span class="ruby-identifier">gap_stops</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>
-  
-                        <span class="ruby-comment cmt"># Need to get this for the imagemap</span>
-                        <span class="ruby-identifier">left_pixel_of_feature</span> = <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">pixel_range_collection</span>.<span class="ruby-identifier">sort_by</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">pr</span><span class="ruby-operator">|</span> <span class="ruby-identifier">pr</span>.<span class="ruby-identifier">start_pixel</span>}[<span class="ruby-value">0</span>].<span class="ruby-identifier">start_pixel</span>
-                        <span class="ruby-identifier">right_pixel_of_feature</span> = <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">pixel_range_collection</span>.<span class="ruby-identifier">sort_by</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">pr</span><span class="ruby-operator">|</span> <span class="ruby-identifier">pr</span>.<span class="ruby-identifier">start_pixel</span>}[<span class="ruby-value">-1</span>].<span class="ruby-identifier">stop_pixel</span>
-  
-                        <span class="ruby-comment cmt"># First draw the parts</span>
-                        <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">pixel_range_collection</span>.<span class="ruby-identifier">sort_by</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">pr</span><span class="ruby-operator">|</span> <span class="ruby-identifier">pr</span>.<span class="ruby-identifier">start_pixel</span>}.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">pr</span><span class="ruby-operator">|</span>
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">rectangle</span>(<span class="ruby-identifier">pr</span>.<span class="ruby-identifier">start_pixel</span>, <span class="ruby-identifier">top_pixel_of_feature</span>, (<span class="ruby-identifier">pr</span>.<span class="ruby-identifier">stop_pixel</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">pr</span>.<span class="ruby-identifier">start_pixel</span>), <span class="ruby-constant">FEATURE_HEIGHT</span>).<span class="ruby-identifier">fill</span>
-                          <span class="ruby-identifier">gap_starts</span>.<span class="ruby-identifier">push</span>(<span class="ruby-identifier">pr</span>.<span class="ruby-identifier">stop_pixel</span>)
-                          <span class="ruby-identifier">gap_stops</span>.<span class="ruby-identifier">push</span>(<span class="ruby-identifier">pr</span>.<span class="ruby-identifier">start_pixel</span>)
-                        <span class="ruby-keyword kw">end</span>
-  
-                        <span class="ruby-comment cmt"># And then draw the connections in the gaps</span>
-                        <span class="ruby-comment cmt"># Start with removing the very first start and the very last stop.</span>
-                        <span class="ruby-identifier">gap_starts</span>.<span class="ruby-identifier">sort!</span>.<span class="ruby-identifier">pop</span>
-                        <span class="ruby-identifier">gap_stops</span>.<span class="ruby-identifier">sort!</span>.<span class="ruby-identifier">shift</span>
-  
-                        <span class="ruby-identifier">gap_starts</span>.<span class="ruby-identifier">length</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">gap_number</span><span class="ruby-operator">|</span>
-                          <span class="ruby-identifier">from</span> = <span class="ruby-identifier">gap_starts</span>[<span class="ruby-identifier">gap_number</span>].<span class="ruby-identifier">to_f</span>
-                          <span class="ruby-identifier">to</span> = <span class="ruby-identifier">gap_stops</span>[<span class="ruby-identifier">gap_number</span>].<span class="ruby-identifier">to_f</span>
-                          <span class="ruby-identifier">middle</span> = <span class="ruby-identifier">from</span> <span class="ruby-operator">+</span> ((<span class="ruby-identifier">to</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">from</span>)<span class="ruby-operator">/</span><span class="ruby-value">2</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">move_to</span>(<span class="ruby-identifier">from</span>, <span class="ruby-identifier">top_pixel_of_feature</span><span class="ruby-operator">+</span><span class="ruby-value">2</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">line_to</span>(<span class="ruby-identifier">middle</span>, <span class="ruby-identifier">top_pixel_of_feature</span><span class="ruby-operator">+</span><span class="ruby-value">7</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">line_to</span>(<span class="ruby-identifier">to</span>, <span class="ruby-identifier">top_pixel_of_feature</span><span class="ruby-operator">+</span><span class="ruby-value">2</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">stroke</span>
-                        <span class="ruby-keyword kw">end</span>
-                        
-                        <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">hidden_subfeatures_at_stop</span>
-                          <span class="ruby-identifier">from</span> = <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">pixel_range_collection</span>.<span class="ruby-identifier">sort_by</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">pr</span><span class="ruby-operator">|</span> <span class="ruby-identifier">pr</span>.<span class="ruby-identifier">start_pixel</span>}[<span class="ruby-value">-1</span>].<span class="ruby-identifier">stop_pixel</span>
-                          <span class="ruby-identifier">to</span> = <span class="ruby-identifier">panel</span>.<span class="ruby-identifier">width</span>
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">move_to</span>(<span class="ruby-identifier">from</span>, <span class="ruby-identifier">top_pixel_of_feature</span><span class="ruby-operator">+</span><span class="ruby-value">5</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">line_to</span>(<span class="ruby-identifier">to</span>, <span class="ruby-identifier">top_pixel_of_feature</span><span class="ruby-operator">+</span><span class="ruby-value">5</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">stroke</span>
-                        <span class="ruby-keyword kw">end</span>
-                        
-                        <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">hidden_subfeatures_at_start</span>
-                          <span class="ruby-identifier">from</span> = <span class="ruby-value">1</span>
-                          <span class="ruby-identifier">to</span> = <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">pixel_range_collection</span>.<span class="ruby-identifier">sort_by</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">pr</span><span class="ruby-operator">|</span> <span class="ruby-identifier">pr</span>.<span class="ruby-identifier">start_pixel</span>}[<span class="ruby-value">0</span>].<span class="ruby-identifier">start_pixel</span>
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">move_to</span>(<span class="ruby-identifier">from</span>, <span class="ruby-identifier">top_pixel_of_feature</span><span class="ruby-operator">+</span><span class="ruby-value">5</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">line_to</span>(<span class="ruby-identifier">to</span>, <span class="ruby-identifier">top_pixel_of_feature</span><span class="ruby-operator">+</span><span class="ruby-value">5</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">stroke</span>
-                        <span class="ruby-keyword kw">end</span>
-  
-                      <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'directed_spliced'</span>
-                        <span class="ruby-identifier">gap_starts</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>
-                        <span class="ruby-identifier">gap_stops</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>
-                        <span class="ruby-comment cmt"># First draw the parts</span>
-                        <span class="ruby-identifier">locations</span> = <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">location</span>.<span class="ruby-identifier">sort_by</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">l</span><span class="ruby-operator">|</span> <span class="ruby-identifier">l</span>.<span class="ruby-identifier">from</span>}
-  
-                        <span class="ruby-comment cmt"># Need to get this for the imagemap</span>
-                        <span class="ruby-identifier">left_pixel_of_feature</span> = <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">pixel_range_collection</span>.<span class="ruby-identifier">sort_by</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">pr</span><span class="ruby-operator">|</span> <span class="ruby-identifier">pr</span>.<span class="ruby-identifier">start_pixel</span>}[<span class="ruby-value">0</span>].<span class="ruby-identifier">start_pixel</span>
-                        <span class="ruby-identifier">right_pixel_of_feature</span> = <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">pixel_range_collection</span>.<span class="ruby-identifier">sort_by</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">pr</span><span class="ruby-operator">|</span> <span class="ruby-identifier">pr</span>.<span class="ruby-identifier">start_pixel</span>}[<span class="ruby-value">-1</span>].<span class="ruby-identifier">stop_pixel</span>
-  
-                        <span class="ruby-comment cmt">#   Start with the one with the arrow</span>
-                        <span class="ruby-identifier">pixel_ranges</span> = <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">pixel_range_collection</span>.<span class="ruby-identifier">sort_by</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">pr</span><span class="ruby-operator">|</span> <span class="ruby-identifier">pr</span>.<span class="ruby-identifier">start_pixel</span>}
-                        <span class="ruby-identifier">range_with_arrow</span> = <span class="ruby-keyword kw">nil</span>
-                        <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">strand</span> <span class="ruby-operator">==</span> <span class="ruby-value">-1</span> <span class="ruby-comment cmt"># reverse strand =&gt; box with arrow is first one</span>
-                          <span class="ruby-identifier">range_with_arrow</span> = <span class="ruby-identifier">pixel_ranges</span>.<span class="ruby-identifier">shift</span>
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">rectangle</span>((<span class="ruby-identifier">range_with_arrow</span>.<span class="ruby-identifier">start_pixel</span>)<span class="ruby-operator">+</span><span class="ruby-constant">FEATURE_ARROW_LENGTH</span>, <span class="ruby-identifier">top_pixel_of_feature</span>, <span class="ruby-identifier">range_with_arrow</span>.<span class="ruby-identifier">stop_pixel</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">range_with_arrow</span>.<span class="ruby-identifier">start_pixel</span>, <span class="ruby-constant">FEATURE_HEIGHT</span>).<span class="ruby-identifier">fill</span>
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">move_to</span>(<span class="ruby-identifier">range_with_arrow</span>.<span class="ruby-identifier">start_pixel</span><span class="ruby-operator">+</span><span class="ruby-constant">FEATURE_ARROW_LENGTH</span>, <span class="ruby-identifier">top_pixel_of_feature</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">rel_line_to</span>(<span class="ruby-operator">-</span><span class="ruby-constant">FEATURE_ARROW_LENGTH</span>, <span class="ruby-constant">FEATURE_HEIGHT</span><span class="ruby-operator">/</span><span class="ruby-value">2</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">rel_line_to</span>(<span class="ruby-constant">FEATURE_ARROW_LENGTH</span>, <span class="ruby-constant">FEATURE_HEIGHT</span><span class="ruby-operator">/</span><span class="ruby-value">2</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">close_path</span>.<span class="ruby-identifier">fill</span>
-                        <span class="ruby-keyword kw">else</span> <span class="ruby-comment cmt"># forward strand =&gt; box with arrow is last one</span>
-                          <span class="ruby-identifier">range_with_arrow</span> = <span class="ruby-identifier">pixel_ranges</span>.<span class="ruby-identifier">pop</span>
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">rectangle</span>(<span class="ruby-identifier">range_with_arrow</span>.<span class="ruby-identifier">start_pixel</span><span class="ruby-operator">-</span><span class="ruby-constant">FEATURE_ARROW_LENGTH</span>, <span class="ruby-identifier">top_pixel_of_feature</span>, <span class="ruby-identifier">range_with_arrow</span>.<span class="ruby-identifier">stop_pixel</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">range_with_arrow</span>.<span class="ruby-identifier">start_pixel</span>, <span class="ruby-constant">FEATURE_HEIGHT</span>).<span class="ruby-identifier">fill</span>
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">move_to</span>(<span class="ruby-identifier">range_with_arrow</span>.<span class="ruby-identifier">stop_pixel</span><span class="ruby-operator">-</span><span class="ruby-constant">FEATURE_ARROW_LENGTH</span>, <span class="ruby-identifier">top_pixel_of_feature</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">rel_line_to</span>(<span class="ruby-constant">FEATURE_ARROW_LENGTH</span>, <span class="ruby-constant">FEATURE_HEIGHT</span><span class="ruby-operator">/</span><span class="ruby-value">2</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">rel_line_to</span>(<span class="ruby-operator">-</span><span class="ruby-constant">FEATURE_ARROW_LENGTH</span>, <span class="ruby-constant">FEATURE_HEIGHT</span><span class="ruby-operator">/</span><span class="ruby-value">2</span>)
-                        <span class="ruby-keyword kw">end</span>
-                        <span class="ruby-identifier">gap_starts</span>.<span class="ruby-identifier">push</span>(<span class="ruby-identifier">range_with_arrow</span>.<span class="ruby-identifier">stop_pixel</span>)
-                        <span class="ruby-identifier">gap_stops</span>.<span class="ruby-identifier">push</span>(<span class="ruby-identifier">range_with_arrow</span>.<span class="ruby-identifier">start_pixel</span>)
-  
-                        <span class="ruby-comment cmt">#   And then add the others</span>
-                        <span class="ruby-identifier">pixel_ranges</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">range</span><span class="ruby-operator">|</span>
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">rectangle</span>(<span class="ruby-identifier">range</span>.<span class="ruby-identifier">start_pixel</span>, <span class="ruby-identifier">top_pixel_of_feature</span>, <span class="ruby-identifier">range</span>.<span class="ruby-identifier">stop_pixel</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">range</span>.<span class="ruby-identifier">start_pixel</span>, <span class="ruby-constant">FEATURE_HEIGHT</span>).<span class="ruby-identifier">fill</span>
-                          <span class="ruby-identifier">gap_starts</span>.<span class="ruby-identifier">push</span>(<span class="ruby-identifier">range</span>.<span class="ruby-identifier">stop_pixel</span>)
-                          <span class="ruby-identifier">gap_stops</span>.<span class="ruby-identifier">push</span>(<span class="ruby-identifier">range</span>.<span class="ruby-identifier">start_pixel</span>)
-                        <span class="ruby-keyword kw">end</span>
-  
-                        <span class="ruby-comment cmt"># And then draw the connections in the gaps</span>
-                        <span class="ruby-comment cmt"># Start with removing the very first start and the very last stop.</span>
-                        <span class="ruby-identifier">gap_starts</span>.<span class="ruby-identifier">sort!</span>.<span class="ruby-identifier">pop</span>
-                        <span class="ruby-identifier">gap_stops</span>.<span class="ruby-identifier">sort!</span>.<span class="ruby-identifier">shift</span>
-  
-                        <span class="ruby-identifier">gap_starts</span>.<span class="ruby-identifier">length</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">gap_number</span><span class="ruby-operator">|</span>
-                          <span class="ruby-identifier">from</span> = <span class="ruby-identifier">gap_starts</span>[<span class="ruby-identifier">gap_number</span>].<span class="ruby-identifier">to_f</span>
-                          <span class="ruby-identifier">to</span> = <span class="ruby-identifier">gap_stops</span>[<span class="ruby-identifier">gap_number</span>].<span class="ruby-identifier">to_f</span>
-                          <span class="ruby-identifier">middle</span> = <span class="ruby-identifier">from</span> <span class="ruby-operator">+</span> ((<span class="ruby-identifier">to</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">from</span>)<span class="ruby-operator">/</span><span class="ruby-value">2</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">move_to</span>(<span class="ruby-identifier">from</span>, <span class="ruby-identifier">top_pixel_of_feature</span><span class="ruby-operator">+</span><span class="ruby-value">2</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">line_to</span>(<span class="ruby-identifier">middle</span>, <span class="ruby-identifier">top_pixel_of_feature</span><span class="ruby-operator">+</span><span class="ruby-value">7</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">line_to</span>(<span class="ruby-identifier">to</span>, <span class="ruby-identifier">top_pixel_of_feature</span><span class="ruby-operator">+</span><span class="ruby-value">2</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">stroke</span>
-                        <span class="ruby-keyword kw">end</span>
-
-                        <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">hidden_subfeatures_at_stop</span>
-                          <span class="ruby-identifier">from</span> = <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">pixel_range_collection</span>.<span class="ruby-identifier">sort_by</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">pr</span><span class="ruby-operator">|</span> <span class="ruby-identifier">pr</span>.<span class="ruby-identifier">start_pixel</span>}[<span class="ruby-value">-1</span>].<span class="ruby-identifier">stop_pixel</span>
-                          <span class="ruby-identifier">to</span> = <span class="ruby-identifier">panel</span>.<span class="ruby-identifier">width</span>
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">move_to</span>(<span class="ruby-identifier">from</span>, <span class="ruby-identifier">top_pixel_of_feature</span><span class="ruby-operator">+</span><span class="ruby-value">5</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">line_to</span>(<span class="ruby-identifier">to</span>, <span class="ruby-identifier">top_pixel_of_feature</span><span class="ruby-operator">+</span><span class="ruby-value">5</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">stroke</span>
-                        <span class="ruby-keyword kw">end</span>
-                        
-                        <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">hidden_subfeatures_at_start</span>
-                          <span class="ruby-identifier">from</span> = <span class="ruby-value">1</span>
-                          <span class="ruby-identifier">to</span> = <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">pixel_range_collection</span>.<span class="ruby-identifier">sort_by</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">pr</span><span class="ruby-operator">|</span> <span class="ruby-identifier">pr</span>.<span class="ruby-identifier">start_pixel</span>}[<span class="ruby-value">0</span>].<span class="ruby-identifier">start_pixel</span>
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">move_to</span>(<span class="ruby-identifier">from</span>, <span class="ruby-identifier">top_pixel_of_feature</span><span class="ruby-operator">+</span><span class="ruby-value">5</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">line_to</span>(<span class="ruby-identifier">to</span>, <span class="ruby-identifier">top_pixel_of_feature</span><span class="ruby-operator">+</span><span class="ruby-value">5</span>)
-                          <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">stroke</span>
-                        <span class="ruby-keyword kw">end</span>
-
-                      <span class="ruby-keyword kw">else</span> <span class="ruby-comment cmt">#treat as 'generic'</span>
-                        <span class="ruby-identifier">left_pixel_of_feature</span>, <span class="ruby-identifier">right_pixel_of_feature</span> = <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">pixel_range_collection</span>[<span class="ruby-value">0</span>].<span class="ruby-identifier">start_pixel</span>, <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">pixel_range_collection</span>[<span class="ruby-value">0</span>].<span class="ruby-identifier">stop_pixel</span>
-                        <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">rectangle</span>(<span class="ruby-identifier">left_pixel_of_feature</span>, <span class="ruby-identifier">top_pixel_of_feature</span>, (<span class="ruby-identifier">right_pixel_of_feature</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">left_pixel_of_feature</span>), <span class="ruby-constant">FEATURE_HEIGHT</span>).<span class="ruby-identifier">fill</span>
-                    <span class="ruby-keyword kw">end</span>
-  
-                    <span class="ruby-comment cmt"># And add the region to the image map</span>
-                    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">panel</span>.<span class="ruby-identifier">clickable</span>
-                      <span class="ruby-comment cmt"># Comment: we have to add the vertical_offset and TRACK_HEADER_HEIGHT!</span>
-                      <span class="ruby-identifier">panel</span>.<span class="ruby-identifier">image_map</span>.<span class="ruby-identifier">elements</span>.<span class="ruby-identifier">push</span>(<span class="ruby-constant">ImageMap</span><span class="ruby-operator">::</span><span class="ruby-constant">ImageMapElement</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">left_pixel_of_feature</span>,
-                                                                                  <span class="ruby-identifier">top_pixel_of_feature</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">vertical_offset</span> <span class="ruby-operator">+</span> <span class="ruby-constant">TRACK_HEADER_HEIGHT</span>,
-                                                                                  <span class="ruby-identifier">right_pixel_of_feature</span>,
-                                                                                  <span class="ruby-identifier">bottom_pixel_of_feature</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">vertical_offset</span> <span class="ruby-operator">+</span> <span class="ruby-constant">TRACK_HEADER_HEIGHT</span>,
-                                                                                  <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">link</span>
-                                                                                  ))
-                    <span class="ruby-keyword kw">end</span>
-  
-  
-                    <span class="ruby-identifier">feature_drawn</span> = <span class="ruby-keyword kw">true</span>
-                  <span class="ruby-keyword kw">end</span>
-                <span class="ruby-keyword kw">end</span>
-              <span class="ruby-keyword kw">end</span>
-            <span class="ruby-keyword kw">end</span>
-
-          <span class="ruby-keyword kw">end</span>
-
-          <span class="ruby-ivar">@number_of_times_bumped</span> = ( <span class="ruby-identifier">grid</span>.<span class="ruby-identifier">keys</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span> ) <span class="ruby-operator">?</span> <span class="ruby-value">1</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">grid</span>.<span class="ruby-identifier">keys</span>.<span class="ruby-identifier">max</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
-
-          <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">panel_drawing</span>
-        <span class="ruby-keyword kw">end</span></pre>
-</body>
-</html>
