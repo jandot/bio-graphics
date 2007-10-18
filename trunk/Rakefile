@@ -25,6 +25,12 @@ task :rdoc do
   Rake::Task['doc/index.html'].invoke
 end
 
+desc "Upload documentation to bio-graphics.rubyforge.org"
+task :upload_documentation do
+  puts "######## Uploading documentation"
+  system "cd doc; scp -r * jandot@rubyforge.org:/var/www/gforge-projects/bio-graphics/"
+end
+
 desc "Create a new gem"
 file 'bio-graphics-1.0.gem' => file_list do
   puts "######## Creating new gem"
