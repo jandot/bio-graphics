@@ -43,7 +43,7 @@ module Bio
   #   track1.add_feature('gene3',100,500)
   #
   #   # Add a second track (e.g. 'polymorphisms')
-  #   track2 = g.add_track('polymorphisms','red','triangle')
+  #   track2 = g.add_track('polymorphisms',, false, 'red','triangle')
   #
   #   # And put features on this one
   #   track2.add_feature('polymorphism 1',56,56)
@@ -69,10 +69,12 @@ module Bio
     RULER_MIN_DISTANCE_TICKS_PIXEL = 5  # There should be at least 5 pixels between
                                         #   consecutive ticks. This is used for the
                                         #   calculation of tick distance.
+    FONT = ['Georgia', 1, 1]
 
     # The Bio::Graphics::Panel class describes the complete graph and contains
     # all tracks. See Bio::Graphics documentation for explanation of interplay
     # between different classes.
+    
     class Panel
       # Create a new Bio::Graphics::Panel object
       #
@@ -102,7 +104,7 @@ module Bio
         @length = length.to_i
         @width = width.to_i
         @tracks = Array.new
-        @number_of_times_bumped = 0
+        @number_of_feature_rows = 0
         @clickable = clickable
         @image_map = ( clickable ) ? ImageMap.new : nil
         @display_start = ( display_start.nil? or display_start < 0 ) ? 0 : display_start
@@ -112,7 +114,7 @@ module Bio
         end
         @rescale_factor = (@display_stop - @display_start).to_f / @width
       end
-      attr_accessor :length, :width, :height, :rescale_factor, :tracks, :number_of_times_bumped, :clickable, :image_map, :display_start, :display_stop
+      attr_accessor :length, :width, :height, :rescale_factor, :tracks, :number_of_feature_rows, :clickable, :image_map, :display_start, :display_stop
 
       # Adds a Bio::Graphics::Track container to this panel. A panel contains a
       # logical grouping of features, e.g. (for sequence annotation:) genes,
@@ -124,6 +126,7 @@ module Bio
       # ---
       # *Arguments*:
       # * _name_ (required) :: Name of the track to be displayed (e.g. 'genes')
+      # * _label) :: Whether the feature labels should be displayed or not
       # * _colour_ :: Colour to be used to draw the features within the track.
       #   Default = 'blue'
       # * _glyph_ :: Glyph to use for drawing the features. Options are:
@@ -133,8 +136,8 @@ module Bio
       #   If you try to draw a feature that is longer with triangles, an error
       #   will be shown.
       # *Returns*:: Bio::Graphics::Track object that has just been created
-      def add_track(name, feature_colour = [0,0,1], feature_glyph = 'generic')
-        @tracks.push(Bio::Graphics::Panel::Track.new(self, name, feature_colour, feature_glyph))
+      def add_track(name, label = true, feature_colour = [0,0,1], feature_glyph = 'generic')
+        @tracks.push(Bio::Graphics::Panel::Track.new(self, name, label, feature_colour, feature_glyph))
         return @tracks[-1]
       end
 
@@ -166,13 +169,13 @@ module Bio
         @tracks.each do |track|
           track.vertical_offset = vertical_offset
           track.draw(huge_panel_drawing)
-          @number_of_times_bumped += track.number_of_times_bumped
-          vertical_offset += ( track.number_of_times_bumped*(FEATURE_HEIGHT+FEATURE_V_DISTANCE+5)) + 10 # '10' is for the header
+          @number_of_feature_rows += track.number_of_feature_rows
+          vertical_offset += ( track.number_of_feature_rows*(FEATURE_HEIGHT+FEATURE_V_DISTANCE+5)) + 10 # '10' is for the header
         end
 
         # And create a smaller version of the panel
         height = ruler.height
-        @number_of_times_bumped.times do
+        @number_of_feature_rows.times do
           height += 20
         end
         @tracks.length.times do #To correct for the track headers

@@ -142,6 +142,11 @@ documentation for explanation of interplay between different classes.
           <td class="context-item-desc"></td>
         </tr>
         <tr class="top-aligned-row context-row">
+          <td class="context-item-name">grid</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
           <td class="context-item-name">height</td>
           <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
           <td class="context-item-desc"></td>
@@ -152,12 +157,17 @@ documentation for explanation of interplay between different classes.
           <td class="context-item-desc"></td>
         </tr>
         <tr class="top-aligned-row context-row">
-          <td class="context-item-name">number_of_times_bumped</td>
+          <td class="context-item-name">number_of_feature_rows</td>
           <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
           <td class="context-item-desc"></td>
         </tr>
         <tr class="top-aligned-row context-row">
           <td class="context-item-name">panel</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">show_label</td>
           <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
           <td class="context-item-desc"></td>
         </tr>
@@ -182,7 +192,7 @@ documentation for explanation of interplay between different classes.
         <div class="method-heading">
           <a href="Track.src/M000008.html" target="Code" class="method-signature"
             onclick="popupCode('Track.src/M000008.html');return false;">
-          <span class="method-name">new</span><span class="method-args">(panel, name, colour = [0,0,1], glyph = 'generic')</span>
+          <span class="method-name">new</span><span class="method-args">(panel, name, label = true, colour = [0,0,1], glyph = :generic)</span>
           </a>
         </div>
       
@@ -206,17 +216,21 @@ belongs to
 &#8216;genes&#8217;)
 
 </li>
+<li><em>label</em> :: Boolean: should the label for each feature be drawn or
+not
+
+</li>
 <li><em>colour</em> :: Colour to be used to <a
 href="Track.html#M000010">draw</a> the features within the track. Default =
 &#8216;blue&#8216;
 
 </li>
 <li><em>glyph</em> :: Glyph to use for drawing the features. Options are:
-&#8216;generic&#8217;, &#8216;directed_generic&#8217;, &#8216;spliced,
-&#8216;directed_spliced&#8217; and &#8216;triangle&#8217;. Triangles can be
-used for features whose start and stop positions are the same (e.g. SNPs).
-If you try to <a href="Track.html#M000010">draw</a> a feature that is
-longer with triangles, an error will be shown.
+:generic, :directed_generic, :spliced, :directed_spliced, :line and
+:triangle. Triangles can be used for features whose start and stop
+positions are the same (e.g. SNPs). If you try to <a
+href="Track.html#M000010">draw</a> a feature that is longer with triangles,
+an error will be shown.
 
 </li>
 </ul>

@@ -124,6 +124,48 @@ module Bio
           # Are there subfeatures out of view at the right side of the picture?
           attr_accessor :hidden_subfeatures_at_stop
 
+          # Method to draw the arrows of directed glyphs. Not to be used
+          # directly, but called by Feature#draw.
+          def arrow(track,direction,x,y,size)
+            case direction
+            when :right
+              track.move_to(x,y)
+              track.rel_line_to(size,size)
+              track.rel_line_to(-size,size)
+              track.close_path.fill
+            when :left
+              track.move_to(x,y)
+              track.rel_line_to(-size,size)
+              track.rel_line_to(size,size)
+              track.close_path.fill
+            when :north
+              track.move_to(x-size,y+size)
+              track.rel_line_to(size,-size)
+              track.rel_line_to(size,size)
+              track.close_path.fill
+            when :south
+              track.move_to(x-size,y-size)
+              track.rel_line_to(size,size)
+              track.rel_line_to(size,-size)
+              track.close_path.fill
+            end
+          end
+
+          # Method to draw the connections (introns) of spliced glyphs. Not to
+          # be used directly, but called by Feature#draw.
+          def connector(track,from,to,top, color)
+            line_width = track.line_width
+            track.set_source_rgb([0,0,0])
+            track.set_line_width(0.5)
+            middle = from + ((to - from)/2)
+            track.move_to(from, top+2)
+            track.line_to(middle, top+7)
+            track.line_to(to, top+2)
+            track.stroke
+            track.set_line_width(line_width)
+            track.set_source_rgb(color)
+          end
+          
           # Adds the feature to the track cairo context. This method should not 
           # be used directly by the user, but is called by
           # Bio::Graphics::Panel::Track.draw
@@ -157,10 +199,10 @@ module Bio
             end
 
             local_feature_glyph = nil
-            if self.track.glyph == 'directed_generic' and replace_directed_with_undirected
-              local_feature_glyph = 'generic'
-            elsif self.track.glyph == 'directed_spliced' and replace_directed_with_undirected
-              local_feature_glyph = 'spliced'
+            if self.track.glyph == :directed_generic and replace_directed_with_undirected
+              local_feature_glyph = :generic
+            elsif self.track.glyph == :directed_spliced and replace_directed_with_undirected
+              local_feature_glyph = :spliced
             else
               local_feature_glyph = self.track.glyph
             end
@@ -172,39 +214,42 @@ module Bio
 
             case local_feature_glyph
               # triangles are typical for features which have a 1 bp position (start == stop)
-              when 'triangle'
+              when :triangle
                 raise "Start and stop are not the same (necessary if you want triangle glyphs)" if self.start != self.stop
  
                 # Need to get this for the imagemap
-                left_pixel_of_feature = self.pixel_range_collection[0].start_pixel - 3
-                right_pixel_of_feature = self.pixel_range_collection[0].stop_pixel + 3
-                track_drawing.move_to(left_pixel_of_feature + 3, top_pixel_of_feature)
-                track_drawing.rel_line_to(-3, FEATURE_HEIGHT)
-                track_drawing.rel_line_to(6, 0)
-                track_drawing.close_path.fill
+                left_pixel_of_feature = self.pixel_range_collection[0].start_pixel - FEATURE_ARROW_LENGTH
+                right_pixel_of_feature = self.pixel_range_collection[0].stop_pixel + FEATURE_ARROW_LENGTH
+                arrow(track_drawing,:north,left_pixel_of_feature + FEATURE_ARROW_LENGTH, top_pixel_of_feature, FEATURE_ARROW_LENGTH)
+                track_drawing.close_path.stroke
+              when :line
+                left_pixel_of_feature = self.pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
+                right_pixel_of_feature = self.pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
+                track_drawing.move_to(left_pixel_of_feature,top_pixel_of_feature+FEATURE_ARROW_LENGTH)               
+                track_drawing.line_to(right_pixel_of_feature,top_pixel_of_feature+FEATURE_ARROW_LENGTH)
+                track_drawing.stroke
 
-              when 'directed_generic'
+                track_drawing.set_source_rgb([0,0,0])
+                arrow(track_drawing,:right,left_pixel_of_feature,top_pixel_of_feature,FEATURE_ARROW_LENGTH)
+                track_drawing.close_path.stroke              
+                arrow(track_drawing,:left,right_pixel_of_feature,top_pixel_of_feature,FEATURE_ARROW_LENGTH)
+                track_drawing.close_path.stroke
+
+                track_drawing.set_source_rgb(self.track.colour)
+            when :directed_generic
                 # Need to get this for the imagemap
                 left_pixel_of_feature = self.pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
                 right_pixel_of_feature = self.pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
                 if self.strand == -1 # Reverse strand
-                  # Draw main box
                   track_drawing.rectangle(left_pixel_of_feature+FEATURE_ARROW_LENGTH, top_pixel_of_feature, right_pixel_of_feature - left_pixel_of_feature - FEATURE_ARROW_LENGTH, FEATURE_HEIGHT).fill
-
-                  # Draw arrow
-                  track_drawing.move_to(left_pixel_of_feature+FEATURE_ARROW_LENGTH, top_pixel_of_feature)
-                  track_drawing.rel_line_to(-FEATURE_ARROW_LENGTH, FEATURE_HEIGHT/2)
-                  track_drawing.rel_line_to(FEATURE_ARROW_LENGTH, FEATURE_HEIGHT/2)
+                  arrow(track_drawing,:left,left_pixel_of_feature+FEATURE_ARROW_LENGTH,top_pixel_of_feature,FEATURE_ARROW_LENGTH)
                   track_drawing.close_path.fill
-
                 else #default is forward strand
                   track_drawing.rectangle(left_pixel_of_feature, top_pixel_of_feature, right_pixel_of_feature - left_pixel_of_feature - FEATURE_ARROW_LENGTH, FEATURE_HEIGHT).fill
-                  track_drawing.move_to(right_pixel_of_feature - FEATURE_ARROW_LENGTH, top_pixel_of_feature)
-                  track_drawing.rel_line_to(FEATURE_ARROW_LENGTH, FEATURE_HEIGHT/2)
-                  track_drawing.rel_line_to(-FEATURE_ARROW_LENGTH, FEATURE_HEIGHT/2)
+                  arrow(track_drawing,:right,right_pixel_of_feature-FEATURE_ARROW_LENGTH,top_pixel_of_feature,FEATURE_ARROW_LENGTH)
                   track_drawing.close_path.fill
                 end
-              when 'spliced'
+              when :spliced
                 gap_starts = Array.new
                 gap_stops = Array.new
 
@@ -225,13 +270,7 @@ module Bio
                 gap_stops.sort!.shift
 
                 gap_starts.length.times do |gap_number|
-                  from = gap_starts[gap_number].to_f
-                  to = gap_stops[gap_number].to_f
-                  middle = from + ((to - from)/2)
-                  track_drawing.move_to(from, top_pixel_of_feature+2)
-                  track_drawing.line_to(middle, top_pixel_of_feature+7)
-                  track_drawing.line_to(to, top_pixel_of_feature+2)
-                  track_drawing.stroke
+                  connector(track_drawing,gap_starts[gap_number].to_f,gap_stops[gap_number].to_f,top_pixel_of_feature,track.colour)
                 end
 
                 if self.hidden_subfeatures_at_stop
@@ -250,7 +289,7 @@ module Bio
                   track_drawing.stroke
                 end
 
-              when 'directed_spliced'
+              when :directed_spliced
                 gap_starts = Array.new
                 gap_stops = Array.new
                 # First draw the parts
@@ -265,17 +304,14 @@ module Bio
                 range_with_arrow = nil
                 if self.strand == -1 # reverse strand => box with arrow is first one
                   range_with_arrow = pixel_ranges.shift
-                  track_drawing.rectangle((range_with_arrow.start_pixel)+FEATURE_ARROW_LENGTH, top_pixel_of_feature, range_with_arrow.stop_pixel - range_with_arrow.start_pixel, FEATURE_HEIGHT).fill
-                  track_drawing.move_to(range_with_arrow.start_pixel+FEATURE_ARROW_LENGTH, top_pixel_of_feature)
-                  track_drawing.rel_line_to(-FEATURE_ARROW_LENGTH, FEATURE_HEIGHT/2)
-                  track_drawing.rel_line_to(FEATURE_ARROW_LENGTH, FEATURE_HEIGHT/2)
+                  track_drawing.rectangle((range_with_arrow.start_pixel)+FEATURE_ARROW_LENGTH, top_pixel_of_feature, range_with_arrow.stop_pixel - range_with_arrow.start_pixel - FEATURE_ARROW_LENGTH, FEATURE_HEIGHT).fill
+                  arrow(track_drawing,:left,range_with_arrow.start_pixel+FEATURE_ARROW_LENGTH, top_pixel_of_feature,FEATURE_ARROW_LENGTH)
                   track_drawing.close_path.fill
                 else # forward strand => box with arrow is last one
                   range_with_arrow = pixel_ranges.pop
-                  track_drawing.rectangle(range_with_arrow.start_pixel-FEATURE_ARROW_LENGTH, top_pixel_of_feature, range_with_arrow.stop_pixel - range_with_arrow.start_pixel, FEATURE_HEIGHT).fill
-                  track_drawing.move_to(range_with_arrow.stop_pixel-FEATURE_ARROW_LENGTH, top_pixel_of_feature)
-                  track_drawing.rel_line_to(FEATURE_ARROW_LENGTH, FEATURE_HEIGHT/2)
-                  track_drawing.rel_line_to(-FEATURE_ARROW_LENGTH, FEATURE_HEIGHT/2)
+                  track_drawing.rectangle(range_with_arrow.start_pixel, top_pixel_of_feature, range_with_arrow.stop_pixel - range_with_arrow.start_pixel - FEATURE_ARROW_LENGTH, FEATURE_HEIGHT).fill
+                  arrow(track_drawing,:right,range_with_arrow.stop_pixel-FEATURE_ARROW_LENGTH, top_pixel_of_feature,FEATURE_ARROW_LENGTH)
+                  track_drawing.close_path.fill
                 end
                 gap_starts.push(range_with_arrow.stop_pixel)
                 gap_stops.push(range_with_arrow.start_pixel)
@@ -293,28 +329,22 @@ module Bio
                 gap_stops.sort!.shift
 
                 gap_starts.length.times do |gap_number|
-                  from = gap_starts[gap_number].to_f
-                  to = gap_stops[gap_number].to_f
-                  middle = from + ((to - from)/2)
-                  track_drawing.move_to(from, top_pixel_of_feature+2)
-                  track_drawing.line_to(middle, top_pixel_of_feature+7)
-                  track_drawing.line_to(to, top_pixel_of_feature+2)
-                  track_drawing.stroke
+                  connector(track_drawing,gap_starts[gap_number].to_f,gap_stops[gap_number].to_f,top_pixel_of_feature,track.colour)
                 end
 
                 if self.hidden_subfeatures_at_stop
                   from = self.pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
                   to = self.track.panel.width
-                  track_drawing.move_to(from, top_pixel_of_feature+5)
-                  track_drawing.line_to(to, top_pixel_of_feature+5)
+                  track_drawing.move_to(from, top_pixel_of_feature+FEATURE_ARROW_LENGTH)
+                  track_drawing.line_to(to, top_pixel_of_feature+FEATURE_ARROW_LENGTH)
                   track_drawing.stroke
                 end
 
                 if self.hidden_subfeatures_at_start
                   from = 1
                   to = self.pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
-                  track_drawing.move_to(from, top_pixel_of_feature+5)
-                  track_drawing.line_to(to, top_pixel_of_feature+5)
+                  track_drawing.move_to(from, top_pixel_of_feature+FEATURE_ARROW_LENGTH)
+                  track_drawing.line_to(to, top_pixel_of_feature+FEATURE_ARROW_LENGTH)
                   track_drawing.stroke
                 end
 
@@ -337,7 +367,6 @@ module Bio
               end
               self.track.grid[row].push(text_range)
               self.track.grid[row+1].push(text_range)
-              STDERR.puts self.track.grid.to_yaml
               track_drawing.move_to(left_pixel_of_feature, top_pixel_of_feature + TRACK_HEADER_HEIGHT)
               track_drawing.set_source_rgb(0,0,0)
               track_drawing.show_pango_layout(pango_layout)

@@ -10,7 +10,6 @@ begin
   require 'cairo'
   require 'pango'
   require 'stringio'
-  rescue nil
 end
 
 require File.dirname(__FILE__) + '/bio/graphics/image_map.rb'

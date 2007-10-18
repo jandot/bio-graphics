@@ -1,16 +1,20 @@
 require '../lib/bio-graphics'
 
-my_panel = Bio::Graphics::Panel.new(500, 1000, true)
+my_panel = Bio::Graphics::Panel.new(500, 1000, false)
 
-generic_track = my_panel.add_track('generic')
-directed_track = my_panel.add_track('directed',[0,1,0],'directed_generic')
-triangle_track = my_panel.add_track('triangle',[1,0,0],'triangle')
-spliced_track = my_panel.add_track('spliced',[1,0,0],'spliced')
-directed_spliced_track = my_panel.add_track('directed_spliced',[1,0,1],'directed_spliced')
+generic_track = my_panel.add_track('generic', false)
+line_track = my_panel.add_track('line', false, [0,0,1], :line)
+directed_track = my_panel.add_track('directed', false, [0,1,0], :directed_generic)
+triangle_track = my_panel.add_track('triangle', false, [1,0,0], :triangle)
+spliced_track = my_panel.add_track('spliced', false, [1,0,0], :spliced)
+directed_spliced_track = my_panel.add_track('directed_spliced', false, [1,0,1], :directed_spliced)
 
 generic_track.add_feature('clone1','250..375', 'http://www.newsforge.com')
 generic_track.add_feature('clone2','54..124', 'http://www.thearkdb.org')
 generic_track.add_feature('clone3','100..449', 'http://www.google.com')
+
+line_track.add_feature('primer1','complement(200..320)')
+line_track.add_feature('primer2','355..480', 'http://www.zdnet.co.uk')
 
 directed_track.add_feature('marker1','50..60', 'http://www.google.com')
 directed_track.add_feature('marker2','complement(80..120)', 'http://www.sourceforge.net')

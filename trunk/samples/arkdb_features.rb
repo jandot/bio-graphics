@@ -12,7 +12,7 @@ clone_track = my_panel.add_track('clone', false)
 
 scaffold_track.colour = [1,0,0]
 marker_track.colour = [0,1,0]
-marker_track.glyph = 'triangle'
+marker_track.glyph = :triangle
 clone_track.colour = [0,0,1]
 
 # Add data to tracks

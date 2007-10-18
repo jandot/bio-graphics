@@ -167,7 +167,7 @@ Class <a href="Panel/Track.html" class="link">Bio::Graphics::Panel::Track</a><br
           <td class="context-item-desc"></td>
         </tr>
         <tr class="top-aligned-row context-row">
-          <td class="context-item-name">number_of_times_bumped</td>
+          <td class="context-item-name">number_of_feature_rows</td>
           <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
           <td class="context-item-desc"></td>
         </tr>
@@ -267,7 +267,7 @@ of sequence)
         <div class="method-heading">
           <a href="Panel.src/M000006.html" target="Code" class="method-signature"
             onclick="popupCode('Panel.src/M000006.html');return false;">
-          <span class="method-name">add_track</span><span class="method-args">(name, feature_colour = [0,0,1], feature_glyph = 'generic')</span>
+          <span class="method-name">add_track</span><span class="method-args">(name, label = true, feature_colour = [0,0,1], feature_glyph = 'generic')</span>
           </a>
         </div>
       
@@ -287,6 +287,9 @@ polymorphisms, ESTs, etc.
 <ul>
 <li><em>name</em> (required) :: Name of the track to be displayed (e.g.
 &#8216;genes&#8217;)
+
+</li>
+<li>_label) :: Whether the feature labels should be displayed or not
 
 </li>
 <li><em>colour</em> :: Colour to be used to <a

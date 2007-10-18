@@ -10,15 +10,17 @@
   <link rel="stylesheet" href="../../../../.././rdoc-style.css" type="text/css" media="screen" />
 </head>
 <body class="standalone-code">
-  <pre><span class="ruby-comment cmt"># File lib/bio/graphics/track.rb, line 38</span>
-        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">panel</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">colour</span> = [<span class="ruby-value">0</span>,<span class="ruby-value">0</span>,<span class="ruby-value">1</span>], <span class="ruby-identifier">glyph</span> = <span class="ruby-value str">'generic'</span>)
+  <pre><span class="ruby-comment cmt"># File lib/bio/graphics/track.rb, line 39</span>
+        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">panel</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">label</span> = <span class="ruby-keyword kw">true</span>, <span class="ruby-identifier">colour</span> = [<span class="ruby-value">0</span>,<span class="ruby-value">0</span>,<span class="ruby-value">1</span>], <span class="ruby-identifier">glyph</span> = <span class="ruby-identifier">:generic</span>)
           <span class="ruby-ivar">@panel</span> = <span class="ruby-identifier">panel</span>
           <span class="ruby-ivar">@name</span> = <span class="ruby-identifier">name</span>
+          <span class="ruby-ivar">@show_label</span> = <span class="ruby-identifier">label</span>
           <span class="ruby-ivar">@colour</span> = <span class="ruby-identifier">colour</span>
           <span class="ruby-ivar">@glyph</span> = <span class="ruby-identifier">glyph</span>
           <span class="ruby-ivar">@features</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>
-          <span class="ruby-ivar">@number_of_times_bumped</span> = <span class="ruby-value">0</span>
+          <span class="ruby-ivar">@number_of_feature_rows</span> = <span class="ruby-value">0</span>
           <span class="ruby-ivar">@vertical_offset</span> = <span class="ruby-value">0</span>
+          <span class="ruby-ivar">@grid</span> = <span class="ruby-constant">Hash</span>.<span class="ruby-identifier">new</span>
         <span class="ruby-keyword kw">end</span></pre>
 </body>
 </html>

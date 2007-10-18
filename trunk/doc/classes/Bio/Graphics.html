@@ -139,7 +139,7 @@ Schematically:
   track1.add_feature('gene3',100,500)
 
   # Add a second track (e.g. 'polymorphisms')
-  track2 = g.add_track('polymorphisms','red','triangle')
+  track2 = g.add_track('polymorphisms',, false, 'red','triangle')
 
   # And put features on this one
   track2.add_feature('polymorphism 1',56,56)
@@ -223,6 +223,16 @@ The defaults
           <td class="context-item-name">RULER_MIN_DISTANCE_TICKS_PIXEL</td>
           <td>=</td>
           <td class="context-item-value">5</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">FONT</td>
+          <td>=</td>
+          <td class="context-item-value">['Georgia', 1, 1]</td>
+          <td width="3em">&nbsp;</td>
+          <td class="context-item-desc">
+consecutive ticks. This is used for the calculation of tick distance.
+
+</td>
         </tr>
         </table>
       </div>

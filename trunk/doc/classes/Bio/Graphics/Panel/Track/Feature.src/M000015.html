@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>find_row (Bio::Graphics::Panel::Track::Feature)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/bio/graphics/feature.rb, line 396</span>
+          <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">find_row</span>
+            <span class="ruby-identifier">row_found</span> = <span class="ruby-keyword kw">false</span>
+            
+            <span class="ruby-comment cmt"># We've got to find out what row to draw the feature on. If two </span>
+            <span class="ruby-comment cmt"># features overlap, one of them has to be 'bumped' down. So we'll</span>
+            <span class="ruby-comment cmt"># first try to draw a new feature at the top of the track. If</span>
+            <span class="ruby-comment cmt"># it however would overlap with another one, we'll bump it down</span>
+            <span class="ruby-comment cmt"># to the next row.</span>
+            <span class="ruby-identifier">feature_range</span> = (<span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">start</span>.<span class="ruby-identifier">floor</span><span class="ruby-operator">..</span><span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">stop</span>.<span class="ruby-identifier">ceil</span>)
+            <span class="ruby-identifier">row</span> = <span class="ruby-value">1</span>
+            <span class="ruby-identifier">row_available</span> = <span class="ruby-keyword kw">true</span>
+            <span class="ruby-keyword kw">until</span> <span class="ruby-identifier">row_found</span>
+              <span class="ruby-keyword kw">if</span> <span class="ruby-operator">!</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">track</span>.<span class="ruby-identifier">grid</span>[<span class="ruby-identifier">row</span>].<span class="ruby-identifier">nil?</span>
+                <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">track</span>.<span class="ruby-identifier">grid</span>[<span class="ruby-identifier">row</span>].<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">covered</span><span class="ruby-operator">|</span>
+                  <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">feature_range</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">covered</span>.<span class="ruby-identifier">first</span>) <span class="ruby-keyword kw">or</span> <span class="ruby-identifier">covered</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">feature_range</span>.<span class="ruby-identifier">first</span>)
+                    <span class="ruby-identifier">row_available</span> = <span class="ruby-keyword kw">false</span>
+                  <span class="ruby-keyword kw">end</span>
+                <span class="ruby-keyword kw">end</span>
+              <span class="ruby-keyword kw">end</span>
+  
+              <span class="ruby-keyword kw">if</span> <span class="ruby-operator">!</span> <span class="ruby-identifier">row_available</span>
+                <span class="ruby-identifier">row</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span>
+                <span class="ruby-identifier">row_available</span> = <span class="ruby-keyword kw">true</span>
+              <span class="ruby-keyword kw">else</span> <span class="ruby-comment cmt"># We've found the place where to draw the feature.</span>
+                <span class="ruby-keyword kw">if</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">track</span>.<span class="ruby-identifier">grid</span>[<span class="ruby-identifier">row</span>].<span class="ruby-identifier">nil?</span>
+                  <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">track</span>.<span class="ruby-identifier">grid</span>[<span class="ruby-identifier">row</span>] = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>
+                <span class="ruby-keyword kw">end</span>
+                <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">track</span>.<span class="ruby-identifier">grid</span>[<span class="ruby-identifier">row</span>].<span class="ruby-identifier">push</span>(<span class="ruby-identifier">feature_range</span>)
+                <span class="ruby-identifier">row_found</span> = <span class="ruby-keyword kw">true</span>
+              <span class="ruby-keyword kw">end</span>
+            <span class="ruby-keyword kw">end</span>
+            <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">row</span>
+          <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

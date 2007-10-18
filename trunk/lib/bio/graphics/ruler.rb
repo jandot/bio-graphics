@@ -76,7 +76,7 @@ module Bio
               ruler_drawing.rel_line_to(0, 15)
               
               # Draw tick number
-              ruler_drawing.select_font_face('Georgia', 1, 1)
+              ruler_drawing.select_font_face(*(FONT))
               ruler_drawing.set_font_size(RULER_TEXT_HEIGHT)
               ruler_drawing.move_to(tick_pixel_position.floor, 20 + RULER_TEXT_HEIGHT)
               ruler_drawing.show_text(tick.to_i.to_s)

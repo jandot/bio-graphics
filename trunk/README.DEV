@@ -27,7 +27,7 @@ There's a reason for this. A track can only exist within the confines of a panel
 The user has to start with a
   my_panel = Bio::Graphics::Panel.new(length, width, clickable, display_start, display_stop)
 
-When this happens, among other things, the instance variable @tracks is created that will later contain the actual Track objects. In addition, there's @number_of_times_bumped. You'll later see that each Track object also has its @number_of_times_bumped. The panel needs this information to know how far it has to go down before it can start drawing a track: the first track will be just below the ruler, but the vertical coordinates of the second one depend on the height of all the ones that were drawn previously. And _that_ in turn is defined by the number of times a feature would overlap with another one and therefore had to be _bumped_ down.
+When this happens, among other things, the instance variable @tracks is created that will later contain the actual Track objects. In addition, there's @number_of_feature_rows. You'll later see that each Track object also has its @number_of_feature_rows. The panel needs this information to know how far it has to go down before it can start drawing a track: the first track will be just below the ruler, but the vertical coordinates of the second one depend on the height of all the ones that were drawn previously. And _that_ in turn is defined by the number of times a feature would overlap with another one and therefore had to be _bumped_ down.
 
 @display_start and @display_stop are used for zooming in on a region. Even though the full @length of the sequence can be really long, setting @display_start and @display_stop will only consider that region.
 
@@ -39,7 +39,7 @@ So this covered the Panel#initialize...
 Because tracks are inherently part of a panel and cannot exist on their own, they can only be created by using a Panel method rather than a Track method.
   my_track_1 = my_panel.add_track(name, label = false, feature_colour = [0,0,1], feature_glyph = 'generic')
 
-This creates a new Track object and adds it to the @tracks array of the Panel object. Several instance variables are set for the Track object, including @features (which is an array of Feature objects for that track) and @number_of_times_bumped. Every time a feature cannot be drawn because it would overlap with another one, it will be 'bumped' down until it can be drawn. This effectively results in _rows_ that contain the features. The @number_of_times_bumped is just the number of rows (to be able to calculate the height of the track afterwards). I admit that this variable should be renamed to something like @number_of_feature_rows or something, because the value is actually the number of times bumped + 1. In the example below, @number_of_times_bumped is 3 (instead of 2). (I'll change that later...)
+This creates a new Track object and adds it to the @tracks array of the Panel object. Several instance variables are set for the Track object, including @features (which is an array of Feature objects for that track) and @number_of_feature_rows. Every time a feature cannot be drawn because it would overlap with another one, it will be 'bumped' down until it can be drawn. This effectively results in _rows_ that contain the features. The @number_of_feature_rows is just the number of rows (to be able to calculate the height of the track afterwards).
 
   ------------------------------------------------------
     *******    ****  *********         *****    *****

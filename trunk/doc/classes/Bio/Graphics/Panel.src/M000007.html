@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
 </head>
 <body class="standalone-code">
-  <pre><span class="ruby-comment cmt"># File lib/bio/graphics/panel.rb, line 148</span>
+  <pre><span class="ruby-comment cmt"># File lib/bio/graphics/panel.rb, line 151</span>
       <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">draw</span>(<span class="ruby-identifier">file_name</span>)
         <span class="ruby-comment cmt"># Create a panel that is huge vertically</span>
         <span class="ruby-identifier">huge_height</span> = <span class="ruby-value">2000</span>
@@ -32,13 +32,13 @@
         <span class="ruby-ivar">@tracks</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">track</span><span class="ruby-operator">|</span>
           <span class="ruby-identifier">track</span>.<span class="ruby-identifier">vertical_offset</span> = <span class="ruby-identifier">vertical_offset</span>
           <span class="ruby-identifier">track</span>.<span class="ruby-identifier">draw</span>(<span class="ruby-identifier">huge_panel_drawing</span>)
-          <span class="ruby-ivar">@number_of_times_bumped</span> <span class="ruby-operator">+=</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">number_of_times_bumped</span>
-          <span class="ruby-identifier">vertical_offset</span> <span class="ruby-operator">+=</span> ( <span class="ruby-identifier">track</span>.<span class="ruby-identifier">number_of_times_bumped</span><span class="ruby-operator">*</span>(<span class="ruby-constant">FEATURE_HEIGHT</span><span class="ruby-operator">+</span><span class="ruby-constant">FEATURE_V_DISTANCE</span><span class="ruby-operator">+</span><span class="ruby-value">5</span>)) <span class="ruby-operator">+</span> <span class="ruby-value">10</span> <span class="ruby-comment cmt"># '10' is for the header</span>
+          <span class="ruby-ivar">@number_of_feature_rows</span> <span class="ruby-operator">+=</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">number_of_feature_rows</span>
+          <span class="ruby-identifier">vertical_offset</span> <span class="ruby-operator">+=</span> ( <span class="ruby-identifier">track</span>.<span class="ruby-identifier">number_of_feature_rows</span><span class="ruby-operator">*</span>(<span class="ruby-constant">FEATURE_HEIGHT</span><span class="ruby-operator">+</span><span class="ruby-constant">FEATURE_V_DISTANCE</span><span class="ruby-operator">+</span><span class="ruby-value">5</span>)) <span class="ruby-operator">+</span> <span class="ruby-value">10</span> <span class="ruby-comment cmt"># '10' is for the header</span>
         <span class="ruby-keyword kw">end</span>
 
         <span class="ruby-comment cmt"># And create a smaller version of the panel</span>
         <span class="ruby-identifier">height</span> = <span class="ruby-identifier">ruler</span>.<span class="ruby-identifier">height</span>
-        <span class="ruby-ivar">@number_of_times_bumped</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword kw">do</span>
+        <span class="ruby-ivar">@number_of_feature_rows</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword kw">do</span>
           <span class="ruby-identifier">height</span> <span class="ruby-operator">+=</span> <span class="ruby-value">20</span>
         <span class="ruby-keyword kw">end</span>
         <span class="ruby-ivar">@tracks</span>.<span class="ruby-identifier">length</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword kw">do</span> <span class="ruby-comment cmt">#To correct for the track headers</span>

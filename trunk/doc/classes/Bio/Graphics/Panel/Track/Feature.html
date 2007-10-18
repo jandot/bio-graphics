@@ -99,7 +99,10 @@ features.
       <h3 class="section-bar">Methods</h3>
 
       <div class="name-list">
-      <a href="#M000012">draw</a>&nbsp;&nbsp;
+      <a href="#M000012">arrow</a>&nbsp;&nbsp;
+      <a href="#M000013">connector</a>&nbsp;&nbsp;
+      <a href="#M000014">draw</a>&nbsp;&nbsp;
+      <a href="#M000015">find_row</a>&nbsp;&nbsp;
       <a href="#M000011">new</a>&nbsp;&nbsp;
       </div>
     </div>
@@ -286,7 +289,45 @@ strand
         <div class="method-heading">
           <a href="Feature.src/M000012.html" target="Code" class="method-signature"
             onclick="popupCode('Feature.src/M000012.html');return false;">
-          <span class="method-name">draw</span><span class="method-args">(track_drawing, row)</span>
+          <span class="method-name">arrow</span><span class="method-args">(track,direction,x,y,size)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Method to <a href="Feature.html#M000014">draw</a> the arrows of directed
+glyphs. Not to be used directly, but called by <a
+href="Feature.html#M000014">Feature#draw</a>.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000013" class="method-detail">
+        <a name="M000013"></a>
+
+        <div class="method-heading">
+          <a href="Feature.src/M000013.html" target="Code" class="method-signature"
+            onclick="popupCode('Feature.src/M000013.html');return false;">
+          <span class="method-name">connector</span><span class="method-args">(track,from,to,top, color)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Method to <a href="Feature.html#M000014">draw</a> the connections (introns)
+of spliced glyphs. Not to be used directly, but called by <a
+href="Feature.html#M000014">Feature#draw</a>.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000014" class="method-detail">
+        <a name="M000014"></a>
+
+        <div class="method-heading">
+          <a href="Feature.src/M000014.html" target="Code" class="method-signature"
+            onclick="popupCode('Feature.src/M000014.html');return false;">
+          <span class="method-name">draw</span><span class="method-args">(track_drawing)</span>
           </a>
         </div>
       
@@ -312,6 +353,33 @@ href="../Track.html#M000010">Bio::Graphics::Panel::Track.draw</a>
 </ul>
 <table>
 <tr><td valign="top"><b>Returns</b>:</td><td>FIXME: I don&#8216;t know
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000015" class="method-detail">
+        <a name="M000015"></a>
+
+        <div class="method-heading">
+          <a href="Feature.src/M000015.html" target="Code" class="method-signature"
+            onclick="popupCode('Feature.src/M000015.html');return false;">
+          <span class="method-name">find_row</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Calculates the row within the track where this feature should be drawn.
+This method should not be used directly by the user, but is called by <a
+href="Feature.html#M000014">Bio::Graphics::Panel::Track::Feature.draw</a>
+</p>
+<hr size="1"></hr><table>
+<tr><td valign="top"><b>Arguments</b>:</td><td>none
+
+</td></tr>
+<tr><td valign="top"><b>Returns</b>:</td><td>row number
 
 </td></tr>
 </table>

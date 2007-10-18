@@ -30,24 +30,24 @@ module Bio
         # * _colour_ :: Colour to be used to draw the features within the track.
         #   Default = 'blue'
         # * _glyph_ :: Glyph to use for drawing the features. Options are:
-        #   'generic', 'directed_generic', 'spliced, 'directed_spliced' and
-        #   'triangle'. Triangles can be used
+        #   :generic, :directed_generic, :spliced, :directed_spliced, :line and
+        #   :triangle. Triangles can be used
         #   for features whose start and stop positions are the same (e.g. SNPs).
         #   If you try to draw a feature that is longer with triangles, an error
         #   will be shown.
         # *Returns*:: Bio::Graphics::Track object
-        def initialize(panel, name, label = true, colour = [0,0,1], glyph = 'generic')
+        def initialize(panel, name, label = true, colour = [0,0,1], glyph = :generic)
           @panel = panel
           @name = name
           @show_label = label
           @colour = colour
           @glyph = glyph
           @features = Array.new
-          @number_of_times_bumped = 0
+          @number_of_feature_rows = 0
           @vertical_offset = 0
           @grid = Hash.new
         end
-        attr_accessor :panel, :name, :show_label, :colour, :glyph, :features, :number_of_times_bumped, :height, :vertical_offset, :grid
+        attr_accessor :panel, :name, :show_label, :colour, :glyph, :features, :number_of_feature_rows, :height, :vertical_offset, :grid
 
         # Adds a Bio::Graphics::Panel::Track::Feature to this track. A track contains
         # features of the same type, e.g. (for sequence annotation:) genes,
@@ -123,7 +123,8 @@ module Bio
 
           # Draw track title
           track_drawing.set_source_rgb(0,0,0)
-          track_drawing.select_font_face('Georgia',1,1)
+#          track_drawing.select_font_face('Georgia',1,1)
+          track_drawing.select_font_face(*(FONT))
           track_drawing.set_font_size(TRACK_HEADER_HEIGHT)
           track_drawing.move_to(0,TRACK_HEADER_HEIGHT + self.vertical_offset + 10)
           track_drawing.show_text(self.name)
@@ -144,7 +145,7 @@ module Bio
 
           end
 
-          @number_of_times_bumped = ( @grid.keys.length == 0 ) ? 1 : @grid.keys.max + 1
+          @number_of_feature_rows = ( @grid.keys.length == 0 ) ? 1 : @grid.keys.max + 1
 
           return panel_drawing
         end
