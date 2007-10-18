@@ -1,3 +1,4 @@
+require 'yaml'
 # 
 # = bio/graphics/feature.rb - feature class
 #
@@ -132,7 +133,7 @@ module Bio
           # * _row_ (required) :: row within the track that this feature has 
           #                       been bumped to
           # *Returns*:: FIXME: I don't know
-          def draw(track_drawing, row)
+          def draw(track_drawing)
             # We have to check if we want to change the glyph type from directed to
             #    undirected
             # There are 2 cases where we don't want to draw arrows on
@@ -165,6 +166,7 @@ module Bio
             end
 
             # And draw the thing.
+            row = self.find_row
             top_pixel_of_feature = FEATURE_V_DISTANCE + (FEATURE_HEIGHT+FEATURE_V_DISTANCE)*row
             bottom_pixel_of_feature = top_pixel_of_feature + FEATURE_HEIGHT
 
@@ -321,6 +323,28 @@ module Bio
                 track_drawing.rectangle(left_pixel_of_feature, top_pixel_of_feature, (right_pixel_of_feature - left_pixel_of_feature), FEATURE_HEIGHT).fill
             end
 
+            # Add the label for the feature
+            if self.track.show_label
+              pango_layout = track_drawing.create_pango_layout
+              pango_layout.text = self.name
+              fdesc = Pango::FontDescription.new('Sans Serif')
+              fdesc.set_size(8 * Pango::SCALE)
+              pango_layout.font_description = fdesc
+  
+              text_range = self.start.floor..(self.start.floor + pango_layout.pixel_size[0]*self.track.panel.rescale_factor)
+              if self.track.grid[row+1].nil?
+                self.track.grid[row+1] = Array.new
+              end
+              self.track.grid[row].push(text_range)
+              self.track.grid[row+1].push(text_range)
+              STDERR.puts self.track.grid.to_yaml
+              track_drawing.move_to(left_pixel_of_feature, top_pixel_of_feature + TRACK_HEADER_HEIGHT)
+              track_drawing.set_source_rgb(0,0,0)
+              track_drawing.show_pango_layout(pango_layout)
+              track_drawing.set_source_rgb(self.track.colour)
+            end
+            
+            
             # And add the region to the image map
             if self.track.panel.clickable
               # Comment: we have to add the vertical_offset and TRACK_HEADER_HEIGHT!
@@ -333,6 +357,47 @@ module Bio
             end
           end
           
+          # Calculates the row within the track where this feature should be
+          # drawn. This method should not 
+          # be used directly by the user, but is called by
+          # Bio::Graphics::Panel::Track::Feature.draw
+          # ---
+          # *Arguments*:: none
+          # *Returns*:: row number
+          def find_row
+            row_found = false
+            
+            # We've got to find out what row to draw the feature on. If two 
+            # features overlap, one of them has to be 'bumped' down. So we'll
+            # first try to draw a new feature at the top of the track. If
+            # it however would overlap with another one, we'll bump it down
+            # to the next row.
+            feature_range = (self.start.floor..self.stop.ceil)
+            row = 1
+            row_available = true
+            until row_found
+              if ! self.track.grid[row].nil?
+                self.track.grid[row].each do |covered|
+                  if feature_range.include?(covered.first) or covered.include?(feature_range.first)
+                    row_available = false
+                  end
+                end
+              end
+  
+              if ! row_available
+                row += 1
+                row_available = true
+              else # We've found the place where to draw the feature.
+                if self.track.grid[row].nil?
+                  self.track.grid[row] = Array.new
+                end
+                self.track.grid[row].push(feature_range)
+                row_found = true
+              end
+            end
+            return row
+          end
+
           class PixelRange
             def initialize(start_pixel, stop_pixel)
               @start_pixel, @stop_pixel = start_pixel, stop_pixel

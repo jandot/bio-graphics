@@ -8,6 +8,8 @@
 begin
   require 'bio'
   require 'cairo'
+  require 'pango'
+  require 'stringio'
   rescue nil
 end
 

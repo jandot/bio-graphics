@@ -26,6 +26,7 @@ module Bio
         # * _panel_ (required) :: Bio::Graphics::Panel object that this track
         #   belongs to
         # * _name_ (required) :: Name of the track to be displayed (e.g. 'genes')
+        # * _label_ :: Boolean: should the label for each feature be drawn or not
         # * _colour_ :: Colour to be used to draw the features within the track.
         #   Default = 'blue'
         # * _glyph_ :: Glyph to use for drawing the features. Options are:
@@ -35,16 +36,18 @@ module Bio
         #   If you try to draw a feature that is longer with triangles, an error
         #   will be shown.
         # *Returns*:: Bio::Graphics::Track object
-        def initialize(panel, name, colour = [0,0,1], glyph = 'generic')
+        def initialize(panel, name, label = true, colour = [0,0,1], glyph = 'generic')
           @panel = panel
           @name = name
+          @show_label = label
           @colour = colour
           @glyph = glyph
           @features = Array.new
           @number_of_times_bumped = 0
           @vertical_offset = 0
+          @grid = Hash.new
         end
-        attr_accessor :panel, :name, :colour, :glyph, :features, :number_of_times_bumped, :height, :vertical_offset
+        attr_accessor :panel, :name, :show_label, :colour, :glyph, :features, :number_of_times_bumped, :height, :vertical_offset, :grid
 
         # Adds a Bio::Graphics::Panel::Track::Feature to this track. A track contains
         # features of the same type, e.g. (for sequence annotation:) genes,
@@ -126,57 +129,22 @@ module Bio
           track_drawing.show_text(self.name)
 
           # Draw the features
-          grid = Hash.new
-
           track_drawing.save do
             track_drawing.translate(0, self.vertical_offset + TRACK_HEADER_HEIGHT)
             track_drawing.set_source_rgb(@colour)
 
-            @features.each do |feature|
+            @features.sort_by{|f| f.start}.each do |feature|
               # Don't even bother if the feature is not in the view
               if feature.stop <= self.panel.display_start or feature.start >= self.panel.display_stop
                 next
               else
-                feature_drawn = false
-                
-                # We've got to find out what row to draw the feature on. If two 
-                # features overlap, one of them has to be 'bumped' down. So we'll
-                # first try to draw a new feature at the top of the track. If
-                # it however would overlap with another one, we'll bump it down
-                # to the next row.
-                feature_range = (feature.start.floor..feature.stop.ceil)
-                row = 1
-                row_available = true
-                until feature_drawn
-                  if ! grid[row].nil?
-                    grid[row].each do |covered|
-                      if feature_range.include?(covered.first) or covered.include?(feature_range.first)
-                        row_available = false
-                      end
-                    end
-                  end
-  
-                  if ! row_available
-                    row += 1
-                    row_available = true
-                  else # We've found the place where to draw the feature.
-                    if grid[row].nil?
-                      grid[row] = Array.new
-                    end
-                    grid[row].push(feature_range)
-
-                    # And draw the thing
-                    feature.draw(track_drawing, row)
-                      
-                    feature_drawn = true
-                  end
-                end
+                feature.draw(track_drawing)
               end
             end
 
           end
 
-          @number_of_times_bumped = ( grid.keys.length == 0 ) ? 1 : grid.keys.max + 1
+          @number_of_times_bumped = ( @grid.keys.length == 0 ) ? 1 : @grid.keys.max + 1
 
           return panel_drawing
         end
