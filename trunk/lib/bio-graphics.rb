@@ -12,7 +12,6 @@ begin
   require 'stringio'
 end
 
-require File.dirname(__FILE__) + '/bio/feature.rb'
 require File.dirname(__FILE__) + '/bio/graphics/image_map.rb'
 require File.dirname(__FILE__) + '/bio/graphics/panel.rb'
 require File.dirname(__FILE__) + '/bio/graphics/track.rb'
