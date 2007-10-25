@@ -13,7 +13,7 @@
   <pre><span class="ruby-comment cmt"># File lib/bio/graphics/ruler.rb, line 35</span>
         <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">calculate_tick_distance</span>
           <span class="ruby-identifier">min_tick_distance_requirement_met</span> = <span class="ruby-keyword kw">false</span>
-          <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">minor_tick_distance</span> = <span class="ruby-value">1</span> <span class="ruby-comment cmt"># in basepairs. Start with at least 10 bp distance</span>
+          <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">minor_tick_distance</span> = <span class="ruby-value">1</span> <span class="ruby-comment cmt"># in basepairs.</span>
           <span class="ruby-keyword kw">while</span> <span class="ruby-operator">!</span> <span class="ruby-identifier">min_tick_distance_requirement_met</span>
             <span class="ruby-keyword kw">if</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">minor_tick_distance</span><span class="ruby-operator">/</span><span class="ruby-identifier">panel</span>.<span class="ruby-identifier">rescale_factor</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-constant">RULER_MIN_DISTANCE_TICKS_PIXEL</span>
               <span class="ruby-identifier">min_tick_distance_requirement_met</span> = <span class="ruby-keyword kw">true</span>

@@ -99,11 +99,9 @@ features.
       <h3 class="section-bar">Methods</h3>
 
       <div class="name-list">
-      <a href="#M000012">arrow</a>&nbsp;&nbsp;
-      <a href="#M000013">connector</a>&nbsp;&nbsp;
-      <a href="#M000014">draw</a>&nbsp;&nbsp;
-      <a href="#M000015">find_row</a>&nbsp;&nbsp;
-      <a href="#M000011">new</a>&nbsp;&nbsp;
+      <a href="#M000015">draw</a>&nbsp;&nbsp;
+      <a href="#M000016">find_row</a>&nbsp;&nbsp;
+      <a href="#M000014">new</a>&nbsp;&nbsp;
       </div>
     </div>
 
@@ -236,12 +234,12 @@ The track that this feature belongs to
     <div id="methods">
       <h3 class="section-bar">Public Class methods</h3>
 
-      <div id="method-M000011" class="method-detail">
-        <a name="M000011"></a>
+      <div id="method-M000014" class="method-detail">
+        <a name="M000014"></a>
 
         <div class="method-heading">
-          <a href="Feature.src/M000011.html" target="Code" class="method-signature"
-            onclick="popupCode('Feature.src/M000011.html');return false;">
+          <a href="Feature.src/M000014.html" target="Code" class="method-signature"
+            onclick="popupCode('Feature.src/M000014.html');return false;">
           <span class="method-name">new</span><span class="method-args">(track, name, location = Bio::Locations.new('1..' + track.panel.length.to_s), link = nil)</span>
           </a>
         </div>
@@ -249,7 +247,7 @@ The track that this feature belongs to
         <div class="method-description">
           <p>
 !!Not to be used directly. Use <a
-href="../Track.html#M000009">Bio::Graphics::Panel::Track.add_feature</a>
+href="../Track.html#M000012">Bio::Graphics::Panel::Track.add_feature</a>
 instead!! A feature can not exist except within the confines of a <a
 href="../Track.html">Bio::Graphics::Panel::Track</a> object.
 </p>
@@ -283,50 +281,12 @@ strand
 
       <h3 class="section-bar">Public Instance methods</h3>
 
-      <div id="method-M000012" class="method-detail">
-        <a name="M000012"></a>
+      <div id="method-M000015" class="method-detail">
+        <a name="M000015"></a>
 
         <div class="method-heading">
-          <a href="Feature.src/M000012.html" target="Code" class="method-signature"
-            onclick="popupCode('Feature.src/M000012.html');return false;">
-          <span class="method-name">arrow</span><span class="method-args">(track,direction,x,y,size)</span>
-          </a>
-        </div>
-      
-        <div class="method-description">
-          <p>
-Method to <a href="Feature.html#M000014">draw</a> the arrows of directed
-glyphs. Not to be used directly, but called by <a
-href="Feature.html#M000014">Feature#draw</a>.
-</p>
-        </div>
-      </div>
-
-      <div id="method-M000013" class="method-detail">
-        <a name="M000013"></a>
-
-        <div class="method-heading">
-          <a href="Feature.src/M000013.html" target="Code" class="method-signature"
-            onclick="popupCode('Feature.src/M000013.html');return false;">
-          <span class="method-name">connector</span><span class="method-args">(track,from,to,top, color)</span>
-          </a>
-        </div>
-      
-        <div class="method-description">
-          <p>
-Method to <a href="Feature.html#M000014">draw</a> the connections (introns)
-of spliced glyphs. Not to be used directly, but called by <a
-href="Feature.html#M000014">Feature#draw</a>.
-</p>
-        </div>
-      </div>
-
-      <div id="method-M000014" class="method-detail">
-        <a name="M000014"></a>
-
-        <div class="method-heading">
-          <a href="Feature.src/M000014.html" target="Code" class="method-signature"
-            onclick="popupCode('Feature.src/M000014.html');return false;">
+          <a href="Feature.src/M000015.html" target="Code" class="method-signature"
+            onclick="popupCode('Feature.src/M000015.html');return false;">
           <span class="method-name">draw</span><span class="method-args">(track_drawing)</span>
           </a>
         </div>
@@ -335,7 +295,7 @@ href="Feature.html#M000014">Feature#draw</a>.
           <p>
 Adds the feature to the track cairo context. This method should not be used
 directly by the user, but is called by <a
-href="../Track.html#M000010">Bio::Graphics::Panel::Track.draw</a>
+href="../Track.html#M000013">Bio::Graphics::Panel::Track.draw</a>
 </p>
 <hr size="1"></hr><p>
 <b>Arguments</b>:
@@ -359,12 +319,12 @@ href="../Track.html#M000010">Bio::Graphics::Panel::Track.draw</a>
         </div>
       </div>
 
-      <div id="method-M000015" class="method-detail">
-        <a name="M000015"></a>
+      <div id="method-M000016" class="method-detail">
+        <a name="M000016"></a>
 
         <div class="method-heading">
-          <a href="Feature.src/M000015.html" target="Code" class="method-signature"
-            onclick="popupCode('Feature.src/M000015.html');return false;">
+          <a href="Feature.src/M000016.html" target="Code" class="method-signature"
+            onclick="popupCode('Feature.src/M000016.html');return false;">
           <span class="method-name">find_row</span><span class="method-args">()</span>
           </a>
         </div>
@@ -373,7 +333,7 @@ href="../Track.html#M000010">Bio::Graphics::Panel::Track.draw</a>
           <p>
 Calculates the row within the track where this feature should be drawn.
 This method should not be used directly by the user, but is called by <a
-href="Feature.html#M000014">Bio::Graphics::Panel::Track::Feature.draw</a>
+href="Feature.html#M000015">Bio::Graphics::Panel::Track::Feature.draw</a>
 </p>
 <hr size="1"></hr><table>
 <tr><td valign="top"><b>Arguments</b>:</td><td>none

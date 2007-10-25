@@ -123,48 +123,6 @@ module Bio
           
           # Are there subfeatures out of view at the right side of the picture?
           attr_accessor :hidden_subfeatures_at_stop
-
-          # Method to draw the arrows of directed glyphs. Not to be used
-          # directly, but called by Feature#draw.
-          def arrow(track,direction,x,y,size)
-            case direction
-            when :right
-              track.move_to(x,y)
-              track.rel_line_to(size,size)
-              track.rel_line_to(-size,size)
-              track.close_path.fill
-            when :left
-              track.move_to(x,y)
-              track.rel_line_to(-size,size)
-              track.rel_line_to(size,size)
-              track.close_path.fill
-            when :north
-              track.move_to(x-size,y+size)
-              track.rel_line_to(size,-size)
-              track.rel_line_to(size,size)
-              track.close_path.fill
-            when :south
-              track.move_to(x-size,y-size)
-              track.rel_line_to(size,size)
-              track.rel_line_to(size,-size)
-              track.close_path.fill
-            end
-          end
-
-          # Method to draw the connections (introns) of spliced glyphs. Not to
-          # be used directly, but called by Feature#draw.
-          def connector(track,from,to,top, color)
-            line_width = track.line_width
-            track.set_source_rgb([0,0,0])
-            track.set_line_width(0.5)
-            middle = from + ((to - from)/2)
-            track.move_to(from, top+2)
-            track.line_to(middle, top+7)
-            track.line_to(to, top+2)
-            track.stroke
-            track.set_line_width(line_width)
-            track.set_source_rgb(color)
-          end
           
           # Adds the feature to the track cairo context. This method should not 
           # be used directly by the user, but is called by
@@ -250,50 +208,15 @@ module Bio
                   track_drawing.close_path.fill
                 end
               when :spliced
-                gap_starts = Array.new
-                gap_stops = Array.new
-
                 # Need to get this for the imagemap
                 left_pixel_of_feature = self.pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
                 right_pixel_of_feature = self.pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
 
-                # First draw the parts
-                self.pixel_range_collection.sort_by{|pr| pr.start_pixel}.each do |pr|
-                  track_drawing.rectangle(pr.start_pixel, top_pixel_of_feature, (pr.stop_pixel - pr.start_pixel), FEATURE_HEIGHT).fill
-                  gap_starts.push(pr.stop_pixel)
-                  gap_stops.push(pr.start_pixel)
-                end
-
-                # And then draw the connections in the gaps
-                # Start with removing the very first start and the very last stop.
-                gap_starts.sort!.pop
-                gap_stops.sort!.shift
-
-                gap_starts.length.times do |gap_number|
-                  connector(track_drawing,gap_starts[gap_number].to_f,gap_stops[gap_number].to_f,top_pixel_of_feature,track.colour)
-                end
-
-                if self.hidden_subfeatures_at_stop
-                  from = self.pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
-                  to = self.track.panel.width
-                  track_drawing.move_to(from, top_pixel_of_feature+5)
-                  track_drawing.line_to(to, top_pixel_of_feature+5)
-                  track_drawing.stroke
-                end
-
-                if self.hidden_subfeatures_at_start
-                  from = 1
-                  to = self.pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
-                  track_drawing.move_to(from, top_pixel_of_feature+5)
-                  track_drawing.line_to(to, top_pixel_of_feature+5)
-                  track_drawing.stroke
-                end
-
+                pixel_ranges = self.pixel_range_collection.sort_by{|pr| pr.start_pixel}
+                draw_spliced(track_drawing, pixel_ranges, top_pixel_of_feature, [], [])
               when :directed_spliced
                 gap_starts = Array.new
                 gap_stops = Array.new
-                # First draw the parts
-                locations = self.location.sort_by{|l| l.from}
 
                 # Need to get this for the imagemap
                 left_pixel_of_feature = self.pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
@@ -317,37 +240,7 @@ module Bio
                 gap_stops.push(range_with_arrow.start_pixel)
 
                 #   And then add the others
-                pixel_ranges.each do |range|
-                  track_drawing.rectangle(range.start_pixel, top_pixel_of_feature, range.stop_pixel - range.start_pixel, FEATURE_HEIGHT).fill
-                  gap_starts.push(range.stop_pixel)
-                  gap_stops.push(range.start_pixel)
-                end
-
-                # And then draw the connections in the gaps
-                # Start with removing the very first start and the very last stop.
-                gap_starts.sort!.pop
-                gap_stops.sort!.shift
-
-                gap_starts.length.times do |gap_number|
-                  connector(track_drawing,gap_starts[gap_number].to_f,gap_stops[gap_number].to_f,top_pixel_of_feature,track.colour)
-                end
-
-                if self.hidden_subfeatures_at_stop
-                  from = self.pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
-                  to = self.track.panel.width
-                  track_drawing.move_to(from, top_pixel_of_feature+FEATURE_ARROW_LENGTH)
-                  track_drawing.line_to(to, top_pixel_of_feature+FEATURE_ARROW_LENGTH)
-                  track_drawing.stroke
-                end
-
-                if self.hidden_subfeatures_at_start
-                  from = 1
-                  to = self.pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
-                  track_drawing.move_to(from, top_pixel_of_feature+FEATURE_ARROW_LENGTH)
-                  track_drawing.line_to(to, top_pixel_of_feature+FEATURE_ARROW_LENGTH)
-                  track_drawing.stroke
-                end
-
+                draw_spliced(track_drawing, pixel_ranges, top_pixel_of_feature, gap_starts, gap_stops)
               else #treat as 'generic'
                 left_pixel_of_feature, right_pixel_of_feature = self.pixel_range_collection[0].start_pixel, self.pixel_range_collection[0].stop_pixel
                 track_drawing.rectangle(left_pixel_of_feature, top_pixel_of_feature, (right_pixel_of_feature - left_pixel_of_feature), FEATURE_HEIGHT).fill
@@ -433,6 +326,93 @@ module Bio
             end
             attr_accessor :start_pixel, :stop_pixel
           end
+
+          private
+
+          # Method to draw each of the squared spliced rectangles for
+          # spliced and directed_spliced
+          # ---
+          # *Arguments*:
+          # * _track_drawing_::
+          # * _pixel_ranges_:: 
+          # * _top_pixel_of_feature_:: 
+          # * _gap_starts_:: 
+          # * _gap_stops_:: 
+          def draw_spliced(track_drawing, pixel_ranges, top_pixel_of_feature, gap_starts, gap_stops)            
+            # draw the parts
+            pixel_ranges.each do |range|
+              track_drawing.rectangle(range.start_pixel, top_pixel_of_feature, range.stop_pixel - range.start_pixel, FEATURE_HEIGHT).fill
+              gap_starts.push(range.stop_pixel)
+              gap_stops.push(range.start_pixel)
+            end
+
+            # And then draw the connections in the gaps
+            # Start with removing the very first start and the very last stop.
+            gap_starts.sort!.pop
+            gap_stops.sort!.shift
+
+            gap_starts.length.times do |gap_number|
+              connector(track_drawing,gap_starts[gap_number].to_f,gap_stops[gap_number].to_f,top_pixel_of_feature)
+            end
+
+            if self.hidden_subfeatures_at_stop
+              from = self.pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
+              to = self.track.panel.width
+              track_drawing.move_to(from, top_pixel_of_feature+FEATURE_ARROW_LENGTH)
+              track_drawing.line_to(to, top_pixel_of_feature+FEATURE_ARROW_LENGTH)
+              track_drawing.stroke
+            end
+
+            if self.hidden_subfeatures_at_start
+              from = 1
+              to = self.pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
+              track_drawing.move_to(from, top_pixel_of_feature+FEATURE_ARROW_LENGTH)
+              track_drawing.line_to(to, top_pixel_of_feature+FEATURE_ARROW_LENGTH)
+              track_drawing.stroke
+            end
+          end
+
+          # Method to draw the arrows of directed glyphs. Not to be used
+          # directly, but called by Feature#draw.
+          def arrow(track,direction,x,y,size)
+            case direction
+            when :right
+              track.move_to(x,y)
+              track.rel_line_to(size,size)
+              track.rel_line_to(-size,size)
+              track.close_path.fill
+            when :left
+              track.move_to(x,y)
+              track.rel_line_to(-size,size)
+              track.rel_line_to(size,size)
+              track.close_path.fill
+            when :north
+              track.move_to(x-size,y+size)
+              track.rel_line_to(size,-size)
+              track.rel_line_to(size,size)
+              track.close_path.fill
+            when :south
+              track.move_to(x-size,y-size)
+              track.rel_line_to(size,size)
+              track.rel_line_to(size,-size)
+              track.close_path.fill
+            end
+          end
+
+          # Method to draw the connections (introns) of spliced glyphs. Not to
+          # be used directly, but called by Feature#draw.
+          def connector(track,from,to,top)
+            line_width = track.line_width
+            track.set_source_rgb([0,0,0])
+            track.set_line_width(0.5)
+            middle = from + ((to - from)/2)
+            track.move_to(from, top+2)
+            track.line_to(middle, top+7)
+            track.line_to(to, top+2)
+            track.stroke
+            track.set_line_width(line_width)
+            track.set_source_rgb(self.track.colour)
+          end                    
         end #Feature
       end #Track
     end #Panel
