@@ -33,11 +33,10 @@ class TestPanel < Test::Unit::TestCase
     directed_spliced_track.add_feature('gene5','complement(join(170..231,264..299,350..360,409..445))', 'http://bioinformatics.roslin.ac.uk')
     directed_spliced_track.add_feature('gene6','join(134..152,209..283)')
     
-    my_panel.draw('glyph_showcase.png')
-    
-    system("display glyph_showcase.png & sleep 1 && kill $!")
-    
-    File.delete('glyph_showcase.png')
+    output_file = File.dirname(__FILE__) + '/output.png'
+    my_panel.draw(output_file)
+    system("display " + output_file + "& sleep 2 && kill $!")
+    File.delete(output_file)
   end
 
   def test_arkdb_features
@@ -54,7 +53,7 @@ class TestPanel < Test::Unit::TestCase
     clone_track.colour = [0,0,1]
     
     # Add data to tracks
-    File.open('data.txt').each do |line|
+    File.open(File.dirname(__FILE__) + '/data.txt').each do |line|
       line.chomp!
       accession, type, start, stop = line.split(/\t/)
       if type == 'scaffold'
@@ -72,11 +71,10 @@ class TestPanel < Test::Unit::TestCase
     end
 
     # And draw
-    my_panel.draw('my_panel.png')
-
-    system("display my_panel.png & sleep 1 && kill $!")
-    
-    File.delete('my_panel.png')
+    output_file = File.dirname(__FILE__) + '/output.png'
+    my_panel.draw(output_file)
+    system("display " + output_file + "& sleep 2 && kill $!")
+    File.delete(output_file)
   end
 
 end
