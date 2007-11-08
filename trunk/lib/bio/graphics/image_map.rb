@@ -21,6 +21,17 @@ class ImageMap
   end
 
 
+  # Switch horizontal to vertical orientation
+  def flip_orientation(width)
+    @elements.each do |element|
+      left, top, right, bottom = element.left, element.top, element.right, element.bottom
+      element.left = top
+      element.top = width - left
+      element.right = bottom
+      element.bottom = width - right  
+    end
+  end
+  
   class ImageMapElement
     def initialize(left, top, right, bottom, url = nil)
       @left, @top, @right, @bottom = left, top, right, bottom

@@ -9,38 +9,45 @@ class TestPanel < Test::Unit::TestCase
     line_track = my_panel.add_track('line', false, [0,0,1], :line)
     directed_track = my_panel.add_track('directed', false, [0,1,0], :directed_generic)
     triangle_track = my_panel.add_track('triangle', false, [1,0,0], :triangle)
+    dot_track = my_panel.add_track('dot', false, [0,1,1], :dot)
     spliced_track = my_panel.add_track('spliced', false, [1,0,0], :spliced)
     directed_spliced_track = my_panel.add_track('directed_spliced', false, [1,0,1], :directed_spliced)
     
-    generic_track.add_feature('clone1','250..375', 'http://www.newsforge.com')
-    generic_track.add_feature('clone2','54..124', 'http://www.thearkdb.org')
-    generic_track.add_feature('clone3','100..449', 'http://www.google.com')
+    generic_track.add_feature(Bio::Feature.new('clone', '250..375'), 'clone1', 'http://www.newsforge.com')
+    generic_track.add_feature(Bio::Feature.new('clone', '54..124'), 'clone2', 'http://www.thearkdb.org')
+    generic_track.add_feature(Bio::Feature.new('clone', '100..449'), 'clone3', 'http://www.google.com')
     
-    line_track.add_feature('primer1','complement(200..320)')
-    line_track.add_feature('primer2','355..480', 'http://www.zdnet.co.uk')
+    line_track.add_feature(Bio::Feature.new('primer', 'complement(200..320)'), 'primer1')
+    line_track.add_feature(Bio::Feature.new('primer', '355..480'), 'primer2', 'http://www.zdnet.co.uk')
     
-    directed_track.add_feature('marker1','50..60', 'http://www.google.com')
-    directed_track.add_feature('marker2','complement(80..120)', 'http://www.sourceforge.net')
+    directed_track.add_feature(Bio::Feature.new('marker', '50..60'), 'marker1', 'http://www.google.com')
+    directed_track.add_feature(Bio::Feature.new('marker','complement(80..120)'), 'marker2', 'http://www.sourceforge.net')
     
-    triangle_track.add_feature('snp1','56')
-    triangle_track.add_feature('snp2','103','http://digg.com')
+    triangle_track.add_feature(Bio::Feature.new('marker', '56'),'snp1')
+    triangle_track.add_feature(Bio::Feature.new('marker', '103'), 'snp2','http://digg.com')
     
-    spliced_track.add_feature('gene1','join(34..52,109..183)','http://news.bbc.co.uk')
-    spliced_track.add_feature('gene2','complement(join(170..231,264..299,350..360,409..445))')
-    spliced_track.add_feature('gene3','join(134..152,209..283)')
+    dot_track.add_feature(Bio::Feature.new('marker', '56'), 'thing1')
+    dot_track.add_feature(Bio::Feature.new('marker', '57'), 'thing3')
+    dot_track.add_feature(Bio::Feature.new('marker', '114'), 'thing2','http://digg.com')
+
     
-    directed_spliced_track.add_feature('gene4','join(34..52,109..183)', 'http://www.vrtnieuws.net')
-    directed_spliced_track.add_feature('gene5','complement(join(170..231,264..299,350..360,409..445))', 'http://bioinformatics.roslin.ac.uk')
-    directed_spliced_track.add_feature('gene6','join(134..152,209..283)')
+    spliced_track.add_feature(Bio::Feature.new('gene','join(34..52,109..183)'), 'gene1','http://news.bbc.co.uk')
+    spliced_track.add_feature(Bio::Feature.new('gene','complement(join(170..231,264..299,350..360,409..445))'), 'gene2')
+    spliced_track.add_feature(Bio::Feature.new('gene','join(134..152,209..283)'), 'gene3')
+    
+    directed_spliced_track.add_feature(Bio::Feature.new('gene','join(34..52,109..183)'), 'gene4', 'http://www.vrtnieuws.net')
+    directed_spliced_track.add_feature(Bio::Feature.new('gene','complement(join(170..231,264..299,350..360,409..445))'), 'gene5', 'http://bioinformatics.roslin.ac.uk')
+    directed_spliced_track.add_feature(Bio::Feature.new('gene','join(134..152,209..283)'), 'gene6')
     
     output_file = File.dirname(__FILE__) + '/output.png'
     my_panel.draw(output_file)
     system("display " + output_file + "& sleep 2 && kill $!")
     File.delete(output_file)
+
   end
 
   def test_arkdb_features
-    my_panel = Bio::Graphics::Panel.new(4173015, 800, false, 1, 4173015)
+    my_panel = Bio::Graphics::Panel.new(4173015, 600, false, 1, 4173015, true)
     
     #Create and configure tracks
     scaffold_track = my_panel.add_track('scaffold', false)
@@ -58,24 +65,52 @@ class TestPanel < Test::Unit::TestCase
       accession, type, start, stop = line.split(/\t/)
       if type == 'scaffold'
         if start.nil?
-          scaffold_track.add_feature(accession)
+          scaffold_track.add_feature(Bio::Feature.new('scaffold', '1..4173015'), accession)
         else
-          scaffold_track.add_feature(accession, start + '..' + stop)
+          scaffold_track.add_feature(Bio::Feature.new('scaffold', start + '..' + stop), accession, 'http://www.google.com')
         end
-        
+          
       elsif type == 'marker'
-        marker_track.add_feature(accession, ((start.to_i + stop.to_i)/2).to_s, 'http://www.thearkdb.org/arkdb/do/getMarkerDetail?accession=' + accession)
+        marker_track.add_feature(Bio::Feature.new('marker', ((start.to_i + stop.to_i)/2).to_s), accession, 'http://www.thearkdb.org/arkdb/do/getMarkerDetail?accession=' + accession)
       elsif type == 'clone'
-        clone_track.add_feature(accession, start + '..' + stop)
+        clone_track.add_feature(Bio::Feature.new('clone', start + '..' + stop), accession)
       end
     end
 
     # And draw
     output_file = File.dirname(__FILE__) + '/output.png'
     my_panel.draw(output_file)
+
     system("display " + output_file + "& sleep 2 && kill $!")
     File.delete(output_file)
+    
   end
 
-end
+  def test_subfeatures
+    my_panel = Bio::Graphics::Panel.new(375, 600, false, 1, 375, false)
+    
+    track = my_panel.add_track('mrna')
+    
+    track.colour = [1,0,0]
+    track.glyph = :spliced
+    
+    # Add data to tracks
+    utr5 = Bio::Feature.new('utr', '100..150')
+    cds = Bio::Feature.new('cds', 'join(150..225, 250..275, 310..330)')
+    utr3 = Bio::Feature.new('utr', '330..375')
 
+    transcript = Bio::Feature.new('transcript', 'join(100..225, 250..275, 310..375)', nil, nil, [], nil, [utr5, cds, utr3])
+    
+    transcript_graphic = track.add_feature(transcript, 'my_transcript')
+    transcript_graphic.glyph = { 'utr' => :line, 'cds' => :spliced }
+    
+    # And draw
+    output_file = File.dirname(__FILE__) + '/output.png'
+    my_panel.draw(output_file)
+
+    system("display " + output_file + "& sleep 2 && kill $!")
+    File.delete(output_file)
+    
+  end
+  
+end

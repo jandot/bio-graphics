@@ -5,6 +5,8 @@
 #               Jan Aerts <jan.aerts@bbsrc.ac.uk>
 # License::     The Ruby License
 #
+include Math
+
 module Bio
   # = DESCRIPTION
   # The Bio::Graphics set of objects allow for creating simple images that
@@ -99,10 +101,12 @@ module Bio
       #   the map.
       # * _display_start_ :: start coordinate to be displayed (default: 1)
       # * _display_stop_ :: stop coordinate to be displayed (default: length of sequence)
+      # * _verticle_ :: Boolean: false = horizontal (= default)
       # *Returns*:: Bio::Graphics::Panel object
-      def initialize(length, width = DEFAULT_PANEL_WIDTH, clickable = false, display_start = nil, display_stop = nil)
+      def initialize(length, width = DEFAULT_PANEL_WIDTH, clickable = false, display_start = nil, display_stop = nil, verticle = false)
         @length = length.to_i
         @width = width.to_i
+        @verticle = verticle
         @tracks = Array.new
         @number_of_feature_rows = 0
         @clickable = clickable
@@ -114,7 +118,7 @@ module Bio
         end
         @rescale_factor = (@display_stop - @display_start).to_f / @width
       end
-      attr_accessor :length, :width, :height, :rescale_factor, :tracks, :number_of_feature_rows, :clickable, :image_map, :display_start, :display_stop
+      attr_accessor :length, :width, :height, :rescale_factor, :tracks, :number_of_feature_rows, :clickable, :image_map, :display_start, :display_stop, :verticle
 
       # Adds a Bio::Graphics::Track container to this panel. A panel contains a
       # logical grouping of features, e.g. (for sequence annotation:) genes,
@@ -183,14 +187,32 @@ module Bio
         end
 
         resized_panel_drawing = nil
-        resized_panel_drawing = Cairo::ImageSurface.new(1, @width, height)
-        resizing_context = Cairo::Context.new(resized_panel_drawing)
-        resizing_context.set_source(huge_panel_drawing, 0,0)
-        resizing_context.rectangle(0,0,@width, height).fill
-
+        if self.verticle
+          max_size = [height, @width].max
+          rotation_drawing = Cairo::ImageSurface.new(1, max_size, max_size)
+          rotation_context = Cairo::Context.new(rotation_drawing)
+          rotation_context.rotate(3*PI/2)
+          rotation_context.translate(-@width, 0)
+          rotation_context.set_source(huge_panel_drawing, 0, 0)
+          rotation_context.rectangle(0,0,max_size, max_size).fill
+          
+          resized_panel_drawing = Cairo::ImageSurface.new(1, height, @width)
+          resizing_context = Cairo::Context.new(resized_panel_drawing)
+          resizing_context.set_source(rotation_drawing, 0, 0)
+          resizing_context.rectangle(0,0, height, @width).fill
+        else
+          resized_panel_drawing = Cairo::ImageSurface.new(1, @width, height)
+          resizing_context = Cairo::Context.new(resized_panel_drawing)
+          resizing_context.set_source(huge_panel_drawing, 0, 0)
+          resizing_context.rectangle(0,0,@width, height).fill
+        end
+       
         # And print to file
         resized_panel_drawing.write_to_png(file_name)
         if @clickable # create png and map
+          if @verticle # we have to alter coordinates
+            @image_map.flip_orientation(@width)
+          end
           html_filename = file_name.sub(/\.[^.]+$/, '.html')
           html = File.open(html_filename,'w')
           html.puts "<html>"
