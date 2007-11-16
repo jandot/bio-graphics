@@ -18,6 +18,22 @@ desc "Create RDoc documentation"
 file 'doc/index.html' => file_list do
   puts "######## Creating RDoc documentation"
   system "rdoc --title 'Bio::Graphics documentation' -m TUTORIAL TUTORIAL README.DEV lib/"
+  tmp_file = File.open('doc/tmp.html', 'w')
+  File.open('doc/files/TUTORIAL.html').each do |line|
+    line.chomp!
+    if line =~ /<\/body>/
+      tmp_file.puts '<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">'
+      tmp_file.puts '</script>'
+      tmp_file.puts '<script type="text/javascript">'
+      tmp_file.puts '_uacct = "UA-2131816-4";'
+      tmp_file.puts 'urchinTracker();'
+      tmp_file.puts '</script>'
+      tmp_file.puts line
+    else
+      tmp_file.puts line
+    end
+  end
+  File.move('doc/tmp.html', 'doc/files/TUTORIAL.html')
 end
 
 desc "An alias for creating the RDoc documentation"

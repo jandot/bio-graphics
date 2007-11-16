@@ -46,7 +46,7 @@ module Bio
           self.major_tick_distance = self.minor_tick_distance * 10
         end
 
-        def draw(panel_drawing, vertical_offset)
+        def draw(panel_drawing)
           ruler_drawing = Cairo::Context.new(panel_drawing)
 
           self.calculate_tick_distance

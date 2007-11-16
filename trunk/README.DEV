@@ -7,25 +7,27 @@ This README is mainly meant to explain how the code works (rather than how to _u
 I've tried to document as much as possible in the code itself, see for example the comments that accompany the setting of the defaults for Bio::Graphics in the panel.rb file. However, the bigger picture can not be explained that way.
 
 === The files
-There's one file for each class: panel, track, feature, ruler and image_map. See the tutorial on a breakdown what each of these do. All of these except the image_map make up a picture. The image_map is used to describe the HTML map that can be created to make a picture clickable.
+There's one file for each class: panel, track, feature, subfeature, ruler and image_map. See the tutorial on a breakdown what each of these do. All of these except the image_map make up a picture. The image_map is used to describe the HTML map that can be created to make a picture clickable.
 
 Classes are embedded in each other: instead of
   Bio::Graphics::Panel
   Bio::Graphics::Ruler
   Bio::Graphics::Track
   Bio::Graphics::Feature
+  Bio::Graphics::SubFeature
 we have:
   Bio::Graphics::Panel
   Bio::Graphics::Panel::Ruler
   Bio::Graphics::Panel::Track
   Bio::Graphics::Panel::Track::Feature
+  Bio::Graphics::Panel::Track::Feature::SubFeature
 
 There's a reason for this. A track can only exist within the confines of a panel (i.e. a panel is a container for tracks), and a feature can only exist within the confines of a track. In addition, there are quite some instances where information from the panel is necessary for the track, and from the track for the features.
 
 === The workflow
 ==== 1. Creating the panel
 The user has to start with a
-  my_panel = Bio::Graphics::Panel.new(length, width, clickable, display_start, display_stop)
+  my_panel = Bio::Graphics::Panel.new(length, width, clickable, display_start, display_stop, verticle)
 
 When this happens, among other things, the instance variable @tracks is created that will later contain the actual Track objects. In addition, there's @number_of_feature_rows. You'll later see that each Track object also has its @number_of_feature_rows. The panel needs this information to know how far it has to go down before it can start drawing a track: the first track will be just below the ruler, but the vertical coordinates of the second one depend on the height of all the ones that were drawn previously. And _that_ in turn is defined by the number of times a feature would overlap with another one and therefore had to be _bumped_ down.
 
@@ -37,9 +39,12 @@ So this covered the Panel#initialize...
 
 ==== 2. Adding tracks to the panel
 Because tracks are inherently part of a panel and cannot exist on their own, they can only be created by using a Panel method rather than a Track method.
-  my_track_1 = my_panel.add_track(name, label = false, feature_colour = [0,0,1], feature_glyph = 'generic')
+  my_track_1 = my_panel.add_track(name, label = false, feature_glyph = :generic, feature_colour = [0,0,1])
+Feature_glyph and feature_colour are the default values to use for all features in this track.
 
-This creates a new Track object and adds it to the @tracks array of the Panel object. Several instance variables are set for the Track object, including @features (which is an array of Feature objects for that track) and @number_of_feature_rows. Every time a feature cannot be drawn because it would overlap with another one, it will be 'bumped' down until it can be drawn. This effectively results in _rows_ that contain the features. The @number_of_feature_rows is just the number of rows (to be able to calculate the height of the track afterwards).
+The feature_glyph can either be one of the approved symbols (:generic, :spliced, ...; see documentation Bio::Graphics::Panel#add_track) or a hash. The keys of the hash refer to the types of subfeature; the values are these symbols again. For how that's used, see below (5. Drawing the thing).
+
+This creates a new Track object and adds it to the @tracks array of the Panel object. Several instance variables are set for the Track object, including @features (which is an array of Feature objects for that track) and @number_of_feature_rows. Every time a feature cannot be drawn because it would overlap with another one, it will be 'bumped' down until it can be drawn. This effectively results in _rows_ that contain the features. The @number_of_feature_rows is just this number of rows (to be able to calculate the height of the track afterwards).
 
   ------------------------------------------------------
     *******    ****  *********         *****    *****
@@ -49,29 +54,33 @@ This creates a new Track object and adds it to the @tracks array of the Panel ob
 The Panel#add_track method returns the Track object itself, because the latter has to be accessible to be able to assign features to it.
 
 ==== 3. Adding features to a track
-Same thing as adding a track to a panel: the feature can only be added by the user by using the Track#add_feature method. Parameters are the name of the feature, the location and the link.
+Same thing as adding a track to a panel: the feature can only be added by the user by using the Track#add_feature method. Arguments are a Bio::Feature object (which itself has a type and location), a label, and the glyph and colour. The glyph can either be one of the approved symbols, or a hash (see 2. Adding tracks to the panel).
 
-The location of a feature can be something like 'complement(join(10..20,50..70))'. To be able to parse this, I use the Bio::Locations object from bioruby (see http://www.bioruby.org). A Bio::Locations (plural) object contains one or more Bio::Location (singular) objects, which are the subfeatures: 10..20 and 50..70. It's these Bio::Location objects we use to calculate the ultimate start and stop of the feature.
+The location of a Bio::Feature object can be something like 'complement(join(10..20,50..70))'. To be able to parse this, I use the Bio::Locations object from bioruby (see http://www.bioruby.org). A Bio::Locations (plural) object contains one or more Bio::Location (singular) objects, which are the subfeatures: 10..20 and 50..70. It's these Bio::Location objects we use to calculate the ultimate start and stop of the feature.
 
 The Track#add_feature method returns the Track object itself.
 
-Now let's look at the other end: the Feature object that gets created. In the Feature#initialize method, you'll notice, apart from the obvious variables, the following instances variables: @pixel_range_collection, @chopped_at_start, @chopped_at_stop, @hidden_subfeatures_at_start and @hidden_subfeatures_at_stop. Let's take these one by one:
+Now let's look at the other end: the Feature object that gets created. In the Feature#initialize method, you'll notice, apart from the obvious variables, the following instances variables: @subfeatures, @left_pixel_of_subfeatures and @right_pixel_of_subfeatures. The @subfeatures thing is quite important. In some cases (e.g. mRNAs that consist of 5'UTR, CDS and 3'UTR), we will want to make a distinction between the UTRs and the CDS for drawing (see TUTORIAL). To make this possible, we will have Feature#new always create an Array of SubFeature objects. Often this array will only contain one object. Drawing of the glyphs is done on a subfeature-by-subfeature basis.
+The @left_pixel_of_subfeatures and @right_pixel_of_subfeatures just represent the outermost pixels for this feature.
+
+==== 4. Creating subfeatures (done automatically by Feature#new)
+For each subfeature#new several instance variables are created: @pixel_range_collection, @chopped_at_start, @chopped_at_stop, @hidden_subfeatures_at_start and @hidden_subfeatures_at_stop. Let's take these one by one:
 
 ===== @pixel_range_collection
 Now _this_ is the crucial bit: it will hold the information on what pixels (on the horizontal axis) should be covered. This means that any part of the feature that does not fall within the view is _not_ in this collection. Basically, for every subfeature (e.g. exon for a gene), the location of that subfeature is compared to the region of the view. If a subfeature is not in the view at all, its positions are discarded (but other stuff does happen, see below); if a subfeature is at the left of the picture but actually extends outwith the view, the start pixel will become 1. You get the picture. Also see the mini diagrams in the code itself.
 
-These start and stop positions are used to create Bio::Graphics::Panel::Track::PixelRange objects. Unspliced objects will have an array @pixel_range_collection with just one element.
+These start and stop positions are used to create Bio::Graphics::Panel::Track::Feature::SubFeature::PixelRange objects. Unspliced objects will have an array @pixel_range_collection with just one element.
 
 ===== @chopped_at_start and @chopped_at_stop
-Suppose you've got a directed feature (so one with an arrow), and the 3' end falls outside of the view. What would happen, is that the 3' end that's out of view would be chopped of (that's good), but also that the end of the glyph (which is _not_ the end of the feature) becomes an arrow. I don't want that. Instead, the arrow should be removed.
+Suppose you've got a directed feature (so one with an arrow), and the 3' end falls outside of the view. What would happen, is that the 3' end that's out of view would be chopped of (that's good), but also that the end of the glyph (which is _not_ the end of the feature) becomes an arrow. We don't want that; instead, the arrow should be removed.
 
 That's where the @chopped_at_start and @chopped_at_stop come in. If these are set to true (while building the @pixel_range_collection), the arrow is not drawn.
 
 ===== @hidden_subfeatures_at_start and @hidden_subfeatures_at_stop
 For spliced features, it might be that one or more of the subfeatures (e.g. exons) lies outwith the view. We normally draw e.g. genes by drawing the exons as boxes and connecting them with small lines. The drawing code itself (see later) takes all exons within view and draws those connections. However, if an exon is outside of the viewing area, this line is not drawn. The @hidden_subfeatures_at_start and @hidden_subfeatures_at_stop are just flags to capture this.
 
-==== 4. Drawing the thing
-The Cairo library (http://cairographics.org) is used for the actual drawing. The main concepts in the Cairo drawing model are (please also see http://cairographics.org/tutorial):
+==== 5. Drawing the thing
+The Cairo and Pango libraries (http://cairographics.org, http://www.pango.org) are used for the actual drawing. The main concepts in the Cairo drawing model are (please also see http://cairographics.org/tutorial):
 * *source*: the _paint_ you'll be using
 * *destination*: the _surface_ (Cairo::ImageSurface) that you want to draw onto
 * *mask*: controls where you apply the source to the destination. Stuff like 'line_to'.
@@ -79,7 +88,7 @@ The Cairo library (http://cairographics.org) is used for the actual drawing. The
 
 From the cairo tutorial: "Before you can start to draw something with cairo, you need to create the context. <SNIP> When you create a cairo context, it must be tied to a specific surface - for example, an image surface if you want to create a PNG file." So that's what we have to do: create a Cairo::ImageSurface and connect a Cairo::Context to it.
 
-Now let's walk through the code itself...
+Now let's walk through the drawing code itself...
 
 When a user draws a panel, the first thing that happens, is the creation of a Cairo::ImageSurface (the _destination_). To be able to do this, we need to know the dimensions. But there's a slight problem: we can't know the height of the picture until it's actually drawn. The way we'll circumvent this, is that we create a really high picture (called "huge_panel_drawing") that we'll crop afterwards.
 
@@ -92,9 +101,10 @@ There's a small issue when you actually start drawing the ticks. Most of the tim
 The ruler height @height consists of the height of the ruler itself plus the height of the numbers.
 
 ===== Drawing the tracks
-Drawing each track starts out with the general header: a line above it and the title. Obviously, the more challenging part is drawing the features themselves.
+Drawing each track starts out with the general header: a line above it and the title. We also 'translate' the track down to not let it overlap with previously drawn tracks. Obviously, the more challenging part is drawing the features themselves.
 
-First thing we have to do, is figure out what the *vertical* *coordinates* of the glyph should be (i.e. the row). To keep track of what parts of the screen are already occupied by features (so that we know when a new feature has to be bumped down), I make use of a *grid*. The grid is basically a hash with the keys being the row number, and the values arrays of ranges. (These ranges use basepair units rather than pixels, but that's completely arbitrary.) For each feature, we first check if we can draw it at the top of the track (i.e. row 1) and if we can't move it down a row at a time until there's room for it.
+===== Drawing the (sub)features.
+First thing we have to do, is figure out what the *vertical* *coordinates* of the glyph should be (i.e. the row). To keep track of what parts of the screen are already occupied by features (so that we know when a new feature has to be bumped down), we make use of a *grid*. The grid is basically a hash with the keys being the row number, and the values arrays of ranges. (These ranges use basepair units rather than pixels, but that's completely arbitrary.) For each feature, we first check if we can draw it at the top of the track (i.e. row 1) and if we can't move it down a row at a time until there's room for it.
 
 So for example, suppose we've already drawn two features that have the following positions: 100..150 and 200..225. The grid would then look like this:
 
@@ -105,11 +115,13 @@ If we'd like to draw a new feature from 125..175 (which overlaps the first of th
   grid = { 1 => [(100..150),(200..225)],
            2 => [(125..175)] }
 
-So now we know what the vertical coordinates of the glyph should be. Next step is to check if there's reasons we would like to *change* *the* *requested* *glyph* *type* *from* *directed* *to* *undirected*. If the user asks for directed glyphs (i.e. ones with an arrow at the end), but the view is zoomed _way_ out, there's no way the arrow will be visible. If we'd try to draw that arrow anyway, it would become bigger than the feature itself. Another reason would be if the feature's 3' end extends outwith the picture.
+So now we know what the vertical coordinates of the glyph should be.
+
+The actual drawing is redirected to the subfeatures. Next step is to check if there's reasons we would like to *change* *the* *requested* *glyph* *type* *from* *directed* *to* *undirected*. If the user asks for directed glyphs (i.e. ones with an arrow at the end), but the view is zoomed _way_ out, there's no way the arrow will be visible. If we'd try to draw that arrow anyway, it would become bigger than the feature itself. Another reason would be if the feature's 3' end extends outwith the picture.
 
 Finally, we can *draw*. The actual drawing bit should be quite self-explanatory (_move_to_, _line_to_, ...).
 
-For the spliced features (_spliced_ itself and _directed_spliced_), we first draw the components (i.e. the exons) keeping track of the start and stop positions of the gaps (i.e. introns). We then add the connections in those gaps. In addition, we draw a line that extends to the side of the picture if there are exons out of view. This flag was set when the feature was created (see above: @hidden_subfeatures_at_start and @hidden_subfeatures_at_stop).
+For the spliced features (:spliced and :directed_spliced), we first draw the components (i.e. the exons) keeping track of the start and stop positions of the gaps (i.e. introns). We then add the connections in those gaps. In addition, we draw a line that extends to the side of the picture if there are exons out of view. This flag was set when the feature was created (see above: @hidden_subfeatures_at_start and @hidden_subfeatures_at_stop).
 
 When the user wants a clickable map, we also have to record that this region should be added to the image map.
 

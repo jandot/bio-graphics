@@ -55,22 +55,6 @@
         <tr class="top-aligned-row">
             <td><strong>In:</strong></td>
             <td>
-                <a href="../../files/lib/bio/graphics/feature_rb.html">
-                lib/bio/graphics/feature.rb
-                </a>
-        <br />
-                <a href="../../files/lib/bio/graphics/track_rb.html">
-                lib/bio/graphics/track.rb
-                </a>
-        <br />
-                <a href="../../files/lib/bio/graphics/ruler_rb.html">
-                lib/bio/graphics/ruler.rb
-                </a>
-        <br />
-                <a href="../../files/lib/bio/graphics/panel_rb.html">
-                lib/bio/graphics/panel.rb
-                </a>
-        <br />
             </td>
         </tr>
 
@@ -84,82 +68,6 @@
 
   <div id="contextContent">
 
-    <div id="description">
-      <h1>DESCRIPTION</h1>
-<p>
-The <a href="Graphics.html">Bio::Graphics</a> set of objects allow for
-creating simple images that display features on a linear map. A picture
-consists of:
-</p>
-<ul>
-<li>one <b>panel</b>: container of all tracks
-
-</li>
-<li>one or more <b>tracks</b>: container of the features. Multiple tracks can
-exist in the same graphic to allow for differential visualization of
-different feature types (e.g. genes as blue rectangles and polymorphisms as
-red triangles)
-
-</li>
-<li>one or more <b>features</b> in each track: these are the actual features
-that you want to display (e.g. &#8216;gene 1&#8217;, &#8216;SNP
-123445&#8217;)
-
-</li>
-<li>a <b>ruler</b> on top of the panel: is added automatically
-
-</li>
-</ul>
-<p>
-Schematically:
-</p>
-<pre>
- panel
-   +-&gt; track 1
-   |     +-&gt; feature 1
-   |     +-&gt; feature 2
-   |     +-&gt; feature 3
-   +-&gt; track 2
-   |     +-&gt; feature 4
-   |     +-&gt; feature 5
-   +-&gt; ruler
-</pre>
-<h1>USAGE</h1>
-<pre>
-  # Create a panel for something with a length of 653. This could be a
-  # sequence of 653 bp, but also a genetic map of 653 cM.
-  g = Bio::Graphics::Panel.new(653)
-
-  # Add the first track (e.g. 'genes')
-  track1 = g.add_track('genes')
-
-  # And put features in that track
-  track1.add_feature('gene1',250,375)
-  track1.add_feature('gene2',54,124)
-  track1.add_feature('gene3',100,500)
-
-  # Add a second track (e.g. 'polymorphisms')
-  track2 = g.add_track('polymorphisms',, false, 'red','triangle')
-
-  # And put features on this one
-  track2.add_feature('polymorphism 1',56,56)
-  track2.add_feature('polymorphism 2',103,103)
-
-  # Create the actual image as SVG text
-  g.draw('my_picture.png')
-</pre>
-<h1>FUTURE PROSPECTS</h1>
-<p>
-Any help from other developers is welcomed to work on these features:
-</p>
-<ul>
-<li>Would be nice if this module would be easily accessible from any object
-that implements bioruby&#8216;s Bio::Map::ActsAsMap.
-
-</li>
-</ul>
-
-    </div>
 
 
    </div>
@@ -175,68 +83,10 @@ that implements bioruby&#8216;s Bio::Map::ActsAsMap.
     <div id="class-list">
       <h3 class="section-bar">Classes and Modules</h3>
 
-      Class <a href="Graphics/Panel.html" class="link">Bio::Graphics::Panel</a><br />
+      Module <a href="Graphics/Panel.html" class="link">Bio::Graphics::Panel</a><br />
 
     </div>
 
-    <div id="constants-list">
-      <h3 class="section-bar">Constants</h3>
-
-      <div class="name-list">
-        <table summary="Constants">
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">DEFAULT_PANEL_WIDTH</td>
-          <td>=</td>
-          <td class="context-item-value">800</td>
-          <td width="3em">&nbsp;</td>
-          <td class="context-item-desc">
-The defaults
-
-</td>
-        </tr>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">TRACK_HEADER_HEIGHT</td>
-          <td>=</td>
-          <td class="context-item-value">12</td>
-        </tr>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">FEATURE_HEIGHT</td>
-          <td>=</td>
-          <td class="context-item-value">10</td>
-        </tr>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">FEATURE_V_DISTANCE</td>
-          <td>=</td>
-          <td class="context-item-value">5</td>
-        </tr>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">FEATURE_ARROW_LENGTH</td>
-          <td>=</td>
-          <td class="context-item-value">5</td>
-        </tr>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">RULER_TEXT_HEIGHT</td>
-          <td>=</td>
-          <td class="context-item-value">10</td>
-        </tr>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">RULER_MIN_DISTANCE_TICKS_PIXEL</td>
-          <td>=</td>
-          <td class="context-item-value">5</td>
-        </tr>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">FONT</td>
-          <td>=</td>
-          <td class="context-item-value">['Georgia', 1, 1]</td>
-          <td width="3em">&nbsp;</td>
-          <td class="context-item-desc">
-consecutive ticks. This is used for the calculation of tick distance.
-
-</td>
-        </tr>
-        </table>
-      </div>
-    </div>
 
 
 

@@ -6,12 +6,12 @@ class TestPanel < Test::Unit::TestCase
     my_panel = Bio::Graphics::Panel.new(500, 1000, false)
     
     generic_track = my_panel.add_track('generic', false)
-    line_track = my_panel.add_track('line', false, [0,0,1], :line)
-    directed_track = my_panel.add_track('directed', false, [0,1,0], :directed_generic)
-    triangle_track = my_panel.add_track('triangle', false, [1,0,0], :triangle)
-    dot_track = my_panel.add_track('dot', false, [0,1,1], :dot)
-    spliced_track = my_panel.add_track('spliced', false, [1,0,0], :spliced)
-    directed_spliced_track = my_panel.add_track('directed_spliced', false, [1,0,1], :directed_spliced)
+    line_track = my_panel.add_track('line', false, :line, [0,0,1])
+    directed_track = my_panel.add_track('directed', false, :directed_generic, [0,1,0])
+    triangle_track = my_panel.add_track('triangle', false, :triangle, [1,0,0])
+    dot_track = my_panel.add_track('dot', false, :dot, [0,1,1])
+    spliced_track = my_panel.add_track('spliced', false, :spliced, [1,0,0])
+    directed_spliced_track = my_panel.add_track('directed_spliced', false, :directed_spliced, [1,0,1])
     
     generic_track.add_feature(Bio::Feature.new('clone', '250..375'), 'clone1', 'http://www.newsforge.com')
     generic_track.add_feature(Bio::Feature.new('clone', '54..124'), 'clone2', 'http://www.thearkdb.org')
@@ -87,7 +87,7 @@ class TestPanel < Test::Unit::TestCase
   end
 
   def test_subfeatures
-    my_panel = Bio::Graphics::Panel.new(375, 600, false, 1, 375, false)
+    my_panel = Bio::Graphics::Panel.new(500, 600, false, 1, 500, false)
     
     track = my_panel.add_track('mrna')
     
@@ -99,10 +99,32 @@ class TestPanel < Test::Unit::TestCase
     cds = Bio::Feature.new('cds', 'join(150..225, 250..275, 310..330)')
     utr3 = Bio::Feature.new('utr', '330..375')
 
-    transcript = Bio::Feature.new('transcript', 'join(100..225, 250..275, 310..375)', nil, nil, [], nil, [utr5, cds, utr3])
+    transcript = Bio::Feature.new('transcript', 'join(100..225, 250..275, 310..375)', [], nil, [utr5, cds, utr3])
     
     transcript_graphic = track.add_feature(transcript, 'my_transcript')
     transcript_graphic.glyph = { 'utr' => :line, 'cds' => :spliced }
+    
+    # And draw
+    output_file = File.dirname(__FILE__) + '/output.png'
+    my_panel.draw(output_file)
+
+    system("display " + output_file + "& sleep 2 && kill $!")
+    File.delete(output_file)
+    
+  end
+  
+  def test_feature_specific_colouring
+    my_panel = Bio::Graphics::Panel.new(375, 600, false, 1, 375, false)
+    
+    track = my_panel.add_track('mrna')
+    
+    track.colour = [1,0,0]
+    track.glyph = :spliced
+    
+    # Add data to tracks
+    track.add_feature(Bio::Feature.new('cds', 'join(100..200, 225..350)'), 'red_spliced')
+    track.add_feature(Bio::Feature.new('cds', 'join(100..200, 225..350)'), 'green_spliced', nil, track.glyph, [0,1,0])
+    track.add_feature(Bio::Feature.new('cds', 'join(100..200, 225..350)'), 'blue_generic', nil, :generic, [0,0,1])
     
     # And draw
     output_file = File.dirname(__FILE__) + '/output.png'

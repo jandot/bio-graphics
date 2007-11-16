@@ -1,7 +1,7 @@
 module Bio
 class Feature
-  def initialize(feature, position, score = nil, phase = nil, qualifiers = [], parent = nil, subfeatures = [])
-    @feature, @position, @score, @phase, @qualifiers, @parent = feature, position, score, phase, qualifiers, parent
+  def initialize(feature, position, qualifiers = [], parent = nil, subfeatures = [])
+    @feature, @position, @qualifiers, @parent = feature, position, qualifiers, parent
     @subfeatures = Array.new
     subfeatures.each do |sf|
       sf.parent = self
@@ -19,12 +19,6 @@ class Feature
   # Returns position of the feature as a Bio::Locations object
   attr_accessor :locations
 
-  # Returns score of the feature (e.g. 1e-100)
-  attr_accessor :score
-  
-  # Returns phase of the feature (e.g. 2)
-  attr_accessor :phase
-  
   # Returns an Array of Qualifier objects.
   attr_accessor :qualifiers
 

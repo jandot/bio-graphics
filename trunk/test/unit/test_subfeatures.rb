@@ -6,7 +6,7 @@ class TestSubFeature < Test::Unit::TestCase
     @utr5 = Bio::Feature.new('utr', '100..150')
     @cds = Bio::Feature.new('cds', 'join(150..225, 250..275, 310..330)')
     @utr3 = Bio::Feature.new('utr', '330..375')
-    @transcript = Bio::Feature.new('transcript', 'join(100..150, 150..225, 250..275, 310..330, 330..375)', nil, nil, [], nil, [@utr5,@cds,@utr3])
+    @transcript = Bio::Feature.new('transcript', 'join(100..150, 150..225, 250..275, 310..330, 330..375)', [], nil, [@utr5,@cds,@utr3])
   end
   
   def test_existence_subfeatures

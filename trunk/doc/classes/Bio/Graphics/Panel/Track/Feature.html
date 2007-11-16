@@ -5,7 +5,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <title>Class: Bio::Graphics::Panel::Track::Feature</title>
+  <title>Module: Bio::Graphics::Panel::Track::Feature</title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
   <meta http-equiv="Content-Script-Type" content="text/javascript" />
   <link rel="stylesheet" href="../../../../.././rdoc-style.css" type="text/css" media="screen" />
@@ -49,25 +49,15 @@
     <div id="classHeader">
         <table class="header-table">
         <tr class="top-aligned-row">
-          <td><strong>Class</strong></td>
+          <td><strong>Module</strong></td>
           <td class="class-name-in-header">Bio::Graphics::Panel::Track::Feature</td>
         </tr>
         <tr class="top-aligned-row">
             <td><strong>In:</strong></td>
             <td>
-                <a href="../../../../../files/lib/bio/graphics/feature_rb.html">
-                lib/bio/graphics/feature.rb
-                </a>
-        <br />
             </td>
         </tr>
 
-        <tr class="top-aligned-row">
-            <td><strong>Parent:</strong></td>
-            <td>
-                Object
-            </td>
-        </tr>
         </table>
     </div>
   <!-- banner header -->
@@ -78,32 +68,10 @@
 
   <div id="contextContent">
 
-    <div id="description">
-      <p>
-The Bio::Graphics::Track::Feature class describes features to be placed on
-the graph. See <a href="../../../Graphics.html">Bio::Graphics</a>
-documentation for explanation of interplay between different classes.
-</p>
-<p>
-The position of the <a href="Feature.html">Feature</a> is a Bio::Locations
-object to make it possible to transparently work with simple and spliced
-features.
-</p>
-
-    </div>
 
 
    </div>
 
-    <div id="method-list">
-      <h3 class="section-bar">Methods</h3>
-
-      <div class="name-list">
-      <a href="#M000015">draw</a>&nbsp;&nbsp;
-      <a href="#M000016">find_row</a>&nbsp;&nbsp;
-      <a href="#M000014">new</a>&nbsp;&nbsp;
-      </div>
-    </div>
 
   </div>
 
@@ -115,239 +83,17 @@ features.
     <div id="class-list">
       <h3 class="section-bar">Classes and Modules</h3>
 
-      Class <a href="Feature/PixelRange.html" class="link">Bio::Graphics::Panel::Track::Feature::PixelRange</a><br />
+      Class <a href="Feature/SubFeature.html" class="link">Bio::Graphics::Panel::Track::Feature::SubFeature</a><br />
 
     </div>
 
 
 
 
-    <div id="attribute-list">
-      <h3 class="section-bar">Attributes</h3>
-
-      <div class="name-list">
-        <table>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">chopped_at_start</td>
-          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
-          <td class="context-item-desc">
-Is the first subfeature incomplete?
-
-</td>
-        </tr>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">chopped_at_stop</td>
-          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
-          <td class="context-item-desc">
-Is the last subfeature incomplete?
-
-</td>
-        </tr>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">hidden_subfeatures_at_start</td>
-          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
-          <td class="context-item-desc">
-Are there subfeatures out of view at the left side of the picture?
-
-</td>
-        </tr>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">hidden_subfeatures_at_stop</td>
-          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
-          <td class="context-item-desc">
-Are there subfeatures out of view at the right side of the picture?
-
-</td>
-        </tr>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">link</td>
-          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
-          <td class="context-item-desc">
-The URL to be followed when the glyph for this feature is clicked
-
-</td>
-        </tr>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">location</td>
-          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
-          <td class="context-item-desc">
-The location of the feature (which is a Bio::Locations object)
-
-</td>
-        </tr>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">name</td>
-          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
-          <td class="context-item-desc">
-The name of the feature
-
-</td>
-        </tr>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">pixel_range_collection</td>
-          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
-          <td class="context-item-desc">
-The array keeping the pixel ranges for the sub-features. Unspliced features
-will just have one element, while spliced features will have more than one.
-
-</td>
-        </tr>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">start</td>
-          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
-          <td class="context-item-desc">
-The start position of the feature (in bp)
-
-</td>
-        </tr>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">stop</td>
-          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
-          <td class="context-item-desc">
-The stop position of the feature (in bp)
-
-</td>
-        </tr>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">strand</td>
-          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
-          <td class="context-item-desc">
-The strand of the feature
-
-</td>
-        </tr>
-        <tr class="top-aligned-row context-row">
-          <td class="context-item-name">track</td>
-          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
-          <td class="context-item-desc">
-The track that this feature belongs to
-
-</td>
-        </tr>
-        </table>
-      </div>
-    </div>
       
 
 
     <!-- if method_list -->
-    <div id="methods">
-      <h3 class="section-bar">Public Class methods</h3>
-
-      <div id="method-M000014" class="method-detail">
-        <a name="M000014"></a>
-
-        <div class="method-heading">
-          <a href="Feature.src/M000014.html" target="Code" class="method-signature"
-            onclick="popupCode('Feature.src/M000014.html');return false;">
-          <span class="method-name">new</span><span class="method-args">(track, name, location = Bio::Locations.new('1..' + track.panel.length.to_s), link = nil)</span>
-          </a>
-        </div>
-      
-        <div class="method-description">
-          <p>
-!!Not to be used directly. Use <a
-href="../Track.html#M000012">Bio::Graphics::Panel::Track.add_feature</a>
-instead!! A feature can not exist except within the confines of a <a
-href="../Track.html">Bio::Graphics::Panel::Track</a> object.
-</p>
-<hr size="1"></hr><p>
-<b>Arguments</b>:
-</p>
-<ul>
-<li><em>panel</em> (required) :: <a
-href="../Track.html">Bio::Graphics::Panel::Track</a> object that this
-feature belongs to
-
-</li>
-<li><em>name</em> (required) :: Name of the feature
-
-</li>
-<li><em>location</em> :: Bio::Locations object. Default = whole panel, forward
-strand
-
-</li>
-<li><em>link</em> :: URL for clickable images
-
-</li>
-</ul>
-<table>
-<tr><td valign="top"><b>Returns</b>:</td><td>Bio::Graphics::Track::Feature object
-
-</td></tr>
-</table>
-        </div>
-      </div>
-
-      <h3 class="section-bar">Public Instance methods</h3>
-
-      <div id="method-M000015" class="method-detail">
-        <a name="M000015"></a>
-
-        <div class="method-heading">
-          <a href="Feature.src/M000015.html" target="Code" class="method-signature"
-            onclick="popupCode('Feature.src/M000015.html');return false;">
-          <span class="method-name">draw</span><span class="method-args">(track_drawing)</span>
-          </a>
-        </div>
-      
-        <div class="method-description">
-          <p>
-Adds the feature to the track cairo context. This method should not be used
-directly by the user, but is called by <a
-href="../Track.html#M000013">Bio::Graphics::Panel::Track.draw</a>
-</p>
-<hr size="1"></hr><p>
-<b>Arguments</b>:
-</p>
-<ul>
-<li><em>trackdrawing</em> (required) :: the track cairo object
-
-</li>
-<li><em>row</em> (required) :: row within the track that this feature has
-
-<pre>
-                    been bumped to
-</pre>
-</li>
-</ul>
-<table>
-<tr><td valign="top"><b>Returns</b>:</td><td>FIXME: I don&#8216;t know
-
-</td></tr>
-</table>
-        </div>
-      </div>
-
-      <div id="method-M000016" class="method-detail">
-        <a name="M000016"></a>
-
-        <div class="method-heading">
-          <a href="Feature.src/M000016.html" target="Code" class="method-signature"
-            onclick="popupCode('Feature.src/M000016.html');return false;">
-          <span class="method-name">find_row</span><span class="method-args">()</span>
-          </a>
-        </div>
-      
-        <div class="method-description">
-          <p>
-Calculates the row within the track where this feature should be drawn.
-This method should not be used directly by the user, but is called by <a
-href="Feature.html#M000015">Bio::Graphics::Panel::Track::Feature.draw</a>
-</p>
-<hr size="1"></hr><table>
-<tr><td valign="top"><b>Arguments</b>:</td><td>none
-
-</td></tr>
-<tr><td valign="top"><b>Returns</b>:</td><td>row number
-
-</td></tr>
-</table>
-        </div>
-      </div>
-
-
-    </div>
 
 
   </div>

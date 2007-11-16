@@ -56,7 +56,7 @@
     </tr>
     <tr class="top-aligned-row">
       <td><strong>Last Update:</strong></td>
-      <td>Mon Oct 22 01:08:19 +0100 2007</td>
+      <td>Fri Nov 16 16:01:46 +0000 2007</td>
     </tr>
     </table>
   </div>
@@ -72,7 +72,7 @@
       <p>
 <img src="../images/example_labels.png" />
 </p>
-<h1><a href="../classes/Bio/Graphics.html">Bio::Graphics</a> tutorial</h1>
+<h1>Bio::Graphics tutorial</h1>
 <p>
 Copyright (C) 2007 Jan Aerts &lt;jan.aerts@bbsrc.ac.uk&gt;
 </p>
@@ -89,16 +89,23 @@ README.DEV)
 </p>
 <h2>Overview and terms used</h2>
 <p>
-This <a href="../classes/Bio/Graphics.html">Bio::Graphics</a> library
-allows for drawing overviews of genomic regions, similar to the pictures
-drawn by <a href="http://www.gmod.org/wiki/index.php/Gbrowse">gbrowse</a>.
-Basically, it allows creating simple images that display features on a
-linear map. The code is based on the equivalent code in the <a
-href="http://www.bioperl.org/wiki/Main_Page">bioperl</a> project.
+This Bio::Graphics library allows for drawing overviews of genomic regions,
+similar to the pictures drawn by <a
+href="http://www.gmod.org/wiki/index.php/Gbrowse">gbrowse</a>. Basically,
+it allows creating simple images that display features on a linear map,
+including the position of subdomains in a protein (see picture). It&#8216;s
+now also possible to create vertical pictures.
 </p>
 <p>
-Any <a href="../classes/Bio/Graphics.html">Bio::Graphics</a> image consists
-of the following parts (nomenclature identical to that from bioperl):
+<img src="../images/protein_domains.png" />
+</p>
+<p>
+<img src="../images/vertical.png" />
+</p>
+<p>
+Any Bio::Graphics image consists of the following parts (concepts and
+nomenclature identical to that from <a
+href="http://www.bioperl.org/wiki/Main_Page">bioperl</a>):
 </p>
 <ul>
 <li>one panel: container of all tracks
@@ -143,20 +150,19 @@ Each of these tracks has zero or more features.
 </p>
 <p>
 As a feature can only exist within the confines of a track and a track can
-only exist within the confines of a panel, these classes are encapsuled.
-This means that the Track class is not Bio::Graphics::Track, but <a
-href="../classes/Bio/Graphics/Panel/Track.html">Bio::Graphics::Panel::Track</a>;
-the same goes for <a
-href="../classes/Bio/Graphics/Panel/Track/Feature.html">Bio::Graphics::Panel::Track::Feature</a>.
+only exist within the confines of a panel, these classes are encapsulated.
+This means that the Track class is not Bio::Graphics::Track, but
+Bio::Graphics::Panel::Track; the same goes for
+Bio::Graphics::Panel::Track::Feature.
 </p>
 <h2>Glyphs</h2>
 <p>
 According to Wikipedia, a <em>glyph</em> is &quot;the shape given in a
 particular typeface to a specific grapheme or symbol&quot;. In the context
-of <a href="../classes/Bio/Graphics.html">Bio::Graphics</a>, a glyph is
-just the thing that represents one single feature. Several kinds of glyph
-exist to allow for features that are on a particular strand as well as for
-spliced features. See the picture below for an overview.
+of Bio::Graphics, a glyph is just the thing that represents one single
+feature. Several kinds of glyph exist to allow for features that are on a
+particular strand as well as for spliced features. See the picture below
+for an overview.
 </p>
 <p>
 <img src="../images/glyph_showcase.png" />
@@ -176,46 +182,60 @@ for an nicer example.
 </p>
 <p>
 For an explanation of the arguments with each method for this example, see
-the <a href="../classes/Bio/Graphics/Panel.html">Bio::Graphics::Panel</a>
-and <a
-href="../classes/Bio/Graphics/Panel/Track.html">Bio::Graphics::Panel::Track</a>
-object documentation.
+the Bio::Graphics::Panel and Bio::Graphics::Panel::Track object
+documentation.
 </p>
 <pre>
   1   # Load the library
-  2   require 'bio-graphics' # or require_gem 'bio-graphics'
+  2   require 'bio-graphics' # or require_gem 'bio-graphics' or gem 'bio-graphics'
   3
   4   # Create the panel
-  5   my_panel = Bio::Graphics::Panel.new(500, 600, true, 1, 500)
+  5   my_panel = Bio::Graphics::Panel.new(500, 1000, false)
   6
   7   # Create the tracks
-  8   generic_track = my_panel.add_track('generic')
-  9   directed_track = my_panel.add_track('directed',[0,1,0],'directed_generic')
-  10  triangle_track = my_panel.add_track('triangle',[1,0,0],'triangle')
-  11  spliced_track = my_panel.add_track('spliced',[1,0,0],'spliced')
-  12  directed_spliced_track = my_panel.add_track('directed_spliced',[1,0,1],'directed_spliced')
-  13
-  14  # Add features to each track
-  15  generic_track.add_feature('clone1','250..375', 'http://www.newsforge.com')
-  16  generic_track.add_feature('clone2','54..124', 'http://www.thearkdb.org')
-  17  generic_track.add_feature('clone3','100..449', 'http://www.google.com')
-  18
-  19  directed_track.add_feature('marker1','50..60', 'http://www.google.com')
-  20  directed_track.add_feature('marker2','complement(80..120)', 'http://www.sourceforge.net')
-  21
-  22  triangle_track.add_feature('snp1','56')
-  23  triangle_track.add_feature('snp2','103','http://digg.com')
-  24
-  25  spliced_track.add_feature('gene1','join(34..52,109..183)','http://news.bbc.co.uk')
-  26  spliced_track.add_feature('gene2','complement(join(170..231,264..299,350..360,409..445))')
-  27  spliced_track.add_feature('gene3','join(134..152,209..283)')
-  28
-  29  directed_spliced_track.add_feature('gene4','join(34..52,109..183)', 'http://www.vrtnieuws.net')
-  30  directed_spliced_track.add_feature('gene5','complement(join(170..231,264..299,350..360,409..445))')
-  31  directed_spliced_track.add_feature('gene6','join(134..152,209..283)')
-  32
-  33  # Draw the thing
-  34  my_panel.draw('glyph_showcase.png')
+  8   generic_track = my_panel.add_track('generic', false)
+  9   line_track = my_panel.add_track('line', false, :line, [0,0,1])
+ 10   line_with_handles_track = my_panel.add_track('line_with_handles', false, :line_with_handles, [1,0,0])
+ 11   directed_track = my_panel.add_track('directed', false, :directed_generic, [0,1,0])
+ 12   triangle_track = my_panel.add_track('triangle', false, :triangle, [1,0,0])
+ 13   spliced_track = my_panel.add_track('spliced', false, :spliced, [1,0,0])
+ 14   directed_spliced_track = my_panel.add_track('directed_spliced', false, :directed_spliced, [1,0,1])
+ 15   composite_track = my_panel.add_track('composite_features', false, { 'utr' =&gt; :line, 'cds' =&gt; :directed_spliced})
+ 16
+ 17   # Add features to each track
+ 18   generic_track.add_feature(Bio::Feature.new('clone', '250..375'), 'anonymous', 'http://www.newsforge.com')
+ 19   generic_track.add_feature(Bio::Feature.new('clone', '54..124'), 'anonymous', 'http://www.thearkdb.org')
+ 20   generic_track.add_feature(Bio::Feature.new('clone', '100..449'), 'anonymous', 'http://www.google.com')
+ 21
+ 22   line_track.add_feature(Bio::Feature.new('utr', 'complement(200..320)'), 'anonymous')
+ 23   line_track.add_feature(Bio::Feature.new('utr', '355..480'), 'anonymous', 'http://www.zdnet.co.uk')
+ 24
+ 25   line_with_handles_track.add_feature(Bio::Feature.new('utr', 'complement(200..320)'), 'anonymous')
+ 26   line_with_handles_track.add_feature(Bio::Feature.new('utr', '355..480', 'http://www.zdnet.co.uk'), 'anonymous')
+ 27
+ 28   directed_track.add_feature(Bio::Feature.new('primer', '50..60', 'http://www.google.com'), 'anonymous')
+ 29   directed_track.add_feature(Bio::Feature.new('primer', 'complement(80..120)'), 'anonymous', 'http://www.sourceforge.net')
+ 30
+ 31   triangle_track.add_feature(Bio::Feature.new('snp', '56'), 'anonymous')
+ 32   triangle_track.add_feature(Bio::Feature.new('snp', '103','http://digg.com'), 'anonymous')
+ 33
+ 34   spliced_track.add_feature(Bio::Feature.new('spliced', 'join(34..52,109..183)'), 'anonymous','http://news.bbc.co.uk')
+ 35   spliced_track.add_feature(Bio::Feature.new('spliced', 'complement(join(170..231,264..299,350..360,409..445))'), 'anonymous')
+ 36   spliced_track.add_feature(Bio::Feature.new('spliced', 'join(134..152,209..283)'), 'anonymous')
+ 37
+ 38   directed_spliced_track.add_feature(Bio::Feature.new('cds', 'join(34..52,109..183)'), 'anonymous', 'http://www.vrtnieuws.net')
+ 39   directed_spliced_track.add_feature(Bio::Feature.new('cds', 'complement(join(170..231,264..299,350..360,409..445))'), 'anonymous', 'http://bioinformatics.roslin.ac.uk')
+ 40   directed_spliced_track.add_feature(Bio::Feature.new('cds', 'join(134..152,209..283)'), 'anonymous')
+ 41
+ 42   utr5 = Bio::Feature.new('utr', '100..150')
+ 43   cds = Bio::Feature.new('cds', 'join(150..225, 250..275, 310..330)')
+ 44   utr3 = Bio::Feature.new('utr', '330..375')
+ 45
+ 46   transcript = Bio::Feature.new('transcript', 'join(100..150, 150..225, 250..275, 310..330, 330..375)', [], nil, [utr5,cds,utr3])
+ 47   composite_track.add_feature(transcript, 'my_transcript')
+ 48
+ 49   # Draw the thing
+ 50   my_panel.draw('glyph_showcase.png')
 </pre>
 <p>
 Let&#8216;s walk through this:
@@ -232,42 +252,40 @@ you&#8216;ll be working on. The following parameters were used:
 <li>The sequence is 500 bp long.
 
 </li>
-<li>The width of the picture will be 600 points.
-
-</li>
-<li>A HTML page will be created to make hyperlinks possible (the <em>true</em>)
-
-</li>
-<li>The picture will be zoomed in from bp 1 to 500 (i.e. completely zoomed
-out).
+<li>The width of the picture will be 1000 points.
 
 </li>
 </ul>
 </li>
-<li>Lines 8-12: Create the different tracks. Parameters are:
+<li>Lines 8-15: Create the different tracks. Parameters are:
 
 <ul>
 <li>name.
 
 </li>
-<li>colour. At the moment in RGB. (This will probably change to colour names in
-the future).
+<li>flag if feature labels should be drawn (here: false)
 
 </li>
-<li>type. See the picture above and Bio::Graphics::Panel::Track#new for allowed
-values.
+<li>the default glyph for features in this track. This can be overridden on a
+feature-by-feature basis. See the picture above and
+Bio::Graphics::Panel::Track#new for allowed values.
+
+</li>
+<li>the default colour for features in this track. This can also be overridden
+on a feature-by-feature basis. At the moment in RGB. (This will probably
+change to colour names in the future).
 
 </li>
 </ul>
 </li>
-<li>Lines 15-31: Add features to each track. Parameters are:
+<li>Lines 18-47: Add features to each track. Parameters are:
 
 <ul>
-<li>name.
+<li>a Bio::Feature object. (See bioruby documentation at <a
+href="http://www.bioruby.org">www.bioruby.org</a>)
 
 </li>
-<li>location. This should be a location parsable by <a
-href="http://www.bioruby.org">bioruby's</a> Bio::Locations object.
+<li>the label to be used (here: all are &#8216;anonymous&#8217;)
 
 </li>
 <li>link.
@@ -275,12 +293,33 @@ href="http://www.bioruby.org">bioruby's</a> Bio::Locations object.
 </li>
 </ul>
 </li>
-<li>Line 34: Create the actual picture. If the third parameter to the initial
+<li>Line 50: Create the actual picture. If the third parameter to the initial
 Panel#new call (in line 5) is &#8216;true&#8217;, a HTML file is created as
 well.
 
 </li>
 </ul>
+<p>
+That&#8216;s pretty clear, but what&#8216;s happening with the
+composite_track (on lines 15 and 42-47)?
+</p>
+<p>
+To set the glyph for a feature (or the default glyph in a track), you
+normally use a symbol, like :generic or :directed_spliced. For composite
+features, however, we&#8216;ve made it possible to have different
+subfeatures drawn in different ways. In this example: we want to draw the
+UTRs as thin lines, while the CDS is big boxes connected with thin lines.
+How does this work? See lines 42 to 47. If the feature you&#8216;re adding
+to a track has subfeatures, you can use the type of the subfeature to
+direct the glyph to use. In the example above: the utr5 and utr3 have
+&#8216;utr&#8217; as the first argument in the Bio::Feature#new, and the
+cds object has &#8216;cds&#8217;. The transcript that gets created in line
+46 takes these three Bio::Feature objects as subfeatures (the last
+argument). Now up in line 15 we set the glyph of this track to the hash
+{&#8216;utr&#8217; =&gt; :line, &#8216;cds&#8217; =&gt; :directed_spliced}.
+What this does, is it takes each subfeature in turn, and draws it using the
+glyph that matches its type.
+</p>
 <h3>Hyperlinks</h3>
 <p>
 There are no graphic formats that are inherently clickable (SVG is a
@@ -299,12 +338,11 @@ href="http://rubyforge.org/projects/bio-graphics">rubyforge.org/projects/bio-gra
 There are different ways to install the library.
 </p>
 <ul>
-<li>Export for SVN (for the latest development version): &quot;svn checkout
-svn://rubyforge.org/var/svn/bio-graphics&quot;
+<li>The easy way: gem install bio-graphics
 
 </li>
-<li>As a rubygem: download the bio-graphics-1.0.gem from the website, and do
-&quot;gem install bio-graphics-1.0.gem&quot;
+<li>The hard (but cutting-edge) way: from SVN: svn checkout
+svn://rubyforge.org/var/svn/bio-graphics
 
 </li>
 </ul>
@@ -314,15 +352,44 @@ You&#8216;ll need to have the following installed to use this library:
 </p>
 <ul>
 <li>bioruby (<a href="http://www.bioruby.org">www.bioruby.org</a>), to parse
-the feature locations. On linux systems, type &quot;gem install bio&quot;.
+the feature locations.
 
 </li>
 <li>cairo (<a href="http://cairographics.org">cairographics.org</a>), to do the
-actual drawing. On Ubuntu, type &quot;sudo apt-get install
-libcairo-ruby&quot;.
+actual drawing.
+
+</li>
+<li>pango (<a href="http://www.pango.org">www.pango.org</a>), to do the high
+level text drawing.
 
 </li>
 </ul>
+<h3>Ubuntu</h3>
+<ul>
+<li>gem install bio
+
+</li>
+<li>sudo apt-get install libcairo-ruby
+
+</li>
+</ul>
+<h3>Windows (thanks to Naohisa Goto)</h3>
+<p>
+Install Ruby-GNOME2 Win32 GUI Installer, which contains rcairo-1.2.6. Get
+it from ruby-gnome2.sourceforge.jp/?News_20070212_1
+(ruby-gnome2-0.16.0-1-i386-mswin32.exe)
+</p>
+<p>
+During installation, check the &quot;Register enviroment variables&quot;
+option.
+</p>
+<h3>Mac OSX (thanks to Ed Allen)</h3>
+<p>
+We haven&#8216;t figured out yet how to install cairo and pango separately
+on a Mac. However, if you install Why The Lucky Stiff‘s Shoes GUI for
+Ruby toolkit, you get the pango and ruby-pango bindings for free. Get it
+from code.whytheluckystiff.net/shoes/wiki/DownloadShoes
+</p>
 
     </div>
 
