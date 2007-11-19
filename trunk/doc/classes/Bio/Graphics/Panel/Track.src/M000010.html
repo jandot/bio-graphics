@@ -1,51 +1,0 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE html 
-     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html>
-<head>
-  <title>draw (Bio::Graphics::Panel::Track)</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-  <link rel="stylesheet" href="../../../../.././rdoc-style.css" type="text/css" media="screen" />
-</head>
-<body class="standalone-code">
-  <pre><span class="ruby-comment cmt"># File lib/bio/graphics/track.rb, line 112</span>
-  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">draw</span>(<span class="ruby-identifier">panel_drawing</span>)
-    <span class="ruby-identifier">track_drawing</span> = <span class="ruby-constant">Cairo</span><span class="ruby-operator">::</span><span class="ruby-constant">Context</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">panel_drawing</span>)
-
-    <span class="ruby-comment cmt"># Draw thin line above title</span>
-    <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">set_source_rgb</span>(<span class="ruby-value">0</span><span class="ruby-value">.75</span>,<span class="ruby-value">0</span><span class="ruby-value">.75</span>,<span class="ruby-value">0</span><span class="ruby-value">.75</span>)
-    <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">move_to</span>(<span class="ruby-value">0</span>, <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">vertical_offset</span>)
-    <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">line_to</span>(<span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">width</span>, <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">vertical_offset</span>)
-    <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">stroke</span>
-
-    <span class="ruby-comment cmt"># Draw track title</span>
-    <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">set_source_rgb</span>(<span class="ruby-value">0</span>,<span class="ruby-value">0</span>,<span class="ruby-value">0</span>)
-    <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">select_font_face</span>(<span class="ruby-operator">*</span>(<span class="ruby-constant">Bio</span><span class="ruby-operator">::</span><span class="ruby-constant">Graphics</span><span class="ruby-operator">::</span><span class="ruby-constant">FONT</span>))
-    <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">set_font_size</span>(<span class="ruby-constant">Bio</span><span class="ruby-operator">::</span><span class="ruby-constant">Graphics</span><span class="ruby-operator">::</span><span class="ruby-constant">TRACK_HEADER_HEIGHT</span>)
-    <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">move_to</span>(<span class="ruby-value">0</span>,<span class="ruby-constant">Bio</span><span class="ruby-operator">::</span><span class="ruby-constant">Graphics</span><span class="ruby-operator">::</span><span class="ruby-constant">TRACK_HEADER_HEIGHT</span> <span class="ruby-operator">+</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">vertical_offset</span> <span class="ruby-operator">+</span> <span class="ruby-value">10</span>)
-    <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">show_text</span>(<span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">name</span>)
-
-    <span class="ruby-comment cmt"># Draw the features</span>
-    <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">save</span> <span class="ruby-keyword kw">do</span>
-      <span class="ruby-identifier">track_drawing</span>.<span class="ruby-identifier">translate</span>(<span class="ruby-value">0</span>, <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">vertical_offset</span> <span class="ruby-operator">+</span> <span class="ruby-constant">Bio</span><span class="ruby-operator">::</span><span class="ruby-constant">Graphics</span><span class="ruby-operator">::</span><span class="ruby-constant">TRACK_HEADER_HEIGHT</span>)
-<span class="ruby-comment cmt">#            track_drawing.set_source_rgb(@colour)</span>
-
-      <span class="ruby-ivar">@features</span>.<span class="ruby-identifier">sort_by</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">start</span>}.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">feature</span><span class="ruby-operator">|</span>
-        <span class="ruby-comment cmt"># Don't even bother if the feature is not in the view</span>
-        <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">stop</span> <span class="ruby-operator">&lt;=</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_start</span> <span class="ruby-keyword kw">or</span> <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">start</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">panel</span>.<span class="ruby-identifier">display_stop</span>
-          <span class="ruby-keyword kw">next</span>
-        <span class="ruby-keyword kw">else</span>
-          <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">draw</span>(<span class="ruby-identifier">track_drawing</span>)
-        <span class="ruby-keyword kw">end</span>
-      <span class="ruby-keyword kw">end</span>
-
-    <span class="ruby-keyword kw">end</span>
-
-    <span class="ruby-ivar">@number_of_feature_rows</span> = ( <span class="ruby-ivar">@grid</span>.<span class="ruby-identifier">keys</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span> ) <span class="ruby-operator">?</span> <span class="ruby-value">1</span> <span class="ruby-operator">:</span> <span class="ruby-ivar">@grid</span>.<span class="ruby-identifier">keys</span>.<span class="ruby-identifier">max</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
-
-    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">panel_drawing</span>
-  <span class="ruby-keyword kw">end</span></pre>
-</body>
-</html>
