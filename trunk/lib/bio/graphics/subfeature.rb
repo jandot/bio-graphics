@@ -13,7 +13,7 @@ class Bio::Graphics::Panel::Track::Feature::SubFeature
   # *Arguments*:
   # * _feature_ (required) :: Bio::Graphics::Panel::Track::Feature
   #   object that this subfeature belongs to
-  # * _feature object_ (required) :: A Bio::Feature object (see bioruby)
+  # * _feature_ _object_ (required) :: A Bio::Feature object (see bioruby)
   # * _glyph_ :: Glyph to use. Default = glyph of the track
   # * _colour_ :: Colour. Default = colour of the track
   # *Returns*:: Bio::Graphics::Track::Feature::SubFeature object
@@ -122,7 +122,7 @@ class Bio::Graphics::Panel::Track::Feature::SubFeature
   # Bio::Graphics::Panel::Track::Feature.draw
   # ---
   # *Arguments*:
-  # * _trackdrawing_ (required) :: the track cairo object
+  # * _track_drawing_ (required) :: the track cairo object
   # * _row_ (required) :: row within the track that this feature has 
   #                       been bumped to
   # *Returns*:: FIXME: I don't know

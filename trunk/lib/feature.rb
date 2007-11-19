@@ -30,7 +30,7 @@ class Feature
 
   # Adds a Bio::Feature as a subfeature.
   # *Arguments*:
-  # * (required) _feature): Bio::Feature object
+  # * (required) _feature_: Bio::Feature object
   # *Returns*:: Bio::Feature object
   def add_subfeature(sf)
     sf.parent = self
@@ -159,7 +159,7 @@ class Features
   # Create a new Bio::Features object.
   #
   # *Arguments*:
-  # * (optional) _list of features_: list of Bio::Feature objects
+  # * (optional) _list_ _of_ _features_: list of Bio::Feature objects
   # *Returns*:: Bio::Features object
   def initialize(ary = [])
     @features = ary

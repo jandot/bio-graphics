@@ -69,7 +69,7 @@ class Bio::Graphics::Panel::Track
   #
   # ---
   # *Arguments*:
-  # * _feature object_ (required) :: A Bio::Feature object
+  # * _feature_ _object_ (required) :: A Bio::Feature object
   # * _label_ :: Label for the feature. Default = 'anonymous'
   # * _link_ :: URL to link to for this glyph. Default = nil
   # * _glyph_ :: Glyph for the feature. Default = glyph of the track
@@ -107,7 +107,7 @@ class Bio::Graphics::Panel::Track
   # directly by the user, but is called by Bio::Graphics::Panel.draw
   # ---
   # *Arguments*:
-  # * _paneldrawing_ (required) :: the panel cairo object
+  # * _panel__drawing_ (required) :: the panel cairo object
   # *Returns*:: FIXME: I don't know
   def draw(panel_drawing)
     track_drawing = Cairo::Context.new(panel_drawing)

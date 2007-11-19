@@ -29,7 +29,7 @@ class Bio::Graphics::Panel::Track::Feature
   # *Arguments*:
   # * _track_ (required) :: Bio::Graphics::Panel::Track object that this
   #   feature belongs to
-  # * _feature object_ (required) :: A Bio::Feature object (see bioruby)
+  # * _feature_ _object_ (required) :: A Bio::Feature object (see bioruby)
   # * _label_ :: Label of the feature. Default = 'anonymous'
   # * _link_ :: URL for clickable images. Default = nil
   # * _glyph_ :: Glyph to use. Default = glyph of the track
@@ -98,7 +98,7 @@ class Bio::Graphics::Panel::Track::Feature
   # Bio::Graphics::Panel::Track.draw
   # ---
   # *Arguments*:
-  # * _trackdrawing_ (required) :: the track cairo object
+  # * _track_drawing_ (required) :: the track cairo object
   # *Returns*:: FIXME: I don't know
   def draw(track_drawing)
     row = self.find_row
