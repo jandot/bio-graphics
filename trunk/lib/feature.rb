@@ -3,10 +3,7 @@ class Feature
   def initialize(feature, position, qualifiers = [], parent = nil, subfeatures = [])
     @feature, @position, @qualifiers, @parent = feature, position, qualifiers, parent
     @subfeatures = Array.new
-    subfeatures.each do |sf|
-      sf.parent = self
-      @subfeatures.push(sf)
-    end
+    subfeatures.each {|sf| add_subfeature(sf) }
     @locations = Bio::Locations.new(@position)
   end
 

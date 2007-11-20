@@ -66,7 +66,7 @@ class Bio::Graphics::Panel::Track::Feature::SubFeature
         stop_pixel = ( l.to - @feature.track.panel.display_start ).to_f / @feature.track.panel.rescale_factor
       end
 
-      @pixel_range_collection.push(PixelRange.new(start_pixel, stop_pixel))
+      @pixel_range_collection.push(Range.new(start_pixel, stop_pixel))
 
     end
   end
@@ -176,27 +176,27 @@ class Bio::Graphics::Panel::Track::Feature::SubFeature
         raise "Start and stop are not the same (necessary if you want triangle glyphs)" if @start != @stop
 
         # Need to get this for the imagemap
-        left_pixel_of_subfeature = @pixel_range_collection[0].start_pixel - Bio::Graphics::FEATURE_ARROW_LENGTH
-        right_pixel_of_subfeature = @pixel_range_collection[0].stop_pixel + Bio::Graphics::FEATURE_ARROW_LENGTH
+        left_pixel_of_subfeature = @pixel_range_collection[0].lend - Bio::Graphics::FEATURE_ARROW_LENGTH
+        right_pixel_of_subfeature = @pixel_range_collection[0].rend + Bio::Graphics::FEATURE_ARROW_LENGTH
         arrow(track_drawing,:north,left_pixel_of_subfeature + Bio::Graphics::FEATURE_ARROW_LENGTH, @feature.top_pixel_of_feature, Bio::Graphics::FEATURE_ARROW_LENGTH)
         track_drawing.close_path.stroke
       when :dot
         raise "Start and stop are not the same (necessary if you want dot glyphs)" if @start != @stop
         # Need to get this for the imagemap
         radius = Bio::Graphics::FEATURE_HEIGHT/2
-        left_pixel_of_subfeature = @pixel_range_collection[0].start_pixel - radius
-        right_pixel_of_subfeature = @pixel_range_collection[0].stop_pixel + radius
+        left_pixel_of_subfeature = @pixel_range_collection[0].lend - radius
+        right_pixel_of_subfeature = @pixel_range_collection[0].rend + radius
         track_drawing.circle(left_pixel_of_subfeature + radius, @feature.top_pixel_of_feature + radius, radius).fill
         track_drawing.close_path.stroke
       when :line
-        left_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
-        right_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
+        left_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
+        right_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
         track_drawing.move_to(left_pixel_of_subfeature,@feature.top_pixel_of_feature+Bio::Graphics::FEATURE_ARROW_LENGTH)               
         track_drawing.line_to(right_pixel_of_subfeature,@feature.top_pixel_of_feature+Bio::Graphics::FEATURE_ARROW_LENGTH)
         track_drawing.stroke
       when :line_with_handles
-        left_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
-        right_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
+        left_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
+        right_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
         track_drawing.move_to(left_pixel_of_subfeature,@feature.top_pixel_of_feature+Bio::Graphics::FEATURE_ARROW_LENGTH)               
         track_drawing.line_to(right_pixel_of_subfeature,@feature.top_pixel_of_feature+Bio::Graphics::FEATURE_ARROW_LENGTH)
         track_drawing.stroke
@@ -210,8 +210,8 @@ class Bio::Graphics::Panel::Track::Feature::SubFeature
         track_drawing.set_source_rgb(@colour)
     when :directed_generic
         # Need to get this for the imagemap
-        left_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
-        right_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
+        left_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
+        right_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
         if self.strand == -1 # Reverse strand
           track_drawing.rectangle(left_pixel_of_subfeature+Bio::Graphics::FEATURE_ARROW_LENGTH, @feature.top_pixel_of_feature, right_pixel_of_subfeature - left_pixel_of_subfeature - Bio::Graphics::FEATURE_ARROW_LENGTH, Bio::Graphics::FEATURE_HEIGHT).fill
           arrow(track_drawing,:left,left_pixel_of_subfeature+Bio::Graphics::FEATURE_ARROW_LENGTH,@feature.top_pixel_of_feature,Bio::Graphics::FEATURE_ARROW_LENGTH)
@@ -223,52 +223,45 @@ class Bio::Graphics::Panel::Track::Feature::SubFeature
         end
       when :spliced
         # Need to get this for the imagemap
-        left_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
-        right_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
+        left_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
+        right_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
 
-        pixel_ranges = @pixel_range_collection.sort_by{|pr| pr.start_pixel}
+        pixel_ranges = @pixel_range_collection.sort_by{|pr| pr.lend}
         draw_spliced(track_drawing, pixel_ranges, @feature.top_pixel_of_feature, [], [])
       when :directed_spliced
         gap_starts = Array.new
         gap_stops = Array.new
 
         # Need to get this for the imagemap
-        left_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
-        right_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
+        left_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
+        right_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
 
         #   Start with the one with the arrow
-        pixel_ranges = @pixel_range_collection.sort_by{|pr| pr.start_pixel}
+        pixel_ranges = @pixel_range_collection.sort_by{|pr| pr.lend}
         range_with_arrow = nil
         if @strand == -1 # reverse strand => box with arrow is first one
           range_with_arrow = pixel_ranges.shift
-          track_drawing.rectangle((range_with_arrow.start_pixel)+Bio::Graphics::FEATURE_ARROW_LENGTH, @feature.top_pixel_of_feature, range_with_arrow.stop_pixel - range_with_arrow.start_pixel - Bio::Graphics::FEATURE_ARROW_LENGTH, Bio::Graphics::FEATURE_HEIGHT).fill
-          arrow(track_drawing,:left,range_with_arrow.start_pixel+Bio::Graphics::FEATURE_ARROW_LENGTH, @feature.top_pixel_of_feature,Bio::Graphics::FEATURE_ARROW_LENGTH)
+          track_drawing.rectangle((range_with_arrow.lend)+Bio::Graphics::FEATURE_ARROW_LENGTH, @feature.top_pixel_of_feature, range_with_arrow.rend - range_with_arrow.lend - Bio::Graphics::FEATURE_ARROW_LENGTH, Bio::Graphics::FEATURE_HEIGHT).fill
+          arrow(track_drawing,:left,range_with_arrow.lend+Bio::Graphics::FEATURE_ARROW_LENGTH, @feature.top_pixel_of_feature,Bio::Graphics::FEATURE_ARROW_LENGTH)
           track_drawing.close_path.fill
         else # forward strand => box with arrow is last one
           range_with_arrow = pixel_ranges.pop
-          track_drawing.rectangle(range_with_arrow.start_pixel, @feature.top_pixel_of_feature, range_with_arrow.stop_pixel - range_with_arrow.start_pixel - Bio::Graphics::FEATURE_ARROW_LENGTH, Bio::Graphics::FEATURE_HEIGHT).fill
-          arrow(track_drawing,:right,range_with_arrow.stop_pixel-Bio::Graphics::FEATURE_ARROW_LENGTH, @feature.top_pixel_of_feature,Bio::Graphics::FEATURE_ARROW_LENGTH)
+          track_drawing.rectangle(range_with_arrow.lend, @feature.top_pixel_of_feature, range_with_arrow.rend - range_with_arrow.lend - Bio::Graphics::FEATURE_ARROW_LENGTH, Bio::Graphics::FEATURE_HEIGHT).fill
+          arrow(track_drawing,:right,range_with_arrow.rend-Bio::Graphics::FEATURE_ARROW_LENGTH, @feature.top_pixel_of_feature,Bio::Graphics::FEATURE_ARROW_LENGTH)
           track_drawing.close_path.fill
         end
-        gap_starts.push(range_with_arrow.stop_pixel)
-        gap_stops.push(range_with_arrow.start_pixel)
+        gap_starts.push(range_with_arrow.rend)
+        gap_stops.push(range_with_arrow.lend)
 
         #   And then add the others
         draw_spliced(track_drawing, pixel_ranges, @feature.top_pixel_of_feature, gap_starts, gap_stops)
       else #treat as 'generic'
-        left_pixel_of_subfeature, right_pixel_of_subfeature = @pixel_range_collection[0].start_pixel, @pixel_range_collection[-1].stop_pixel
+        left_pixel_of_subfeature, right_pixel_of_subfeature = @pixel_range_collection[0].lend, @pixel_range_collection[-1].rend
         track_drawing.rectangle(left_pixel_of_subfeature, @feature.top_pixel_of_feature, (right_pixel_of_subfeature - left_pixel_of_subfeature), Bio::Graphics::FEATURE_HEIGHT).fill
     end
     @feature.left_pixel_of_subfeatures.push(left_pixel_of_subfeature)
     @feature.right_pixel_of_subfeatures.push(right_pixel_of_subfeature)
 
-  end
-
-  class PixelRange
-    def initialize(start_pixel, stop_pixel)
-      @start_pixel, @stop_pixel = start_pixel, stop_pixel
-    end
-    attr_accessor :start_pixel, :stop_pixel
   end
 
   private
@@ -285,9 +278,9 @@ class Bio::Graphics::Panel::Track::Feature::SubFeature
   def draw_spliced(track_drawing, pixel_ranges, top_pixel_of_feature, gap_starts, gap_stops)            
     # draw the parts
     pixel_ranges.each do |range|
-      track_drawing.rectangle(range.start_pixel, top_pixel_of_feature, range.stop_pixel - range.start_pixel, Bio::Graphics::FEATURE_HEIGHT).fill
-      gap_starts.push(range.stop_pixel)
-      gap_stops.push(range.start_pixel)
+      track_drawing.rectangle(range.lend, top_pixel_of_feature, range.rend - range.lend, Bio::Graphics::FEATURE_HEIGHT).fill
+      gap_starts.push(range.rend)
+      gap_stops.push(range.lend)
     end
 
     # And then draw the connections in the gaps
@@ -300,7 +293,7 @@ class Bio::Graphics::Panel::Track::Feature::SubFeature
     end
 
     if @hidden_subfeatures_at_stop
-      from = @pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
+      from = @pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
       to = @feature.track.panel.width
       track_drawing.move_to(from, top_pixel_of_feature+Bio::Graphics::FEATURE_ARROW_LENGTH)
       track_drawing.line_to(to, top_pixel_of_feature+Bio::Graphics::FEATURE_ARROW_LENGTH)
@@ -309,7 +302,7 @@ class Bio::Graphics::Panel::Track::Feature::SubFeature
 
     if @hidden_subfeatures_at_start
       from = 1
-      to = @pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
+      to = @pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
       track_drawing.move_to(from, top_pixel_of_feature+Bio::Graphics::FEATURE_ARROW_LENGTH)
       track_drawing.line_to(to, top_pixel_of_feature+Bio::Graphics::FEATURE_ARROW_LENGTH)
       track_drawing.stroke

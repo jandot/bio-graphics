@@ -194,13 +194,6 @@ class Bio::Graphics::Panel::Track::Feature
     return row
   end
 
-  class PixelRange
-    def initialize(start_pixel, stop_pixel)
-      @start_pixel, @stop_pixel = start_pixel, stop_pixel
-    end
-    attr_accessor :start_pixel, :stop_pixel
-  end
-
   private
 
   # Method to draw each of the squared spliced rectangles for
@@ -215,9 +208,9 @@ class Bio::Graphics::Panel::Track::Feature
   def draw_spliced(track_drawing, pixel_ranges, top_pixel_of_feature, gap_starts, gap_stops)            
     # draw the parts
     pixel_ranges.each do |range|
-      track_drawing.rectangle(range.start_pixel, top_pixel_of_feature, range.stop_pixel - range.start_pixel, Bio::Graphics::FEATURE_HEIGHT).fill
-      gap_starts.push(range.stop_pixel)
-      gap_stops.push(range.start_pixel)
+      track_drawing.rectangle(range.lend, top_pixel_of_feature, range.rend - range.lend, Bio::Graphics::FEATURE_HEIGHT).fill
+      gap_starts.push(range.rend)
+      gap_stops.push(range.lend)
     end
 
     # And then draw the connections in the gaps
@@ -230,7 +223,7 @@ class Bio::Graphics::Panel::Track::Feature
     end
 
     if @hidden_subfeatures_at_stop
-      from = @pixel_range_collection.sort_by{|pr| pr.start_pixel}[-1].stop_pixel
+      from = @pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
       to = @track.panel.width
       track_drawing.move_to(from, top_pixel_of_feature+Bio::Graphics::FEATURE_ARROW_LENGTH)
       track_drawing.line_to(to, top_pixel_of_feature+Bio::Graphics::FEATURE_ARROW_LENGTH)
@@ -239,7 +232,7 @@ class Bio::Graphics::Panel::Track::Feature
 
     if @hidden_subfeatures_at_start
       from = 1
-      to = @pixel_range_collection.sort_by{|pr| pr.start_pixel}[0].start_pixel
+      to = @pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
       track_drawing.move_to(from, top_pixel_of_feature+Bio::Graphics::FEATURE_ARROW_LENGTH)
       track_drawing.line_to(to, top_pixel_of_feature+Bio::Graphics::FEATURE_ARROW_LENGTH)
       track_drawing.stroke

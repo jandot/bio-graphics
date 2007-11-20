@@ -29,6 +29,11 @@ Bio::Graphics::Panel::Track = Class.new
 Bio::Graphics::Panel::Track::Feature = Class.new
 Bio::Graphics::Panel::Track::Feature::SubFeature = Class.new
 
+class Range
+  alias :lend :begin
+  alias :rend :end
+end
+
 begin
   require 'bio'
   require 'cairo'
@@ -36,7 +41,7 @@ begin
   require 'stringio'
 end
 
-#require File.dirname(__FILE__) + '/feature.rb'
+require File.dirname(__FILE__) + '/feature.rb'
 require File.dirname(__FILE__) + '/bio/graphics/image_map.rb'
 require File.dirname(__FILE__) + '/bio/graphics/panel.rb'
 require File.dirname(__FILE__) + '/bio/graphics/track.rb'
