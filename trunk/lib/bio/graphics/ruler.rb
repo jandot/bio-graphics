@@ -33,23 +33,15 @@ module Bio
         attr_accessor :panel, :name, :colour, :height, :minor_tick_distance, :major_tick_distance
 
         def calculate_tick_distance
-          min_tick_distance_requirement_met = false
-          self.minor_tick_distance = 1 # in basepairs.
-          while ! min_tick_distance_requirement_met
-            if self.minor_tick_distance/panel.rescale_factor >= RULER_MIN_DISTANCE_TICKS_PIXEL
-              min_tick_distance_requirement_met = true
-            else
-              self.minor_tick_distance = self.minor_tick_distance*5
-            end
-          end
-
-          self.major_tick_distance = self.minor_tick_distance * 10
+          # in basepairs
+          @minor_tick_distance = 5**(Math.log(RULER_MIN_DISTANCE_TICKS_PIXEL* panel.rescale_factor) / Math.log(5)).ceil 
+          @major_tick_distance = @minor_tick_distance * 10
         end
 
         def draw(panel_drawing)
           ruler_drawing = Cairo::Context.new(panel_drawing)
 
-          self.calculate_tick_distance
+          calculate_tick_distance()
 
           # Draw line
           ruler_drawing.move_to(0,10)
@@ -63,11 +55,10 @@ module Bio
           #    sequence. Then the numbers under the major tickmarks would be:
           #    343, 353, 363, 373 and so on. Instead, we want 350, 360, 370, 380.
           #    So we want to find the position of the first tick.
-          first_tick_position = panel.display_start
-          while first_tick_position.modulo(minor_tick_distance) != 0
-            first_tick_position += 1
-          end
-          
+          modulo_from_tick = (panel.display_start % minor_tick_distance)
+          first_tick_position = panel.display_start + 
+            modulo_from_tick > 0 ? (minor_tick_distance - modulo_from_tick + 1) : 0
+
           #  * And start drawing the rest.
           first_tick_position.step(panel.display_stop, minor_tick_distance) do |tick|
             tick_pixel_position = (tick - panel.display_start) / panel.rescale_factor
@@ -87,7 +78,6 @@ module Bio
             ruler_drawing.stroke
           end
           
-
           @height = 25 + RULER_TEXT_HEIGHT
         end
       end #Ruler
