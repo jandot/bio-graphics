@@ -61,10 +61,6 @@ module Bio::Graphics
   FEATURE_HEIGHT = 10        # The height in pixels of a glyph.
   FEATURE_V_DISTANCE = 5     # The vertical distance in pixels between glyphs
   FEATURE_ARROW_LENGTH = 5   # In pixels again.
-  RULER_TEXT_HEIGHT = 10     # And again...
-  RULER_MIN_DISTANCE_TICKS_PIXEL = 5  # There should be at least 5 pixels between
-                                      #   consecutive ticks. This is used for the
-                                      #   calculation of tick distance.
   FONT = ['Georgia', 1, 1]
 
   # The Bio::Graphics::Panel class describes the complete graph and contains

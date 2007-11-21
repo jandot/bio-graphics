@@ -17,7 +17,7 @@ module Bio
       # it would inherit from it (class Ruler < Bio::Graphics::Panel::Track).
       # But I haven't really thought this through yet.
       #++
-      class Ruler
+      class Ruler        
         # Creates a new Bio::Graphics::Panel::Ruler object.
         # ---
         # *Arguments*:
@@ -29,19 +29,26 @@ module Bio
           @panel = panel
           @name = 'ruler'
           @colour = colour
+          
+          # Number of pixels between each tick, used to calculate tick spacing
+          @min_pixels_per_tick = 5
+          # The base height of minor ticks in pixels
+          @tick_height = 5
+          # The height of the text in pixels
+          @tick_text_height = 10          
         end
-        attr_accessor :panel, :name, :colour, :height, :minor_tick_distance, :major_tick_distance
-
-        def calculate_tick_distance
-          # in basepairs
-          @minor_tick_distance = 5**(Math.log(RULER_MIN_DISTANCE_TICKS_PIXEL* panel.rescale_factor) / Math.log(5)).ceil 
-          @major_tick_distance = @minor_tick_distance * 10
-        end
+        attr_accessor(:panel, :name, :colour, :height,
+                      :minor_tick_distance, :major_tick_distance, :min_pixels_per_tick,
+                      :tick_height, :tick_text_height)
 
         def draw(panel_drawing)
           ruler_drawing = Cairo::Context.new(panel_drawing)
 
-          calculate_tick_distance()
+          # calculate tick distance in basepairs
+          tick_scaling_factor = (Math.log(@min_pixels_per_tick * @panel.rescale_factor) /
+                                 Math.log(@min_pixels_per_tick)).ceil 
+          @minor_tick_distance = @min_pixels_per_tick**tick_scaling_factor
+          @major_tick_distance = @minor_tick_distance * 10
 
           # Draw line
           ruler_drawing.move_to(0,10)
@@ -62,23 +69,23 @@ module Bio
           #  * And start drawing the rest.
           first_tick_position.step(panel.display_stop, minor_tick_distance) do |tick|
             tick_pixel_position = (tick - panel.display_start) / panel.rescale_factor
-            ruler_drawing.move_to(tick_pixel_position.floor, 5)
+            ruler_drawing.move_to(tick_pixel_position.floor, @min_pixels_per_tick)
             if tick.modulo(major_tick_distance) == 0
-              ruler_drawing.rel_line_to(0, 15)
+              ruler_drawing.rel_line_to(0, 3*@tick_height)
               
               # Draw tick number
               ruler_drawing.select_font_face(*(FONT))
-              ruler_drawing.set_font_size(RULER_TEXT_HEIGHT)
-              ruler_drawing.move_to(tick_pixel_position.floor, 20 + RULER_TEXT_HEIGHT)
+              ruler_drawing.set_font_size(@tick_text_height)
+              ruler_drawing.move_to(tick_pixel_position.floor, 4*@tick_height + @tick_text_height)
               ruler_drawing.show_text(tick.to_i.to_s)
             else
-              ruler_drawing.rel_line_to(0, 5)
+              ruler_drawing.rel_line_to(0, @tick_height)
               
             end
             ruler_drawing.stroke
           end
-          
-          @height = 25 + RULER_TEXT_HEIGHT
+
+          @height = 5*@tick_height + @tick_text_height          
         end
       end #Ruler
     end #Panel
