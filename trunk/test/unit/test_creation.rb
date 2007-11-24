@@ -3,7 +3,8 @@ require File.dirname(__FILE__) + '/../../lib/bio-graphics'
 
 class TestPanel < Test::Unit::TestCase
   def test_panel_creation
-    panel = Bio::Graphics::Panel.new(1000, 500, false, 0, 1000)
+    panel = Bio::Graphics::Panel.new(1000, :width => 500, :clickable => false,
+                                     :display_start => 0, :display_stop => 1000)
     assert_equal(1000, panel.length)
     assert_equal(500, panel.width)
     assert_equal(false, panel.clickable)
@@ -14,7 +15,8 @@ class TestPanel < Test::Unit::TestCase
   end
   
   def test_panel_creation_out_of_boundaries
-    panel = Bio::Graphics::Panel.new(1000, 500, false, -7, 5000)
+    panel = Bio::Graphics::Panel.new(1000, :width => 500, :clickable => false,
+                                     :display_start => -7, :display_stop => 5000)
     assert_same(0, panel.display_start)
     assert_same(1000, panel.display_stop)
   end
@@ -22,8 +24,9 @@ class TestPanel < Test::Unit::TestCase
 end
 
 class TestTrack < Test::Unit::TestCase
-	def setup
-    @panel = Bio::Graphics::Panel.new(1000, 500, false, 0, 1000)
+  def setup
+    @panel = Bio::Graphics::Panel.new(1000, :width => 500, :clickable => false,
+                                      :display_start => 0, :display_stop => 1000)
   end
 
   def test_track_creation
@@ -38,7 +41,7 @@ end
 
 class TestFeature < Test::Unit::TestCase
   def setup
-    @panel = Bio::Graphics::Panel.new(1000, 500, false, 0, 1000)
+    @panel = Bio::Graphics::Panel.new(1000, :width => 500)
     @track = @panel.add_track('test_track', false, :generic, [1,0,0])
   end
   

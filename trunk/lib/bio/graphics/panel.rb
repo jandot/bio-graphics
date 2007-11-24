@@ -73,9 +73,9 @@ module Bio::Graphics
     #
     # The height of the image is calculated automatically depending on how many
     # tracks and features it contains. The width of the image defaults to 800 pt
-    # but can be set manually by using a second argument:
+    # but can be set manually by using the width argument to the opts hash:
     #
-    #   g = Bio::Graphics::Panel.new(456, 1200)
+    #   g = Bio::Graphics::Panel.new(456, :width => 1200)
     #
     #
     # See also: Bio::Graphics::Panel::Track,
@@ -84,25 +84,26 @@ module Bio::Graphics
     # *Arguments*:
     # * _length_ :: length of the thing you want to visualize, e.g for
     #   visualizing a sequence that is 3.24 kb long, use 324.
-    # * _width_ :: width of the resulting image in pt. This should be a string
-    #   and not an integer. Default = '800' (Notice the quotes...).
-    # * _clickable_ :: whether the picture should have clickable glyphs or not
+    # * _:width_ :: width of the resulting image in pixels. (default: 800)
+    # * _:clickable_ :: whether the picture should have clickable glyphs or not
     #   (default: false) If set to true, a html file will be created with
     #   the map.
-    # * _display_start_ :: start coordinate to be displayed (default: 1)
-    # * _display_stop_ :: stop coordinate to be displayed (default: length of sequence)
-    # * _verticle_ :: Boolean: false = horizontal (= default)
+    # * _:display_start_ :: start coordinate to be displayed (default: 1)
+    # * _:display_stop_ :: stop coordinate to be displayed (default: length of sequence)
+    # * _:verticle_ :: Boolean: false = horizontal (= default)
     # *Returns*:: Bio::Graphics::Panel object
-    def initialize(length, width = DEFAULT_PANEL_WIDTH, clickable = false, display_start = nil, display_stop = nil, verticle = false)
+    def initialize(length, opts = {})
       @length = length.to_i
-      @width = width.to_i
-      @verticle = verticle
+      @width = (opts[:width] || DEFAULT_PANEL_WIDTH).to_i
+      @display_start = [0,opts[:display_start] || 0].max
+      @display_stop = [@length,opts[:display_stop] || @length].min
+      @verticle = opts[:verticle] || false
+      @clickable = opts[:clickable] || false
+      
       @tracks = Array.new
       @number_of_feature_rows = 0
-      @clickable = clickable
-      @image_map = ( clickable ) ? ImageMap.new : nil
-      @display_start = ( display_start.nil? or display_start < 0 ) ? 0 : display_start
-      @display_stop = ( display_stop.nil? or display_stop > @length ) ? @length : display_stop
+      @image_map = ( @clickable ) ? ImageMap.new : nil
+
       if @display_stop <= @display_start
         raise "[ERROR] Start coordinate to be displayed has to be smaller than stop coordinate."
       end

@@ -1,6 +1,6 @@
 require '../lib/bio-graphics'
 
-my_panel = Bio::Graphics::Panel.new(500, 1000, true)
+my_panel = Bio::Graphics::Panel.new(500, :width => 1000, :clickable => true)
 
 generic_track = my_panel.add_track('generic', false)
 line_track = my_panel.add_track('line', false, :line, [0,0,1])

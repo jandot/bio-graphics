@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/../../lib/bio-graphics'
 
 class TestPanel < Test::Unit::TestCase
   def test_draw_showcase
-    my_panel = Bio::Graphics::Panel.new(500, 1000, false)
+    my_panel = Bio::Graphics::Panel.new(500, :width => 1000)
     
     generic_track = my_panel.add_track('generic', false)
     line_track = my_panel.add_track('line', false, :line, [0,0,1])
@@ -30,7 +30,6 @@ class TestPanel < Test::Unit::TestCase
     dot_track.add_feature(Bio::Feature.new('marker', '57'), 'thing3')
     dot_track.add_feature(Bio::Feature.new('marker', '114'), 'thing2','http://digg.com')
 
-    
     spliced_track.add_feature(Bio::Feature.new('gene','join(34..52,109..183)'), 'gene1','http://news.bbc.co.uk')
     spliced_track.add_feature(Bio::Feature.new('gene','complement(join(170..231,264..299,350..360,409..445))'), 'gene2')
     spliced_track.add_feature(Bio::Feature.new('gene','join(134..152,209..283)'), 'gene3')
@@ -43,11 +42,10 @@ class TestPanel < Test::Unit::TestCase
     my_panel.draw(output_file)
     system("display " + output_file + "& sleep 2 && kill $!")
     File.delete(output_file)
-
   end
 
   def test_arkdb_features
-    my_panel = Bio::Graphics::Panel.new(4173015, 600, false, 1, 4173015, true)
+    my_panel = Bio::Graphics::Panel.new(4173015, :width => 600, :verticle => true)
     
     #Create and configure tracks
     scaffold_track = my_panel.add_track('scaffold', false)
@@ -82,12 +80,11 @@ class TestPanel < Test::Unit::TestCase
     my_panel.draw(output_file)
 
     system("display " + output_file + "& sleep 2 && kill $!")
-    File.delete(output_file)
-    
+    File.delete(output_file)    
   end
 
   def test_subfeatures
-    my_panel = Bio::Graphics::Panel.new(500, 600, false, 1, 500, false)
+    my_panel = Bio::Graphics::Panel.new(500, :width => 600)
     
     track = my_panel.add_track('mrna')
     
@@ -109,12 +106,11 @@ class TestPanel < Test::Unit::TestCase
     my_panel.draw(output_file)
 
     system("display " + output_file + "& sleep 2 && kill $!")
-    File.delete(output_file)
-    
+    File.delete(output_file)    
   end
   
   def test_feature_specific_colouring
-    my_panel = Bio::Graphics::Panel.new(375, 600, false, 1, 375, false)
+    my_panel = Bio::Graphics::Panel.new(375, :width => 600)
     
     track = my_panel.add_track('mrna')
     
@@ -131,8 +127,6 @@ class TestPanel < Test::Unit::TestCase
     my_panel.draw(output_file)
 
     system("display " + output_file + "& sleep 2 && kill $!")
-    File.delete(output_file)
-    
-  end
-  
+    File.delete(output_file)    
+  end  
 end

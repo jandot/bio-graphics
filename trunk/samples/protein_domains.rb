@@ -1,6 +1,6 @@
 # Data from http://pfam.sanger.ac.uk/protein?id=Q8C6V9_MOUSE
 require '../lib/bio-graphics'
-my_panel = Bio::Graphics::Panel.new(700, 600)
+my_panel = Bio::Graphics::Panel.new(700, :width => 600)
 
 track = my_panel.add_track('Q8C6V9_MOUSE')
 track.glyph = :generic
