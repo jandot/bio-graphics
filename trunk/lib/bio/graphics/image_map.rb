@@ -3,8 +3,9 @@
 #
 # Copyright::   Copyright (C) 2007
 #               Jan Aerts <jan.aerts@bbsrc.ac.uk>
+#               Charles Comstock <dgtized@gmail.com>
 # License::     Ruby's
-class ImageMap
+class Bio::Graphics::ImageMap
   def initialize
     @elements = Array.new
   end
@@ -32,7 +33,7 @@ class ImageMap
     end
   end
   
-  class ImageMapElement
+  class Element
     def initialize(left, top, right, bottom, url = nil)
       @left, @top, @right, @bottom = left, top, right, bottom
       @url = ( url.nil? ) ? '' : url
