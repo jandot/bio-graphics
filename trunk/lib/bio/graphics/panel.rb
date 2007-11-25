@@ -3,6 +3,7 @@
 #
 # Copyright::   Copyright (C) 2007
 #               Jan Aerts <jan.aerts@bbsrc.ac.uk>
+#               Charles Comstock <dgtized@gmail.com>
 # License::     The Ruby License
 #
 include Math
@@ -158,7 +159,7 @@ module Bio::Graphics
 
       # Add ruler
       vertical_offset = 0
-      ruler = Bio::Graphics::Panel::Ruler.new(self)
+      ruler = Ruler.new(self)
       ruler.draw(huge_panel_drawing)
       vertical_offset += ruler.height
 
