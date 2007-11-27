@@ -39,6 +39,33 @@ class TestTrack < Test::Unit::TestCase
   end
 end
 
+class TestRuler < Test::Unit::TestCase
+  def test_scaling_factor
+    panel = Bio::Graphics::Panel.new(1000, :width => 600, :display_start => 0, :display_stop => 1000)
+    ruler = Bio::Graphics::Ruler.new(panel)
+    assert_equal(1,ruler.scaling_factor(5,1000/600))
+    assert_equal(2,ruler.scaling_factor(5,1000/500))
+    assert_equal(1,ruler.scaling_factor(5,500/500))
+  end
+
+  def test_drawing
+    panel = Bio::Graphics::Panel.new(375, :display_start => 100, :display_stop => 370, :width => 600)
+    ruler = Bio::Graphics::Ruler.new(panel)
+
+    assert_equal(270.0/600.0,panel.rescale_factor)
+    assert_equal(1,ruler.scaling_factor)
+    assert_equal(5,ruler.minor_tick_distance)
+    assert_equal(50,ruler.major_tick_distance)
+    assert_equal(100,ruler.first_tick_position)
+    
+    i = 0
+    ruler.first_tick_position.step(panel.display_stop, ruler.minor_tick_distance) do |tick|
+      assert(i*ruler.min_pixels_per_tick,(tick - panel.display_start) / panel.rescale_factor)
+      i += 1
+    end    
+  end
+end
+
 class TestFeature < Test::Unit::TestCase
   def setup
     @panel = Bio::Graphics::Panel.new(1000, :width => 500)
