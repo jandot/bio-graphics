@@ -3,20 +3,21 @@
 #
 # Copyright::   Copyright (C) 2007
 #               Jan Aerts <jan.aerts@bbsrc.ac.uk>
+#               Charles Comstock <dgtized@gmail.com>
 # License::     The Ruby License
 # 
 
 # TODO: Documentation for SubFeature
-class Bio::Graphics::Panel::Track::Feature::SubFeature
+class Bio::Graphics::Feature::SubFeature
   # !!Not to be used directly.
   # ---
   # *Arguments*:
-  # * _feature_ (required) :: Bio::Graphics::Panel::Track::Feature
+  # * _feature_ (required) :: Bio::Graphics::Feature
   #   object that this subfeature belongs to
   # * _feature_ _object_ (required) :: A Bio::Feature object (see bioruby)
   # * _glyph_ :: Glyph to use. Default = glyph of the track
   # * _colour_ :: Colour. Default = colour of the track
-  # *Returns*:: Bio::Graphics::Track::Feature::SubFeature object
+  # *Returns*:: Bio::Graphics::Feature::SubFeature object
   def initialize(feature, feature_object, glyph = feature.glyph, colour = feature.colour)
     @feature = feature
     @feature_object = feature_object
@@ -119,7 +120,7 @@ class Bio::Graphics::Panel::Track::Feature::SubFeature
 
   # Adds the subfeature to the track cairo context. This method should not 
   # be used directly by the user, but is called by
-  # Bio::Graphics::Panel::Track::Feature.draw
+  # Bio::Graphics::Feature::SubFeature.draw
   # ---
   # *Arguments*:
   # * _track_drawing_ (required) :: the track cairo object

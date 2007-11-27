@@ -7,19 +7,19 @@
 # License::     The Ruby License
 # 
 
-# The Bio::Graphics::Track::Feature class describes features to be
+# The Bio::Graphics::Feature class describes features to be
 # placed on the graph. See Bio::Graphics documentation for explanation
 # of interplay between different classes.
 #
 # The position of the Feature is a Bio::Locations object to make it possible
 # to transparently work with simple and spliced features.
 #
-# The Bio::Graphics::Track::Feature class inherits from Bio::Feature.
-class Bio::Graphics::Panel::Track::Feature
+# The Bio::Graphics::Feature class inherits from Bio::Feature.
+class Bio::Graphics::Feature
   # !!Not to be used directly. Use
-  # Bio::Graphics::Panel::Track.add_feature instead!!
+  # Bio::Graphics::Track.add_feature instead!!
   # A feature can not exist except within the confines of a
-  # Bio::Graphics::Panel::Track object.
+  # Bio::Graphics::Track object.
   #
   #--
   # This is necessary because the feature needs to know the colour and glyph,
@@ -28,14 +28,14 @@ class Bio::Graphics::Panel::Track::Feature
   #
   # ---
   # *Arguments*:
-  # * _track_ (required) :: Bio::Graphics::Panel::Track object that this
+  # * _track_ (required) :: Bio::Graphics::Track object that this
   #   feature belongs to
   # * _feature_ _object_ (required) :: A Bio::Feature object (see bioruby)
   # * _label_ :: Label of the feature. Default = 'anonymous'
   # * _link_ :: URL for clickable images. Default = nil
   # * _glyph_ :: Glyph to use. Default = glyph of the track
   # * _colour_ :: Colour. Default = colour of the track
-  # *Returns*:: Bio::Graphics::Track::Feature object
+  # *Returns*:: Bio::Graphics::Feature object
   def initialize(track, feature_object, label = 'anonymous', link = nil, glyph = track.glyph, colour = track.colour)
     @track = track
     @feature_object = feature_object
@@ -56,10 +56,10 @@ class Bio::Graphics::Panel::Track::Feature
     @subfeatures = Array.new
     if ! @feature_object.subfeatures.empty?
       @feature_object.subfeatures.each do |subfeature|
-        @subfeatures.push(Bio::Graphics::Panel::Track::Feature::SubFeature.new(self, subfeature, @glyph, @colour))
+        @subfeatures.push(SubFeature.new(self, subfeature, @glyph, @colour))
       end
     else
-      @subfeatures.push(Bio::Graphics::Panel::Track::Feature::SubFeature.new(self, @feature_object, @glyph, @colour))
+      @subfeatures.push(SubFeature.new(self, @feature_object, @glyph, @colour))
     end
 
     @left_pixel_of_subfeatures = Array.new
@@ -96,14 +96,15 @@ class Bio::Graphics::Panel::Track::Feature
 
   # Adds the feature to the track cairo context. This method should not 
   # be used directly by the user, but is called by
-  # Bio::Graphics::Panel::Track.draw
+  # Bio::Graphics::Track.draw
   # ---
   # *Arguments*:
   # * _track_drawing_ (required) :: the track cairo object
   # *Returns*:: FIXME: I don't know
   def draw(track_drawing)
     row = self.find_row
-    @top_pixel_of_feature = Bio::Graphics::FEATURE_V_DISTANCE + (Bio::Graphics::FEATURE_HEIGHT+Bio::Graphics::FEATURE_V_DISTANCE)*row
+    @top_pixel_of_feature = Bio::Graphics::FEATURE_V_DISTANCE +
+      (Bio::Graphics::FEATURE_HEIGHT+Bio::Graphics::FEATURE_V_DISTANCE)*row
     bottom_pixel_of_feature = @top_pixel_of_feature + Bio::Graphics::FEATURE_HEIGHT
 
     # Let the subfeatures do the drawing.
@@ -138,19 +139,19 @@ class Bio::Graphics::Panel::Track::Feature
     # And add the region to the image map
     if @track.panel.clickable
       # Comment: we have to add the vertical_offset and TRACK_HEADER_HEIGHT!
-      @track.panel.image_map.elements.push(ImageMap::Element.new(@left_pixel_of_feature,
-                                                                 @top_pixel_of_feature + @track.vertical_offset + Bio::Graphics::TRACK_HEADER_HEIGHT,
-                                                                 @right_pixel_of_feature,
-                                                                 bottom_pixel_of_feature + @track.vertical_offset + Bio::Graphics::TRACK_HEADER_HEIGHT,
-                                                                 @link
-                                                                 ))
+      @track.panel.image_map.add_element(@left_pixel_of_feature,
+                                         @top_pixel_of_feature + @track.vertical_offset + Bio::Graphics::TRACK_HEADER_HEIGHT,
+                                         @right_pixel_of_feature,
+                                         bottom_pixel_of_feature + @track.vertical_offset + Bio::Graphics::TRACK_HEADER_HEIGHT,
+                                         @link
+                                         )
     end
   end
 
   # Calculates the row within the track where this feature should be
   # drawn. This method should not 
   # be used directly by the user, but is called by
-  # Bio::Graphics::Panel::Track::Feature.draw
+  # Bio::Graphics::Feature.draw
   # ---
   # *Arguments*:: none
   # *Returns*:: row number

@@ -3,13 +3,14 @@
 #
 # Copyright::   Copyright (C) 2007
 #               Jan Aerts <jan.aerts@bbsrc.ac.uk>
+#               Charles Comstock <dgtized@gmail.com>
 # License::     The Ruby License
 #
 
 # The Bio::Graphics::Track class describes the container for features of
 # the same type. See Bio::Graphics documentation for explanation of
 # interplay between different classes.
-class Bio::Graphics::Panel::Track
+class Bio::Graphics::Track
   # !!Not to be used directly. Use Bio::Graphics::Panel.add_track instead!!
   # A track can not exist except within the confines of a
   # Bio::Graphics::Panel object.
@@ -45,7 +46,7 @@ class Bio::Graphics::Panel::Track
   end
   attr_accessor :panel, :name, :show_label, :colour, :glyph, :features, :number_of_feature_rows, :height, :vertical_offset, :grid
 
-  # Adds a Bio::Graphics::Panel::Track::Feature to this track. A track contains
+  # Adds a Bio::Graphics::Feature to this track. A track contains
   # features of the same type, e.g. (for sequence annotation:) genes,
   # polymorphisms, ESTs, etc.
   #
@@ -74,7 +75,7 @@ class Bio::Graphics::Panel::Track
   # * _link_ :: URL to link to for this glyph. Default = nil
   # * _glyph_ :: Glyph for the feature. Default = glyph of the track
   # * _colour_ :: Colour for the feature. Default = colour of the track
-  # *Returns*:: Bio::Graphics::Track::Feature object that was created or nil
+  # *Returns*:: Bio::Graphics::Feature object that was created or nil
   def add_feature(feature_object, label = 'anonymous', link = nil, glyph = @glyph, colour = @colour)
     if link == ''
       link = nil
@@ -95,7 +96,7 @@ class Bio::Graphics::Panel::Track
     if stop <= self.panel.display_start or start >= self.panel.display_stop
       return nil
     else #elsif start >= panel.display_start and stop <= panel.display_stop
-      @features.push(Bio::Graphics::Panel::Track::Feature.new(self, feature_object, label, link, glyph, colour))
+      @features.push(Bio::Graphics::Feature.new(self, feature_object, label, link, glyph, colour))
       return @features[-1]
     end
 

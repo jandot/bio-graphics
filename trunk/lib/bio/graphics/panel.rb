@@ -135,7 +135,7 @@ module Bio::Graphics
     #   Default = [0,0,1] (i.e. blue)
     # *Returns*:: Bio::Graphics::Track object that has just been created
     def add_track(name, label = true, feature_glyph = :generic, feature_colour = [0,0,1])
-      @tracks.push(Bio::Graphics::Panel::Track.new(self, name, label, feature_glyph, feature_colour))
+      @tracks.push(Bio::Graphics::Track.new(self, name, label, feature_glyph, feature_colour))
       return @tracks[-1]
     end
 

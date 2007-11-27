@@ -11,6 +11,10 @@ class Bio::Graphics::ImageMap
   end
   attr_accessor :elements
 
+  def add_element(left,top,right,bottom,url = nil)
+    @elements.push(Element.new(left,top,right,bottom,url))
+  end
+  
   def to_s
     output = Array.new
     output.push('<map name="image_map" border="1">')

@@ -149,7 +149,7 @@ class TestPanel < Test::Unit::TestCase
   end
   
   def test_feature_specific_colouring
-    my_panel = Bio::Graphics::Panel.new(375, :start => 100, :stop => 370, :width => 600)
+    my_panel = Bio::Graphics::Panel.new(375, :display_start => 100, :display_stop => 370, :width => 600)
     
     track = my_panel.add_track('mrna')
     

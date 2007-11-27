@@ -13,7 +13,7 @@
 # explanation of interplay between different classes.
 #--
 # TODO: the ruler might be implemented as a special case of a track, so
-# it would inherit from it (class Ruler < Bio::Graphics::Panel::Track).
+# it would inherit from it (class Ruler < Bio::Graphics::Track).
 # But I haven't really thought this through yet.
 #++
 class Bio::Graphics::Ruler        
