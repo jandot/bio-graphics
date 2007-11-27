@@ -83,6 +83,45 @@ class TestPanel < Test::Unit::TestCase
     File.delete(output_file)    
   end
 
+  def test_subregion
+    my_panel = Bio::Graphics::Panel.new(4173015, :display_start => 2500000, :display_stop => 3500000, :width => 600)
+    
+    #Create and configure tracks
+    scaffold_track = my_panel.add_track('scaffold', false)
+    marker_track = my_panel.add_track('marker', true)
+    clone_track = my_panel.add_track('clone', false)
+    
+    scaffold_track.colour = [1,0,0]
+    marker_track.colour = [0,1,0]
+    marker_track.glyph = :triangle
+    clone_track.colour = [0,0,1]
+    
+    # Add data to tracks
+    File.open(File.dirname(__FILE__) + '/data.txt').each do |line|
+      line.chomp!
+      accession, type, start, stop = line.split(/\t/)
+      if type == 'scaffold'
+        if start.nil?
+          scaffold_track.add_feature(Bio::Feature.new('scaffold', '1..4173015'), accession)
+        else
+          scaffold_track.add_feature(Bio::Feature.new('scaffold', start + '..' + stop), accession, 'http://www.google.com')
+        end
+          
+      elsif type == 'marker'
+        marker_track.add_feature(Bio::Feature.new('marker', ((start.to_i + stop.to_i)/2).to_s), accession, 'http://www.thearkdb.org/arkdb/do/getMarkerDetail?accession=' + accession)
+      elsif type == 'clone'
+        clone_track.add_feature(Bio::Feature.new('clone', start + '..' + stop), accession)
+      end
+    end
+
+    # And draw
+    output_file = File.dirname(__FILE__) + '/output.png'
+    my_panel.draw(output_file)
+
+    system("display " + output_file + "& sleep 2 && kill $!")
+    File.delete(output_file)    
+  end
+
   def test_subfeatures
     my_panel = Bio::Graphics::Panel.new(500, :width => 600)
     
@@ -110,7 +149,7 @@ class TestPanel < Test::Unit::TestCase
   end
   
   def test_feature_specific_colouring
-    my_panel = Bio::Graphics::Panel.new(375, :width => 600)
+    my_panel = Bio::Graphics::Panel.new(375, :start => 100, :stop => 370, :width => 600)
     
     track = my_panel.add_track('mrna')
     
