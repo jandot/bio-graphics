@@ -4,7 +4,7 @@ require File.dirname(__FILE__) + '/../../lib/bio-graphics'
 class TestPanel < Test::Unit::TestCase
   def test_panel_creation
     panel = Bio::Graphics::Panel.new(1000, :width => 500, :clickable => false,
-                                     :display_start => 0, :display_stop => 1000)
+                                     :display_range => 0..1000)
     assert_equal(1000, panel.length)
     assert_equal(500, panel.width)
     assert_equal(false, panel.clickable)
@@ -16,7 +16,7 @@ class TestPanel < Test::Unit::TestCase
   
   def test_panel_creation_out_of_boundaries
     panel = Bio::Graphics::Panel.new(1000, :width => 500, :clickable => false,
-                                     :display_start => -7, :display_stop => 5000)
+                                     :display_range => -7..5000)
     assert_same(0, panel.display_start)
     assert_same(1000, panel.display_stop)
   end
@@ -26,7 +26,7 @@ end
 class TestTrack < Test::Unit::TestCase
   def setup
     @panel = Bio::Graphics::Panel.new(1000, :width => 500, :clickable => false,
-                                      :display_start => 0, :display_stop => 1000)
+                                      :display_range => 0..1000)
   end
 
   def test_track_creation
@@ -41,7 +41,7 @@ end
 
 class TestRuler < Test::Unit::TestCase
   def test_scaling_factor
-    panel = Bio::Graphics::Panel.new(1000, :width => 600, :display_start => 0, :display_stop => 1000)
+    panel = Bio::Graphics::Panel.new(1000, :width => 600, :display_range => 0..1000)
     ruler = Bio::Graphics::Ruler.new(panel)
     assert_equal(1,ruler.scaling_factor(5,1000/600))
     assert_equal(2,ruler.scaling_factor(5,1000/500))
@@ -49,7 +49,7 @@ class TestRuler < Test::Unit::TestCase
   end
 
   def test_drawing
-    panel = Bio::Graphics::Panel.new(375, :display_start => 100, :display_stop => 370, :width => 600)
+    panel = Bio::Graphics::Panel.new(375, :display_range => 100..370, :width => 600)
     ruler = Bio::Graphics::Ruler.new(panel)
 
     assert_equal(270.0/600.0,panel.rescale_factor)

@@ -96,8 +96,15 @@ module Bio::Graphics
     def initialize(length, opts = {})
       @length = length.to_i
       @width = (opts[:width] || DEFAULT_PANEL_WIDTH).to_i
-      @display_start = [0,opts[:display_start] || 0].max
-      @display_stop = [@length,opts[:display_stop] || @length].min
+
+      @display_range = opts[:display_range] || Range.new(0,@length)      
+      @display_start = [0, @display_range.lend].max
+      @display_stop = [@length,@display_range.rend].min
+      if @display_stop <= @display_start
+        raise "[ERROR] Start coordinate to be displayed has to be smaller than stop coordinate."
+      end
+      @display_range = Range.new(@display_start,@display_stop)
+      
       @verticle = opts[:verticle] || false
       @clickable = opts[:clickable] || false
       
@@ -105,12 +112,9 @@ module Bio::Graphics
       @number_of_feature_rows = 0
       @image_map = ( @clickable ) ? ImageMap.new : nil
 
-      if @display_stop <= @display_start
-        raise "[ERROR] Start coordinate to be displayed has to be smaller than stop coordinate."
-      end
       @rescale_factor = (@display_stop - @display_start).to_f / @width
     end
-    attr_accessor :length, :width, :height, :rescale_factor, :tracks, :number_of_feature_rows, :clickable, :image_map, :display_start, :display_stop, :verticle
+    attr_accessor :length, :width, :height, :rescale_factor, :tracks, :number_of_feature_rows, :clickable, :image_map, :display_start, :display_stop, :display_range, :verticle
 
     # Adds a Bio::Graphics::Track container to this panel. A panel contains a
     # logical grouping of features, e.g. (for sequence annotation:) genes,

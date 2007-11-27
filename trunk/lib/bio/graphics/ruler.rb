@@ -71,10 +71,10 @@ class Bio::Graphics::Ruler
 
     # Draw ticks
     #  * And start drawing the rest.
-    first_tick_position.step(panel.display_stop, minor_tick_distance) do |tick|
-      tick_pixel_position = (tick - panel.display_start) / panel.rescale_factor
+    first_tick_position.step(@panel.display_stop, @minor_tick_distance) do |tick|
+      tick_pixel_position = (tick - panel.display_start) / @panel.rescale_factor
       ruler_drawing.move_to(tick_pixel_position.floor, @min_pixels_per_tick)
-      if tick.modulo(major_tick_distance) == 0
+      if tick.modulo(@major_tick_distance) == 0
         ruler_drawing.rel_line_to(0, 3*@tick_height)
         
         # Draw tick number

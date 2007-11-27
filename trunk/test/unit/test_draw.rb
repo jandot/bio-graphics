@@ -84,7 +84,7 @@ class TestPanel < Test::Unit::TestCase
   end
 
   def test_subregion
-    my_panel = Bio::Graphics::Panel.new(4173015, :display_start => 2500000, :display_stop => 3500000, :width => 600)
+    my_panel = Bio::Graphics::Panel.new(4173015, :display_range => 2500000..3500000, :width => 600)
     
     #Create and configure tracks
     scaffold_track = my_panel.add_track('scaffold', false)
@@ -149,7 +149,7 @@ class TestPanel < Test::Unit::TestCase
   end
   
   def test_feature_specific_colouring
-    my_panel = Bio::Graphics::Panel.new(375, :display_start => 100, :display_stop => 370, :width => 600)
+    my_panel = Bio::Graphics::Panel.new(375, :display_range => 100..370, :width => 600)
     
     track = my_panel.add_track('mrna')
     
