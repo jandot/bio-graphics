@@ -2,14 +2,14 @@ require '../lib/bio-graphics'
 
 my_panel = Bio::Graphics::Panel.new(500, :width => 1000, :clickable => true)
 
-generic_track = my_panel.add_track('generic', false)
-line_track = my_panel.add_track('line', false, :line, [0,0,1])
-line_with_handles_track = my_panel.add_track('line_with_handles', false, :line_with_handles, [1,0,0])
-directed_track = my_panel.add_track('directed', false, :directed_generic, [0,1,0])
-triangle_track = my_panel.add_track('triangle', false, :triangle, [1,0,0])
-spliced_track = my_panel.add_track('spliced', false, :spliced, [1,0,0])
-directed_spliced_track = my_panel.add_track('directed_spliced', false, :directed_spliced, [1,0,1])
-composite_track = my_panel.add_track('composite_features', false, { 'utr' => :line, 'cds' => :directed_spliced})
+generic_track = my_panel.add_track('generic', :label => false)
+line_track = my_panel.add_track('line', :label => false, :glyph => :line, :colour => [0,0,1])
+line_with_handles_track = my_panel.add_track('line_with_handles', :label => false, :glyph => :line_with_handles, :colour => [1,0,0])
+directed_track = my_panel.add_track('directed', :label => false, :glyph => :directed_generic, :colour => [0,1,0])
+triangle_track = my_panel.add_track('triangle', :label => false, :glyph => :triangle, :colour => [1,0,0])
+spliced_track = my_panel.add_track('spliced', :label => false, :glyph => :spliced, :colour => [1,0,0])
+directed_spliced_track = my_panel.add_track('directed_spliced', :label => false, :glyph => :directed_spliced, :colour => [1,0,1])
+composite_track = my_panel.add_track('composite_features', :label => false, :glyph => { 'utr' => :line, 'cds' => :directed_spliced})
 
 generic_track.add_feature(Bio::Feature.new('clone', '250..375'), 'anonymous', 'http://www.newsforge.com')
 generic_track.add_feature(Bio::Feature.new('clone', '54..124'), 'anonymous', 'http://www.thearkdb.org')

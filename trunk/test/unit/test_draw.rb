@@ -5,13 +5,13 @@ class TestPanel < Test::Unit::TestCase
   def test_draw_showcase
     my_panel = Bio::Graphics::Panel.new(500, :width => 1000)
     
-    generic_track = my_panel.add_track('generic', false)
-    line_track = my_panel.add_track('line', false, :line, [0,0,1])
-    directed_track = my_panel.add_track('directed', false, :directed_generic, [0,1,0])
-    triangle_track = my_panel.add_track('triangle', false, :triangle, [1,0,0])
-    dot_track = my_panel.add_track('dot', false, :dot, [0,1,1])
-    spliced_track = my_panel.add_track('spliced', false, :spliced, [1,0,0])
-    directed_spliced_track = my_panel.add_track('directed_spliced', false, :directed_spliced, [1,0,1])
+    generic_track = my_panel.add_track('generic', :label => false)
+    line_track = my_panel.add_track('line', :label => false, :glyph => :line, :colour => [0,0,1])
+    directed_track = my_panel.add_track('directed', :label => false, :glyph => :directed_generic, :colour => [0,1,0])
+    triangle_track = my_panel.add_track('triangle', :label => false, :glyph => :triangle, :colour => [1,0,0])
+    dot_track = my_panel.add_track('dot', :label => false, :glyph => :dot, :colour => [0,1,1])
+    spliced_track = my_panel.add_track('spliced', :label => false, :glyph => :spliced, :colour => [1,0,0])
+    directed_spliced_track = my_panel.add_track('directed_spliced', :label => false, :glyph => :directed_spliced, :colour => [1,0,1])
     
     generic_track.add_feature(Bio::Feature.new('clone', '250..375'), 'clone1', 'http://www.newsforge.com')
     generic_track.add_feature(Bio::Feature.new('clone', '54..124'), 'clone2', 'http://www.thearkdb.org')
@@ -48,9 +48,9 @@ class TestPanel < Test::Unit::TestCase
     my_panel = Bio::Graphics::Panel.new(4173015, :width => 600, :verticle => true)
     
     #Create and configure tracks
-    scaffold_track = my_panel.add_track('scaffold', false)
-    marker_track = my_panel.add_track('marker', true)
-    clone_track = my_panel.add_track('clone', false)
+    scaffold_track = my_panel.add_track('scaffold', :label => false)
+    marker_track = my_panel.add_track('marker', :label => true)
+    clone_track = my_panel.add_track('clone', :label => false)
     
     scaffold_track.colour = [1,0,0]
     marker_track.colour = [0,1,0]
@@ -87,9 +87,9 @@ class TestPanel < Test::Unit::TestCase
     my_panel = Bio::Graphics::Panel.new(4173015, :display_range => 2500000..3500000, :width => 600)
     
     #Create and configure tracks
-    scaffold_track = my_panel.add_track('scaffold', false)
-    marker_track = my_panel.add_track('marker', true)
-    clone_track = my_panel.add_track('clone', false)
+    scaffold_track = my_panel.add_track('scaffold', :label => false)
+    marker_track = my_panel.add_track('marker', :label => true)
+    clone_track = my_panel.add_track('clone', :label => false)
     
     scaffold_track.colour = [1,0,0]
     marker_track.colour = [0,1,0]

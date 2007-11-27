@@ -8,9 +8,9 @@ my_panel = Bio::Graphics::Panel.new(4173015, :width => 600, :clickable => true,
 #my_panel = Bio::Graphics::Panel.new(4173015, 800, false, 1, 4173015)
 
 #Create and configure tracks
-scaffold_track = my_panel.add_track('scaffold', false)
-marker_track = my_panel.add_track('marker', true)
-clone_track = my_panel.add_track('clone', false)
+scaffold_track = my_panel.add_track('scaffold', :label => false)
+marker_track = my_panel.add_track('marker')
+clone_track = my_panel.add_track('clone', :label => false)
 
 scaffold_track.colour = [1,0,0]
 marker_track.colour = [0,1,0]

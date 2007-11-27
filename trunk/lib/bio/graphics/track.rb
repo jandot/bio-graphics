@@ -33,12 +33,20 @@ class Bio::Graphics::Track
   # * _colour_ :: Colour to be used to draw the features within the track.
   #   Default = [0,0,1] (i.e. blue)
   # *Returns*:: Bio::Graphics::Track object
-  def initialize(panel, name, label = true, glyph = :generic, colour = [0,0,1])
+  def initialize(panel, name, opts = {})
     @panel = panel
     @name = name
-    @show_label = label
-    @glyph = glyph
-    @colour = colour
+
+    opts = {
+      :label => true,
+      :glyph => :generic,
+      :colour => [0,0,1]
+    }.merge(opts)
+    
+    @show_label = opts[:label]
+    @glyph = opts[:glyph]
+    @colour = opts[:colour]
+  
     @features = Array.new
     @number_of_feature_rows = 0
     @vertical_offset = 0

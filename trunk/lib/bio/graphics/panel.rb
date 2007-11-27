@@ -95,9 +95,16 @@ module Bio::Graphics
     # *Returns*:: Bio::Graphics::Panel object
     def initialize(length, opts = {})
       @length = length.to_i
-      @width = (opts[:width] || DEFAULT_PANEL_WIDTH).to_i
+      opts = {
+        :width => DEFAULT_PANEL_WIDTH,
+        :display_range => Range.new(0,@length),
+        :verticle => false,
+        :clickable => false
+      }.merge(opts)      
 
-      @display_range = opts[:display_range] || Range.new(0,@length)      
+      @width = opts[:width].to_i
+
+      @display_range = opts[:display_range]
       @display_start = [0, @display_range.lend].max
       @display_stop = [@length,@display_range.rend].min
       if @display_stop <= @display_start
@@ -105,8 +112,8 @@ module Bio::Graphics
       end
       @display_range = Range.new(@display_start,@display_stop)
       
-      @verticle = opts[:verticle] || false
-      @clickable = opts[:clickable] || false
+      @verticle = opts[:verticle]
+      @clickable = opts[:clickable]
       
       @tracks = Array.new
       @number_of_feature_rows = 0
@@ -138,9 +145,10 @@ module Bio::Graphics
     # * _colour_ :: Colour to be used to draw the features within the track.
     #   Default = [0,0,1] (i.e. blue)
     # *Returns*:: Bio::Graphics::Track object that has just been created
-    def add_track(name, label = true, feature_glyph = :generic, feature_colour = [0,0,1])
-      @tracks.push(Bio::Graphics::Track.new(self, name, label, feature_glyph, feature_colour))
-      return @tracks[-1]
+    def add_track(name, opts = {})
+      track = Bio::Graphics::Track.new(self, name, opts)
+      @tracks.push(track)
+      return track
     end
 
     # Create the drawing

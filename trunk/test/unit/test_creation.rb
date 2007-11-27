@@ -30,7 +30,7 @@ class TestTrack < Test::Unit::TestCase
   end
 
   def test_track_creation
-    track = @panel.add_track('test_track', false, :generic, [1,0,0])
+    track = @panel.add_track('test_track', :label => false, :glyph => :generic, :colour => [1,0,0])
     assert_equal('test_track', track.name)
     assert_equal([1,0,0], track.colour)
     assert_equal(:generic, track.glyph)
@@ -69,7 +69,7 @@ end
 class TestFeature < Test::Unit::TestCase
   def setup
     @panel = Bio::Graphics::Panel.new(1000, :width => 500)
-    @track = @panel.add_track('test_track', false, :generic, [1,0,0])
+    @track = @panel.add_track('test_track', :label => false, :glyph => :generic, :colour => [1,0,0])
   end
   
   def test_feature_creation
