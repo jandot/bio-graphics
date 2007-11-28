@@ -1,6 +1,6 @@
 require '../lib/bio-graphics'
 
-my_panel = Bio::Graphics::Panel.new(500, :width => 1000, :clickable => true)
+my_panel = Bio::Graphics::Panel.new(500, :width => 1000, :format => :svg)
 
 generic_track = my_panel.add_track('generic', :label => false)
 line_track = my_panel.add_track('line', :label => false, :glyph => :line, :colour => [0,0,1])
@@ -42,4 +42,10 @@ utr3 = Bio::Feature.new('utr', '330..375')
 transcript = Bio::Feature.new('transcript', 'join(100..150, 150..225, 250..275, 310..330, 330..375)', [], nil, [utr5,cds,utr3])
 composite_track.add_feature(transcript, 'my_transcript')
 
+my_panel.draw('glyph_showcase.svg')
+my_panel.format = :png
 my_panel.draw('glyph_showcase.png')
+my_panel.format = :pdf
+my_panel.draw('glyph_showcase.pdf')
+my_panel.format = :ps
+my_panel.draw('glyph_showcase.ps')

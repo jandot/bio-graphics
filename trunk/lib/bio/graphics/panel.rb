@@ -80,7 +80,7 @@ module Bio::Graphics
     #
     #
     # See also: Bio::Graphics::Panel::Track,
-    # BioExt::Graphics::Panel::Track::Feature
+    # Bio::Graphics::Panel::Track::Feature
     # ---
     # *Arguments*:
     # * _length_ :: length of the thing you want to visualize, e.g for
@@ -91,15 +91,18 @@ module Bio::Graphics
     #   the map.
     # * _:display_start_ :: start coordinate to be displayed (default: 1)
     # * _:display_stop_ :: stop coordinate to be displayed (default: length of sequence)
-    # * _:verticle_ :: Boolean: false = horizontal (= default)
+    # * _:vertical_ :: Boolean: false = horizontal (= default)
+    # * _:format_ :: File format of the picture. Can be :png, :svg, :pdf or :ps
+    #   (default: :png)
     # *Returns*:: Bio::Graphics::Panel object
     def initialize(length, opts = {})
       @length = length.to_i
       opts = {
         :width => DEFAULT_PANEL_WIDTH,
         :display_range => Range.new(0,@length),
-        :verticle => false,
-        :clickable => false
+        :vertical => false,
+        :clickable => false,
+        :format => :png
       }.merge(opts)      
 
       @width = opts[:width].to_i
@@ -112,16 +115,24 @@ module Bio::Graphics
       end
       @display_range = Range.new(@display_start,@display_stop)
       
-      @verticle = opts[:verticle]
+      @vertical = opts[:vertical]
       @clickable = opts[:clickable]
+      
+      @format = opts[:format]
+      if ! [:png, :svg, :pdf, :ps].include?(@format)
+        raise "[ERROR] Format has to be one of :png, :svg, :pdf or :ps."
+      end
       
       @tracks = Array.new
       @number_of_feature_rows = 0
       @image_map = ( @clickable ) ? ImageMap.new : nil
 
       @rescale_factor = (@display_stop - @display_start).to_f / @width
+      
+      # To prevent that we do the whole drawing thing multiple times
+      @final_panel_drawing = nil
     end
-    attr_accessor :length, :width, :height, :rescale_factor, :tracks, :number_of_feature_rows, :clickable, :image_map, :display_start, :display_stop, :display_range, :verticle
+    attr_accessor :length, :width, :height, :rescale_factor, :tracks, :number_of_feature_rows, :clickable, :image_map, :display_start, :display_stop, :display_range, :vertical, :format, :final_panel_drawing
 
     # Adds a Bio::Graphics::Track container to this panel. A panel contains a
     # logical grouping of features, e.g. (for sequence annotation:) genes,
@@ -159,60 +170,76 @@ module Bio::Graphics
     #  2. the x-coordinate of all glyphs has to be corrected
     #++
     def draw(file_name)
-      # Create a panel that is huge vertically
-      huge_height = 2000
+      if @final_panel_drawing.nil?
+        # Create a panel that is huge vertically
+        huge_height = 2000
 
-      huge_panel_drawing = nil
-      huge_panel_drawing = Cairo::ImageSurface.new(1, @width, huge_height)
+        huge_panel_drawing = nil
+        huge_panel_drawing = Cairo::ImageSurface.new(1, @width, huge_height)
 
-      background = Cairo::Context.new(huge_panel_drawing)
-      background.set_source_rgb(1,1,1)
-      background.rectangle(0,0,@width,huge_height).fill
+        background = Cairo::Context.new(huge_panel_drawing)
+        background.set_source_rgb(1,1,1)
+        background.rectangle(0,0,@width,huge_height).fill
 
-      # Add ruler
-      vertical_offset = 0
-      ruler = Ruler.new(self)
-      ruler.draw(huge_panel_drawing)
-      vertical_offset += ruler.height
+        # Add ruler
+        vertical_offset = 0
+        ruler = Ruler.new(self)
+        ruler.draw(huge_panel_drawing)
+        vertical_offset += ruler.height
 
-      # Add tracks
-      @tracks.each do |track|
-        track.vertical_offset = vertical_offset
-        track.draw(huge_panel_drawing)
-        @number_of_feature_rows += track.number_of_feature_rows
-        vertical_offset += ( track.number_of_feature_rows*(FEATURE_HEIGHT+FEATURE_V_DISTANCE+5)) + 10 # '10' is for the header
-      end
+        # Add tracks
+        @tracks.each do |track|
+          track.vertical_offset = vertical_offset
+          track.draw(huge_panel_drawing)
+          @number_of_feature_rows += track.number_of_feature_rows
+          vertical_offset += ( track.number_of_feature_rows*(FEATURE_HEIGHT+FEATURE_V_DISTANCE+5)) + 10 # '10' is for the header
+        end
 
-      # And create a smaller version of the panel
-      height = ruler.height
-      height += 20*@number_of_feature_rows
-      height += 10*@tracks.length #To correct for the track headers
+        # And create a smaller version of the panel
+        @height = ruler.height
+        @height += 20*@number_of_feature_rows
+        @height += 10*@tracks.length #To correct for the track headers
 
-      resized_panel_drawing = nil
-      if self.verticle
-        max_size = [height, @width].max
-        rotation_drawing = Cairo::ImageSurface.new(1, max_size, max_size)
-        rotation_context = Cairo::Context.new(rotation_drawing)
-        rotation_context.rotate(3*PI/2)
-        rotation_context.translate(-@width, 0)
-        rotation_context.set_source(huge_panel_drawing, 0, 0)
-        rotation_context.rectangle(0,0,max_size, max_size).fill
+        if @vertical
+          max_size = [@height, @width].max
+          rotation_drawing = Cairo::ImageSurface.new(1, max_size, max_size)
+          rotation_context = Cairo::Context.new(rotation_drawing)
+          rotation_context.rotate(3*PI/2)
+          rotation_context.translate(-@width, 0)
+          rotation_context.set_source(huge_panel_drawing, 0, 0)
+          rotation_context.rectangle(0,0,max_size, max_size).fill
 
-        resized_panel_drawing = Cairo::ImageSurface.new(1, height, @width)
-        resizing_context = Cairo::Context.new(resized_panel_drawing)
-        resizing_context.set_source(rotation_drawing, 0, 0)
-        resizing_context.rectangle(0,0, height, @width).fill
-      else
-        resized_panel_drawing = Cairo::ImageSurface.new(1, @width, height)
-        resizing_context = Cairo::Context.new(resized_panel_drawing)
+          @width, @height = @height, @width
+          huge_panel_drawing = rotation_drawing
+        end
+
+        @final_panel_drawing = Cairo::ImageSurface.new(1, @width, @height)
+        resizing_context = Cairo::Context.new(@final_panel_drawing)
         resizing_context.set_source(huge_panel_drawing, 0, 0)
-        resizing_context.rectangle(0,0,@width, height).fill
+        resizing_context.rectangle(0,0,@width, @height).fill
       end
-
+      
       # And print to file
-      resized_panel_drawing.write_to_png(file_name)
+      if @format == :png
+        @final_panel_drawing.write_to_png(file_name)
+      else
+        case @format
+        when :pdf
+          output_drawing = Cairo::PDFSurface.new(file_name, @width, @height)
+        when :ps
+          output_drawing = Cairo::PSSurface.new(file_name, @width, @height)
+        when :svg
+          output_drawing = Cairo::SVGSurface.new(file_name, @width, @height)
+        end
+        
+        output_context = Cairo::Context.new(output_drawing)
+        output_context.set_source(@final_panel_drawing, 0, 0)
+        output_context.rectangle(0,0,@width, height).fill
+      end
+      
+
       if @clickable # create png and map
-        if @verticle # we have to alter coordinates
+        if @vertical # we have to alter coordinates
           @image_map.flip_orientation(@width)
         end
         html_filename = file_name.sub(/\.[^.]+$/, '.html')
