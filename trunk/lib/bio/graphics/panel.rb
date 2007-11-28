@@ -125,7 +125,7 @@ module Bio::Graphics
       
       @tracks = Array.new
       @number_of_feature_rows = 0
-      @image_map = ( @clickable ) ? ImageMap.new : nil
+      @image_map = ImageMap.new
 
       @rescale_factor = (@display_stop - @display_start).to_f / @width
       

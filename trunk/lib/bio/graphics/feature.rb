@@ -137,15 +137,13 @@ class Bio::Graphics::Feature
 
 
     # And add the region to the image map
-    if @track.panel.clickable
-      # Comment: we have to add the vertical_offset and TRACK_HEADER_HEIGHT!
-      @track.panel.image_map.add_element(@left_pixel_of_feature,
-                                         @top_pixel_of_feature + @track.vertical_offset + Bio::Graphics::TRACK_HEADER_HEIGHT,
-                                         @right_pixel_of_feature,
-                                         bottom_pixel_of_feature + @track.vertical_offset + Bio::Graphics::TRACK_HEADER_HEIGHT,
-                                         @link
-                                         )
-    end
+    # Comment: we have to add the vertical_offset and TRACK_HEADER_HEIGHT!
+    @track.panel.image_map.add_element(@left_pixel_of_feature,
+                                       @top_pixel_of_feature + @track.vertical_offset + Bio::Graphics::TRACK_HEADER_HEIGHT,
+                                       @right_pixel_of_feature,
+                                       bottom_pixel_of_feature + @track.vertical_offset + Bio::Graphics::TRACK_HEADER_HEIGHT,
+                                       @link
+                                       )
   end
 
   # Calculates the row within the track where this feature should be
