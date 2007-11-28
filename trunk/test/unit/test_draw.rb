@@ -2,6 +2,10 @@ require 'test/unit'
 require File.dirname(__FILE__) + '/../../lib/bio-graphics'
 
 class TestPanel < Test::Unit::TestCase
+  def setup
+    @generated_pictures = Array.new
+  end
+  
   def test_draw_showcase
     my_panel = Bio::Graphics::Panel.new(500, :width => 1000)
     
@@ -38,10 +42,11 @@ class TestPanel < Test::Unit::TestCase
     directed_spliced_track.add_feature(Bio::Feature.new('gene','complement(join(170..231,264..299,350..360,409..445))'), 'gene5', 'http://bioinformatics.roslin.ac.uk')
     directed_spliced_track.add_feature(Bio::Feature.new('gene','join(134..152,209..283)'), 'gene6')
     
-    output_file = File.dirname(__FILE__) + '/output.png'
+    output_file = File.dirname(__FILE__) + '/' + @method_name + '.png'
+    @generated_pictures.push(output_file)
+    
     my_panel.draw(output_file)
     system("display " + output_file + "& sleep 2 && kill $!")
-    File.delete(output_file)
   end
 
   def test_arkdb_features
@@ -76,11 +81,12 @@ class TestPanel < Test::Unit::TestCase
     end
 
     # And draw
-    output_file = File.dirname(__FILE__) + '/output.png'
+    output_file = File.dirname(__FILE__) + '/' + @method_name + '.png'
+    @generated_pictures.push(output_file)
+
     my_panel.draw(output_file)
 
     system("display " + output_file + "& sleep 2 && kill $!")
-    File.delete(output_file)    
   end
 
   def test_subregion
@@ -115,11 +121,12 @@ class TestPanel < Test::Unit::TestCase
     end
 
     # And draw
-    output_file = File.dirname(__FILE__) + '/output.png'
+    output_file = File.dirname(__FILE__) + '/' + @method_name + '.png'
+    @generated_pictures.push(output_file)
+
     my_panel.draw(output_file)
 
     system("display " + output_file + "& sleep 2 && kill $!")
-    File.delete(output_file)    
   end
 
   def test_subfeatures
@@ -141,11 +148,12 @@ class TestPanel < Test::Unit::TestCase
     transcript_graphic.glyph = { 'utr' => :line, 'cds' => :spliced }
     
     # And draw
-    output_file = File.dirname(__FILE__) + '/output.png'
+    output_file = File.dirname(__FILE__) + '/' + @method_name + '.png'
+    @generated_pictures.push(output_file)
+
     my_panel.draw(output_file)
 
     system("display " + output_file + "& sleep 2 && kill $!")
-    File.delete(output_file)    
   end
   
   def test_feature_specific_colouring
@@ -162,10 +170,17 @@ class TestPanel < Test::Unit::TestCase
     track.add_feature(Bio::Feature.new('cds', 'join(100..200, 225..350)'), 'blue_generic', nil, :generic, [0,0,1])
     
     # And draw
-    output_file = File.dirname(__FILE__) + '/output.png'
+    output_file = File.dirname(__FILE__) + '/' + @method_name + '.png'
+    @generated_pictures.push(output_file)
+
     my_panel.draw(output_file)
 
     system("display " + output_file + "& sleep 2 && kill $!")
-    File.delete(output_file)    
-  end  
+  end
+  
+  def teardown
+    @generated_pictures.each do |p|
+      File.delete(p)
+    end
+  end
 end
