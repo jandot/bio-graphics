@@ -130,9 +130,9 @@ module Bio::Graphics
       @rescale_factor = (@display_stop - @display_start).to_f / @width
       
       # To prevent that we do the whole drawing thing multiple times
-      @final_panel_drawing = nil
+      @final_panel_destination = nil
     end
-    attr_accessor :length, :width, :height, :rescale_factor, :tracks, :number_of_feature_rows, :clickable, :image_map, :display_start, :display_stop, :display_range, :vertical, :format, :final_panel_drawing
+    attr_accessor :length, :width, :height, :rescale_factor, :tracks, :number_of_feature_rows, :clickable, :image_map, :display_start, :display_stop, :display_range, :vertical, :format, :final_panel_destination
 
     # Adds a Bio::Graphics::Track container to this panel. A panel contains a
     # logical grouping of features, e.g. (for sequence annotation:) genes,
@@ -174,23 +174,23 @@ module Bio::Graphics
         # Create a panel that is huge vertically
         huge_height = 2000
 
-        huge_panel_drawing = nil
-        huge_panel_drawing = Cairo::ImageSurface.new(1, @width, huge_height)
+        huge_panel_destination = nil
+        huge_panel_destination = Cairo::ImageSurface.new(1, @width, huge_height)
 
-        background = Cairo::Context.new(huge_panel_drawing)
+        background = Cairo::Context.new(huge_panel_destination)
         background.set_source_rgb(1,1,1)
         background.rectangle(0,0,@width,huge_height).fill
 
         # Add ruler
         vertical_offset = 0
         ruler = Ruler.new(self)
-        ruler.draw(huge_panel_drawing)
+        ruler.draw(huge_panel_destination)
         vertical_offset += ruler.height
 
         # Add tracks
         @tracks.each do |track|
           track.vertical_offset = vertical_offset
-          track.draw(huge_panel_drawing)
+          track.draw(huge_panel_destination)
           @number_of_feature_rows += track.number_of_feature_rows
           vertical_offset += ( track.number_of_feature_rows*(FEATURE_HEIGHT+FEATURE_V_DISTANCE+5)) + 10 # '10' is for the header
         end
@@ -202,39 +202,39 @@ module Bio::Graphics
 
         if @vertical
           max_size = [@height, @width].max
-          rotation_drawing = Cairo::ImageSurface.new(1, max_size, max_size)
-          rotation_context = Cairo::Context.new(rotation_drawing)
-          rotation_context.rotate(3*PI/2)
-          rotation_context.translate(-@width, 0)
-          rotation_context.set_source(huge_panel_drawing, 0, 0)
-          rotation_context.rectangle(0,0,max_size, max_size).fill
+          rotated_destination = Cairo::ImageSurface.new(1, max_size, max_size)
+          rotated_context = Cairo::Context.new(rotated_destination)
+          rotated_context.rotate(3*PI/2)
+          rotated_context.translate(-@width, 0)
+          rotated_context.set_source(huge_panel_destination, 0, 0)
+          rotated_context.rectangle(0,0,max_size, max_size).fill
 
           @width, @height = @height, @width
-          huge_panel_drawing = rotation_drawing
+          huge_panel_destination = rotated_destination
         end
 
-        @final_panel_drawing = Cairo::ImageSurface.new(1, @width, @height)
-        resizing_context = Cairo::Context.new(@final_panel_drawing)
-        resizing_context.set_source(huge_panel_drawing, 0, 0)
-        resizing_context.rectangle(0,0,@width, @height).fill
+        @final_panel_destination = Cairo::ImageSurface.new(1, @width, @height)
+        resized_context = Cairo::Context.new(@final_panel_destination)
+        resized_context.set_source(huge_panel_destination, 0, 0)
+        resized_context.rectangle(0,0,@width, @height).fill
       end
       
       # And print to file
       if @format == :png
-        @final_panel_drawing.write_to_png(file_name)
+        @final_panel_destination.write_to_png(file_name)
       else
         case @format
         when :pdf
-          output_drawing = Cairo::PDFSurface.new(file_name, @width, @height)
+          output_destination = Cairo::PDFSurface.new(file_name, @width, @height)
         when :ps
-          output_drawing = Cairo::PSSurface.new(file_name, @width, @height)
+          output_destination = Cairo::PSSurface.new(file_name, @width, @height)
         when :svg
-          output_drawing = Cairo::SVGSurface.new(file_name, @width, @height)
+          output_destination = Cairo::SVGSurface.new(file_name, @width, @height)
         end
         
-        output_context = Cairo::Context.new(output_drawing)
-        output_context.set_source(@final_panel_drawing, 0, 0)
-        output_context.rectangle(0,0,@width, height).fill
+        output_context = Cairo::Context.new(output_destination)
+        output_context.set_source(@final_panel_destination, 0, 0)
+        output_context.rectangle(0,0,@width, @height).fill
       end
       
 
