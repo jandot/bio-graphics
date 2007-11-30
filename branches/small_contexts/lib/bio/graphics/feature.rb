@@ -93,6 +93,8 @@ class Bio::Graphics::Feature
   attr_accessor :start, :stop
   attr_accessor :left_pixel_of_feature, :top_pixel_of_feature
   attr_accessor :left_pixel_of_subfeatures, :right_pixel_of_subfeatures
+  
+  attr_accessor :vertical_offset
 
   # Adds the feature to the track cairo context. This method should not 
   # be used directly by the user, but is called by
@@ -104,13 +106,15 @@ class Bio::Graphics::Feature
   def draw(panel_destination)
     feature_context = Cairo::Context.new(panel_destination)
 
-    # Move the feature drawing down based on track it's in
-    feature_context.translate(0, self.track.vertical_offset + Bio::Graphics::TRACK_HEADER_HEIGHT)
-    
-    # Move the feature further down if it's been bumped
+    # Move the feature drawing down based on track it's in and the number
+    # of times is has to be bumped
     row = self.find_row
-    feature_context.translate(0, Bio::Graphics::FEATURE_V_DISTANCE + 
-      (Bio::Graphics::FEATURE_HEIGHT+Bio::Graphics::FEATURE_V_DISTANCE)*row)
+
+    @vertical_offset = self.track.vertical_offset + Bio::Graphics::TRACK_HEADER_HEIGHT + Bio::Graphics::FEATURE_V_DISTANCE
+    @vertical_offset += (Bio::Graphics::FEATURE_HEIGHT+Bio::Graphics::FEATURE_V_DISTANCE)*row
+    
+    feature_context.translate(0, @vertical_offset)
+
     
     # Let the subfeatures do the drawing.
     @subfeatures.each do |subfeature|
@@ -119,7 +123,7 @@ class Bio::Graphics::Feature
 
     @left_pixel_of_feature = @left_pixel_of_subfeatures.min
     @right_pixel_of_feature = @right_pixel_of_subfeatures.max
-
+    
     # Add the label for the feature
     if @track.show_label
       pango_layout = feature_context.create_pango_layout
@@ -144,9 +148,9 @@ class Bio::Graphics::Feature
     # And add the region to the image map
     # Comment: we have to add the vertical_offset and TRACK_HEADER_HEIGHT!
     @track.panel.image_map.add_element(@left_pixel_of_feature,
-                                       @track.vertical_offset + Bio::Graphics::TRACK_HEADER_HEIGHT,
+                                       @vertical_offset,
                                        @right_pixel_of_feature,
-                                       Bio::Graphics::FEATURE_HEIGHT + @track.vertical_offset + Bio::Graphics::TRACK_HEADER_HEIGHT,
+                                       @vertical_offset + Bio::Graphics::FEATURE_HEIGHT,
                                        @link
                                        )
   end

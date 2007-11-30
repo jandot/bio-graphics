@@ -169,98 +169,13 @@ class Bio::Graphics::Feature::SubFeature
 
     feature_context.set_source_rgb(@colour)
 
-    case local_feature_glyph
-      # triangles are typical for features which have a 1 bp position (start == stop)
-      when :triangle
-        raise "Start and stop are not the same (necessary if you want triangle glyphs)" if @start != @stop
+    glyph = ("Bio::Graphics::Glyph::" + local_feature_glyph.to_s.camel_case).to_class.new(self, feature_context)
+    glyph.draw
 
-        # Need to get this for the imagemap
-        left_pixel_of_subfeature = @pixel_range_collection[0].lend - Bio::Graphics::FEATURE_ARROW_LENGTH
-        right_pixel_of_subfeature = @pixel_range_collection[0].rend + Bio::Graphics::FEATURE_ARROW_LENGTH
-        arrow(feature_context,:north,left_pixel_of_subfeature + Bio::Graphics::FEATURE_ARROW_LENGTH, 0, Bio::Graphics::FEATURE_ARROW_LENGTH)
-        feature_context.close_path.stroke
-      when :dot
-        raise "Start and stop are not the same (necessary if you want dot glyphs)" if @start != @stop
-        # Need to get this for the imagemap
-        radius = Bio::Graphics::FEATURE_HEIGHT/2
-        left_pixel_of_subfeature = @pixel_range_collection[0].lend - radius
-        right_pixel_of_subfeature = @pixel_range_collection[0].rend + radius
-        feature_context.circle(left_pixel_of_subfeature + radius, radius, radius).fill
-        feature_context.close_path.stroke
-      when :line
-        left_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
-        right_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
-        feature_context.move_to(left_pixel_of_subfeature,Bio::Graphics::FEATURE_ARROW_LENGTH)               
-        feature_context.line_to(right_pixel_of_subfeature,Bio::Graphics::FEATURE_ARROW_LENGTH)
-        feature_context.stroke
-      when :line_with_handles
-        left_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
-        right_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
-        feature_context.move_to(left_pixel_of_subfeature,Bio::Graphics::FEATURE_ARROW_LENGTH)               
-        feature_context.line_to(right_pixel_of_subfeature,Bio::Graphics::FEATURE_ARROW_LENGTH)
-        feature_context.stroke
+    @feature.left_pixel_of_subfeatures.push(glyph.left_pixel)
+    @feature.right_pixel_of_subfeatures.push(glyph.right_pixel)
 
-        feature_context.set_source_rgb([0,0,0])
-        arrow(feature_context,:right,left_pixel_of_subfeature,0,Bio::Graphics::FEATURE_ARROW_LENGTH)
-        feature_context.close_path.stroke              
-        arrow(feature_context,:left,right_pixel_of_subfeature,0,Bio::Graphics::FEATURE_ARROW_LENGTH)
-        feature_context.close_path.stroke
-
-        feature_context.set_source_rgb(@colour)
-    when :directed_generic
-        # Need to get this for the imagemap
-        left_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
-        right_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
-        if self.strand == -1 # Reverse strand
-          feature_context.rectangle(left_pixel_of_subfeature+Bio::Graphics::FEATURE_ARROW_LENGTH, 0, right_pixel_of_subfeature - left_pixel_of_subfeature - Bio::Graphics::FEATURE_ARROW_LENGTH, Bio::Graphics::FEATURE_HEIGHT).fill
-          arrow(feature_context,:left,left_pixel_of_subfeature+Bio::Graphics::FEATURE_ARROW_LENGTH,0,Bio::Graphics::FEATURE_ARROW_LENGTH)
-          feature_context.close_path.fill
-        else #default is forward strand
-          feature_context.rectangle(left_pixel_of_subfeature, 0, right_pixel_of_subfeature - left_pixel_of_subfeature - Bio::Graphics::FEATURE_ARROW_LENGTH, Bio::Graphics::FEATURE_HEIGHT).fill
-          arrow(feature_context,:right,right_pixel_of_subfeature-Bio::Graphics::FEATURE_ARROW_LENGTH,0,Bio::Graphics::FEATURE_ARROW_LENGTH)
-          feature_context.close_path.fill
-        end
-      when :spliced
-        # Need to get this for the imagemap
-        left_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
-        right_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
-
-        pixel_ranges = @pixel_range_collection.sort_by{|pr| pr.lend}
-        draw_spliced(feature_context, pixel_ranges, [], [])
-      when :directed_spliced
-        gap_starts = Array.new
-        gap_stops = Array.new
-
-        # Need to get this for the imagemap
-        left_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
-        right_pixel_of_subfeature = @pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
-
-        #   Start with the one with the arrow
-        pixel_ranges = @pixel_range_collection.sort_by{|pr| pr.lend}
-        range_with_arrow = nil
-        if @strand == -1 # reverse strand => box with arrow is first one
-          range_with_arrow = pixel_ranges.shift
-          feature_context.rectangle((range_with_arrow.lend)+Bio::Graphics::FEATURE_ARROW_LENGTH, 0, range_with_arrow.rend - range_with_arrow.lend - Bio::Graphics::FEATURE_ARROW_LENGTH, Bio::Graphics::FEATURE_HEIGHT).fill
-          arrow(feature_context,:left,range_with_arrow.lend+Bio::Graphics::FEATURE_ARROW_LENGTH, 0,Bio::Graphics::FEATURE_ARROW_LENGTH)
-          feature_context.close_path.fill
-        else # forward strand => box with arrow is last one
-          range_with_arrow = pixel_ranges.pop
-          feature_context.rectangle(range_with_arrow.lend, 0, range_with_arrow.rend - range_with_arrow.lend - Bio::Graphics::FEATURE_ARROW_LENGTH, Bio::Graphics::FEATURE_HEIGHT).fill
-          arrow(feature_context,:right,range_with_arrow.rend-Bio::Graphics::FEATURE_ARROW_LENGTH, 0,Bio::Graphics::FEATURE_ARROW_LENGTH)
-          feature_context.close_path.fill
-        end
-        gap_starts.push(range_with_arrow.rend)
-        gap_stops.push(range_with_arrow.lend)
-
-        #   And then add the others
-        draw_spliced(feature_context, pixel_ranges, gap_starts, gap_stops)
-      else #treat as 'generic'
-        left_pixel_of_subfeature, right_pixel_of_subfeature = @pixel_range_collection[0].lend, @pixel_range_collection[-1].rend
-        feature_context.rectangle(left_pixel_of_subfeature, 0, (right_pixel_of_subfeature - left_pixel_of_subfeature), Bio::Graphics::FEATURE_HEIGHT).fill
-    end
-    @feature.left_pixel_of_subfeatures.push(left_pixel_of_subfeature)
-    @feature.right_pixel_of_subfeatures.push(right_pixel_of_subfeature)
-
+      
   end
 
   private
