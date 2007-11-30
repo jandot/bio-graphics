@@ -93,6 +93,8 @@ class Bio::Graphics::Feature
   attr_accessor :start, :stop
   attr_accessor :left_pixel_of_feature, :top_pixel_of_feature
   attr_accessor :left_pixel_of_subfeatures, :right_pixel_of_subfeatures
+  
+  attr_accessor :vertical_offset
 
   # Adds the feature to the track cairo context. This method should not 
   # be used directly by the user, but is called by
@@ -101,23 +103,30 @@ class Bio::Graphics::Feature
   # *Arguments*:
   # * _track_drawing_ (required) :: the track cairo object
   # *Returns*:: FIXME: I don't know
-  def draw(track_drawing)
-    row = self.find_row
-    @top_pixel_of_feature = Bio::Graphics::FEATURE_V_DISTANCE +
-      (Bio::Graphics::FEATURE_HEIGHT+Bio::Graphics::FEATURE_V_DISTANCE)*row
-    bottom_pixel_of_feature = @top_pixel_of_feature + Bio::Graphics::FEATURE_HEIGHT
+  def draw(panel_destination)
+    feature_context = Cairo::Context.new(panel_destination)
 
+    # Move the feature drawing down based on track it's in and the number
+    # of times is has to be bumped
+    row = self.find_row
+
+    @vertical_offset = self.track.vertical_offset + Bio::Graphics::TRACK_HEADER_HEIGHT + Bio::Graphics::FEATURE_V_DISTANCE
+    @vertical_offset += (Bio::Graphics::FEATURE_HEIGHT+Bio::Graphics::FEATURE_V_DISTANCE)*row
+    
+    feature_context.translate(0, @vertical_offset)
+
+    
     # Let the subfeatures do the drawing.
     @subfeatures.each do |subfeature|
-      subfeature.draw(track_drawing)
+      subfeature.draw(feature_context)
     end
 
     @left_pixel_of_feature = @left_pixel_of_subfeatures.min
     @right_pixel_of_feature = @right_pixel_of_subfeatures.max
-
+    
     # Add the label for the feature
     if @track.show_label
-      pango_layout = track_drawing.create_pango_layout
+      pango_layout = feature_context.create_pango_layout
       pango_layout.text = @label
       fdesc = Pango::FontDescription.new('Sans Serif')
       fdesc.set_size(8 * Pango::SCALE)
@@ -129,19 +138,19 @@ class Bio::Graphics::Feature
       end
       @track.grid[row].push(text_range)
       @track.grid[row+1].push(text_range)
-      track_drawing.move_to(@left_pixel_of_feature, @top_pixel_of_feature + Bio::Graphics::TRACK_HEADER_HEIGHT)
-      track_drawing.set_source_rgb(0,0,0)
-      track_drawing.show_pango_layout(pango_layout)
-      track_drawing.set_source_rgb(@colour)
+      feature_context.move_to(@left_pixel_of_feature, Bio::Graphics::TRACK_HEADER_HEIGHT)
+      feature_context.set_source_rgb(0,0,0)
+      feature_context.show_pango_layout(pango_layout)
+      feature_context.set_source_rgb(@colour)
     end
 
 
     # And add the region to the image map
     # Comment: we have to add the vertical_offset and TRACK_HEADER_HEIGHT!
     @track.panel.image_map.add_element(@left_pixel_of_feature,
-                                       @top_pixel_of_feature + @track.vertical_offset + Bio::Graphics::TRACK_HEADER_HEIGHT,
+                                       @vertical_offset,
                                        @right_pixel_of_feature,
-                                       bottom_pixel_of_feature + @track.vertical_offset + Bio::Graphics::TRACK_HEADER_HEIGHT,
+                                       @vertical_offset + Bio::Graphics::FEATURE_HEIGHT,
                                        @link
                                        )
   end
@@ -193,91 +202,5 @@ class Bio::Graphics::Feature
     end
     return row
   end
-
-  private
-
-  # Method to draw each of the squared spliced rectangles for
-  # spliced and directed_spliced
-  # ---
-  # *Arguments*:
-  # * _track_drawing_::
-  # * _pixel_ranges_:: 
-  # * _top_pixel_of_feature_:: 
-  # * _gap_starts_:: 
-  # * _gap_stops_:: 
-  def draw_spliced(track_drawing, pixel_ranges, top_pixel_of_feature, gap_starts, gap_stops)            
-    # draw the parts
-    pixel_ranges.each do |range|
-      track_drawing.rectangle(range.lend, top_pixel_of_feature, range.rend - range.lend, Bio::Graphics::FEATURE_HEIGHT).fill
-      gap_starts.push(range.rend)
-      gap_stops.push(range.lend)
-    end
-
-    # And then draw the connections in the gaps
-    # Start with removing the very first start and the very last stop.
-    gap_starts.sort!.pop
-    gap_stops.sort!.shift
-
-    gap_starts.length.times do |gap_number|
-      connector(track_drawing,gap_starts[gap_number].to_f,gap_stops[gap_number].to_f,top_pixel_of_feature)
-    end
-
-    if @hidden_subfeatures_at_stop
-      from = @pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
-      to = @track.panel.width
-      track_drawing.move_to(from, top_pixel_of_feature+Bio::Graphics::FEATURE_ARROW_LENGTH)
-      track_drawing.line_to(to, top_pixel_of_feature+Bio::Graphics::FEATURE_ARROW_LENGTH)
-      track_drawing.stroke
-    end
-
-    if @hidden_subfeatures_at_start
-      from = 1
-      to = @pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
-      track_drawing.move_to(from, top_pixel_of_feature+Bio::Graphics::FEATURE_ARROW_LENGTH)
-      track_drawing.line_to(to, top_pixel_of_feature+Bio::Graphics::FEATURE_ARROW_LENGTH)
-      track_drawing.stroke
-    end
-  end
-
-  # Method to draw the arrows of directed glyphs. Not to be used
-  # directly, but called by Feature#draw.
-  def arrow(track,direction,x,y,size)
-    case direction
-    when :right
-      track.move_to(x,y)
-      track.rel_line_to(size,size)
-      track.rel_line_to(-size,size)
-      track.close_path.fill
-    when :left
-      track.move_to(x,y)
-      track.rel_line_to(-size,size)
-      track.rel_line_to(size,size)
-      track.close_path.fill
-    when :north
-      track.move_to(x-size,y+size)
-      track.rel_line_to(size,-size)
-      track.rel_line_to(size,size)
-      track.close_path.fill
-    when :south
-      track.move_to(x-size,y-size)
-      track.rel_line_to(size,size)
-      track.rel_line_to(size,-size)
-      track.close_path.fill
-    end
-  end
-
-  # Method to draw the connections (introns) of spliced glyphs. Not to
-  # be used directly, but called by Feature#draw.
-  def connector(track,from,to,top)
-    line_width = track.line_width
-    track.set_source_rgb([0,0,0])
-    track.set_line_width(0.5)
-    middle = from + ((to - from)/2)
-    track.move_to(from, top+2)
-    track.line_to(middle, top+7)
-    track.line_to(to, top+2)
-    track.stroke
-    track.set_line_width(line_width)
-    track.set_source_rgb(@colour)
-  end                    
+     
 end #Feature

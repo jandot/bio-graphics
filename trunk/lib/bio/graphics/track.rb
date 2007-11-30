@@ -118,41 +118,35 @@ class Bio::Graphics::Track
   # *Arguments*:
   # * _panel__drawing_ (required) :: the panel cairo object
   # *Returns*:: FIXME: I don't know
-  def draw(panel_drawing)
-    track_drawing = Cairo::Context.new(panel_drawing)
+  def draw(panel_destination)
+    track_context = Cairo::Context.new(panel_destination)
 
     # Draw thin line above title
-    track_drawing.set_source_rgb(0.75,0.75,0.75)
-    track_drawing.move_to(0, self.vertical_offset)
-    track_drawing.line_to(self.panel.width, self.vertical_offset)
-    track_drawing.stroke
+    track_context.set_source_rgb(0.75,0.75,0.75)
+    track_context.move_to(0, self.vertical_offset)
+    track_context.line_to(self.panel.width, self.vertical_offset)
+    track_context.stroke
 
     # Draw track title
-    track_drawing.set_source_rgb(0,0,0)
-    track_drawing.select_font_face(*(Bio::Graphics::FONT))
-    track_drawing.set_font_size(Bio::Graphics::TRACK_HEADER_HEIGHT)
-    track_drawing.move_to(0,Bio::Graphics::TRACK_HEADER_HEIGHT + self.vertical_offset + 10)
-    track_drawing.show_text(self.name)
+    track_context.set_source_rgb(0,0,0)
+    track_context.select_font_face(*(Bio::Graphics::FONT))
+    track_context.set_font_size(Bio::Graphics::TRACK_HEADER_HEIGHT)
+    track_context.move_to(0,Bio::Graphics::TRACK_HEADER_HEIGHT + self.vertical_offset + 10)
+    track_context.show_text(self.name)
 
     # Draw the features
-    track_drawing.save do
-      track_drawing.translate(0, self.vertical_offset + Bio::Graphics::TRACK_HEADER_HEIGHT)
-#            track_drawing.set_source_rgb(@colour)
-
-      @features.sort_by{|f| f.start}.each do |feature|
-        # Don't even bother if the feature is not in the view
-        if feature.stop <= self.panel.display_start or feature.start >= self.panel.display_stop
-          next
-        else
-          feature.draw(track_drawing)
-        end
+    @features.sort_by{|f| f.start}.each do |feature|
+      # Don't even bother if the feature is not in the view
+      if feature.stop <= self.panel.display_start or feature.start >= self.panel.display_stop
+        next
+      else
+        feature.draw(panel_destination)
       end
-
     end
 
     @number_of_feature_rows = ( @grid.keys.length == 0 ) ? 1 : @grid.keys.max + 1
 
-    return panel_drawing
+    return panel_destination
   end
 
 end #Track

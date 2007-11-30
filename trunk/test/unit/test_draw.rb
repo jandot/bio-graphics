@@ -50,7 +50,7 @@ class TestPanel < Test::Unit::TestCase
   end
 
   def test_arkdb_features
-    my_panel = Bio::Graphics::Panel.new(4173015, :width => 600, :verticle => true)
+    my_panel = Bio::Graphics::Panel.new(4173015, :width => 600, :vertical => true)
     
     #Create and configure tracks
     scaffold_track = my_panel.add_track('scaffold', :label => false)

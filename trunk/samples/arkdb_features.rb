@@ -4,7 +4,7 @@ require File.dirname(__FILE__) + '/../lib/bio-graphics'
 #region 11111..3333333
 my_panel = Bio::Graphics::Panel.new(4173015, :width => 600, :clickable => true,
                                     :display_range => 11111..3333333,
-                                    :verticle => true)
+                                    :vertical => true)
 #my_panel = Bio::Graphics::Panel.new(4173015, 800, false, 1, 4173015)
 
 #Create and configure tracks
