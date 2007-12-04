@@ -201,6 +201,8 @@ module Bio::Graphics
         @height += 10*@tracks.length #To correct for the track headers
 
         if @vertical
+          @image_map.flip_orientation(@width)
+          
           max_size = [@height, @width].max
           rotated_destination = Cairo::ImageSurface.new(1, max_size, max_size)
           rotated_context = Cairo::Context.new(rotated_destination)
@@ -239,9 +241,6 @@ module Bio::Graphics
       
 
       if @clickable # create png and map
-        if @vertical # we have to alter coordinates
-          @image_map.flip_orientation(@width)
-        end
         html_filename = file_name.sub(/\.[^.]+$/, '.html')
         html = File.open(html_filename,'w')
         html.puts "<html>"

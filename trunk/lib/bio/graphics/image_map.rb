@@ -31,9 +31,9 @@ class Bio::Graphics::ImageMap
     @elements.each do |element|
       left, top, right, bottom = element.left, element.top, element.right, element.bottom
       element.left = top
-      element.top = width - left
+      element.top = width - right
       element.right = bottom
-      element.bottom = width - right  
+      element.bottom = width - left
     end
   end
   

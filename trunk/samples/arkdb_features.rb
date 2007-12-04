@@ -25,7 +25,7 @@ File.open('data.txt').each do |line|
     if start.nil?
       scaffold_track.add_feature(Bio::Feature.new('scaffold', '1..4173015'), accession)
     else
-      scaffold_track.add_feature(Bio::Feature.new('scaffold', start + '..' + stop), accession, 'http://www.google.com')
+      scaffold_track.add_feature(Bio::Feature.new('scaffold', start + '..' + stop), accession, 'http://www.google.com/search?q=' + accession)
     end
     
   elsif type == 'marker'
