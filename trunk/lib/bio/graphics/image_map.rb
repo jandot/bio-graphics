@@ -19,7 +19,10 @@ class Bio::Graphics::ImageMap
     output = Array.new
     output.push('<map name="image_map" border="1">')
     @elements.each do |e|
-      output.push(e.to_s)
+      area = e.to_s
+      if area != ''
+        output.push(e.to_s)
+      end
     end
     output.push('</map>')
     return output.join("\n")
@@ -45,7 +48,9 @@ class Bio::Graphics::ImageMap
     attr_accessor :left, :top, :right, :bottom, :url
 
     def to_s
-      unless @url == ''
+      if @url == ''
+        return ''
+      else
         return '<area shape="rect" coords="' + @left.to_s + ' ' + @top.to_s + ' ' + @right.to_s + ' ' + @bottom.to_s + '" href="' + @url + '"/>'
       end
     end

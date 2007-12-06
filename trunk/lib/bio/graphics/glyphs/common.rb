@@ -36,7 +36,7 @@ module Bio::Graphics::Glyph
     # * _top_pixel_of_feature_:: 
     # * _gap_starts_:: 
     # * _gap_stops_:: 
-    def draw_spliced(feature_context, pixel_ranges, gap_starts, gap_stops)            
+    def draw_spliced(feature_context, pixel_ranges, gap_starts, gap_stops)
       # draw the parts
       pixel_ranges.each do |range|
         feature_context.rectangle(range.lend, 0, range.rend - range.lend, Bio::Graphics::FEATURE_HEIGHT).fill
@@ -53,17 +53,17 @@ module Bio::Graphics::Glyph
         connector(feature_context,gap_starts[gap_number].to_f,gap_stops[gap_number].to_f)
       end
 
-      if @hidden_subfeatures_at_stop
-        from = @pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
-        to = @feature.track.panel.width
+      if @subfeature.hidden_subfeatures_at_stop
+        from = @subfeature.pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
+        to = @subfeature.feature.track.panel.width
         feature_context.move_to(from, Bio::Graphics::FEATURE_ARROW_LENGTH)
         feature_context.line_to(to, Bio::Graphics::FEATURE_ARROW_LENGTH)
         feature_context.stroke
       end
 
-      if @hidden_subfeatures_at_start
+      if @subfeature.hidden_subfeatures_at_start
         from = 1
-        to = @pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
+        to = @subfeature.pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
         feature_context.move_to(from, Bio::Graphics::FEATURE_ARROW_LENGTH)
         feature_context.line_to(to, Bio::Graphics::FEATURE_ARROW_LENGTH)
         feature_context.stroke

@@ -249,6 +249,7 @@ module Bio::Graphics
         html.puts "<img border='1' src='" + file_name + "' usemap='#image_map' />"
         html.puts "</body>"
         html.puts "</html>"
+        html.close
       end
     end
 

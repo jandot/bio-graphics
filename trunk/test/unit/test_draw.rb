@@ -11,6 +11,7 @@ class TestPanel < Test::Unit::TestCase
     
     generic_track = my_panel.add_track('generic', :label => false)
     line_track = my_panel.add_track('line', :label => false, :glyph => :line, :colour => [0,0,1])
+    line_with_handles_track = my_panel.add_track('line with handles', :label => false, :glyph => :line_with_handles, :colour => [0,0,1])
     directed_track = my_panel.add_track('directed', :label => false, :glyph => :directed_generic, :colour => [0,1,0])
     triangle_track = my_panel.add_track('triangle', :label => false, :glyph => :triangle, :colour => [1,0,0])
     dot_track = my_panel.add_track('dot', :label => false, :glyph => :dot, :colour => [0,1,1])
@@ -23,6 +24,9 @@ class TestPanel < Test::Unit::TestCase
     
     line_track.add_feature(Bio::Feature.new('primer', 'complement(200..320)'), 'primer1')
     line_track.add_feature(Bio::Feature.new('primer', '355..480'), 'primer2', 'http://www.zdnet.co.uk')
+
+    line_with_handles_track.add_feature(Bio::Feature.new('primer', 'complement(200..320)'), 'primer1')
+    line_with_handles_track.add_feature(Bio::Feature.new('primer', '355..480'), 'primer2', 'http://www.zdnet.co.uk')
     
     directed_track.add_feature(Bio::Feature.new('marker', '50..60'), 'marker1', 'http://www.google.com')
     directed_track.add_feature(Bio::Feature.new('marker','complement(80..120)'), 'marker2', 'http://www.sourceforge.net')
@@ -43,12 +47,33 @@ class TestPanel < Test::Unit::TestCase
     directed_spliced_track.add_feature(Bio::Feature.new('gene','join(134..152,209..283)'), 'gene6')
     
     output_file = File.dirname(__FILE__) + '/' + @method_name + '.png'
-    @generated_pictures.push(output_file)
+#    @generated_pictures.push(output_file)
     
     my_panel.draw(output_file)
     system("display " + output_file + "& sleep 2 && kill $!")
   end
 
+  def test_outside_border
+    my_panel = Bio::Graphics::Panel.new(500, :width => 1000, :display_range => 100..400)
+    
+    spliced_track = my_panel.add_track('spliced', :label => false, :glyph => :spliced, :colour => [1,0,0])
+    directed_spliced_track = my_panel.add_track('directed_spliced', :label => false, :glyph => :directed_spliced, :colour => [1,0,1])
+
+    spliced_track.add_feature(Bio::Feature.new('gene','join(34..52,109..183)'), 'gene1','http://news.bbc.co.uk')
+    spliced_track.add_feature(Bio::Feature.new('gene','complement(join(170..231,264..299,350..360,409..445))'), 'gene2')
+    spliced_track.add_feature(Bio::Feature.new('gene','join(134..152,209..283)'), 'gene3')
+    
+    directed_spliced_track.add_feature(Bio::Feature.new('gene','join(34..52,109..183)'), 'gene4', 'http://www.vrtnieuws.net')
+    directed_spliced_track.add_feature(Bio::Feature.new('gene','complement(join(170..231,264..299,350..360,409..445))'), 'gene5', 'http://bioinformatics.roslin.ac.uk')
+    directed_spliced_track.add_feature(Bio::Feature.new('gene','join(134..152,209..283)'), 'gene6')
+    
+    output_file = File.dirname(__FILE__) + '/' + @method_name + '.png'
+#    @generated_pictures.push(output_file)
+    
+    my_panel.draw(output_file)
+    system("display " + output_file + "& sleep 2 && kill $!")
+  end
+  
   def test_arkdb_features
     my_panel = Bio::Graphics::Panel.new(4173015, :width => 600, :vertical => true)
     
