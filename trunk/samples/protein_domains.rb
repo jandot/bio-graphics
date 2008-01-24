@@ -11,9 +11,9 @@ fn2 = Bio::Feature.new('fn2', '151..190')
 cimr_2 = Bio::Feature.new('CIMR', '194..331')
 cimr_3 = Bio::Feature.new('CIMR', '485..527')
 
-track.add_feature(cimr_1, 'CIMR', nil, track.glyph, [0,1,0])
-track.add_feature(fn2, 'fn2', nil, track.glyph, [1,0,0])
-track.add_feature(cimr_2, 'CIMR', nil, track.glyph, [0,1,0])
-track.add_feature(cimr_3, 'CIMR', nil, track.glyph, [0,1,0])
+track.add_feature(cimr_1, :label => 'CIMR', :colour => [0,1,0])
+track.add_feature(fn2, :label => 'fn2', :colour => [1,0,0])
+track.add_feature(cimr_2, :label => 'CIMR', :colour => [0,1,0])
+track.add_feature(cimr_3, :label => 'CIMR', :colour => [0,1,0])
 
 my_panel.draw('protein_domains.png')

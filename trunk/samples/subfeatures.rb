@@ -23,9 +23,9 @@ transcript = Bio::Feature.new('transcript', 'join(100..150, 150..225, 250..275, 
 # * name
 # * colour
 # * glyphs
-track.add_feature(transcript, 'my_label_a', nil, { 'utr' => :line, 'cds' => :directed_spliced })
+track.add_feature(transcript, :label => 'my_label_a', :glyph => { 'utr' => :line, 'cds' => :directed_spliced })
 
 # Or do it all in one go, but then we can't do subfeatures.
-track.add_feature(Bio::Feature.new('mrna', 'complement(join(120..250, 300..350, 375..390))'), 'my_label_b', nil, track.glyph , [0,1,0])
+track.add_feature(Bio::Feature.new('mrna', 'complement(join(120..250, 300..350, 375..390))'), :label => 'my_label_b', :colour => [0,1,0])
 
 my_panel.draw('subfeatures.png')

@@ -1,7 +1,7 @@
 # 
 # = bio/graphics/track - track class
 #
-# Copyright::   Copyright (C) 2007
+# Copyright::   Copyright (C) 2007, 2008
 #               Jan Aerts <jan.aerts@bbsrc.ac.uk>
 #               Charles Comstock <dgtized@gmail.com>
 # License::     The Ruby License
@@ -25,18 +25,18 @@ class Bio::Graphics::Track
   # * _panel_ (required) :: Bio::Graphics::Panel object that this track
   #   belongs to
   # * _name_ (required) :: Name of the track to be displayed (e.g. 'genes')
-  # * _label_ :: Boolean: should the label for each feature be drawn or not
+  # * _:label_ :: Boolean: should the label for each feature be drawn or not
   #   Default = true
-  # * _glyph_ :: Glyph to use for drawing the features. Options are:
-  #   :generic, :directed_generic, :spliced, :directed_spliced, :dot
-  #   :triangle, :line and :line_with_handles. Default = :generic
-  # * _colour_ :: Colour to be used to draw the features within the track.
-  #   Default = [0,0,1] (i.e. blue)
+  # * _:glyph_ :: Glyph to use for drawing the features. Options are:
+  #   :generic, :directed_generic, :box, directed_box, :spliced,
+  #   :directed_spliced, :dot, :triangle, :line and :line_with_handles.
+  #   Default = :generic
+  # * _colour_ :: Colour to be used to draw the features within the track (in 
+  #   RGB) Default = [0,0,1] (i.e. blue)
   # *Returns*:: Bio::Graphics::Track object
   def initialize(panel, name, opts = {})
     @panel = panel
     @name = name
-
     opts = {
       :label => true,
       :glyph => :generic,
@@ -46,7 +46,13 @@ class Bio::Graphics::Track
     @show_label = opts[:label]
     @glyph = opts[:glyph]
     @colour = opts[:colour]
-  
+
+    # As far as I know, I can't do this in the glyph file for transcript, so we
+    # have to do it here instead.
+    if @glyph == :transcript
+      @glyph = { 'utr5' => :box, 'utr3' => :directed_box, 'cds' => :spliced }
+    end
+    
     @features = Array.new
     @number_of_feature_rows = 0
     @vertical_offset = 0
@@ -54,14 +60,14 @@ class Bio::Graphics::Track
   end
   attr_accessor :panel, :name, :show_label, :colour, :glyph, :features, :number_of_feature_rows, :height, :vertical_offset, :grid
 
-  # Adds a Bio::Graphics::Feature to this track. A track contains
-  # features of the same type, e.g. (for sequence annotation:) genes,
-  # polymorphisms, ESTs, etc.
+  # Takes a Bio::Feature and adds it as a Bio::Graphics::Feature to this track. 
+  # A track contains features of the same type, e.g. (for sequence annotation:) 
+  # genes, polymorphisms, ESTs, etc.
   #
-  #  est_track.add_feature('EST1','50..60')
-  #  est_track.add_feature('EST2','52..73')
-  #  est_track.add_feature('EST3','41..69')
-  #  gene_track.add_feature('gene2','39..73')
+  #  est_track.add_feature(Bio::Feature.new('EST1','50..60'))
+  #  est_track.add_feature(Bio::Feature.new('EST2','52..73'))
+  #  est_track.add_feature(Bio::Feature.new('EST3','41..69'))
+  #  gene_track.add_feature(Bio::Feature.new('gene2','39..73'))
   #
   # For spliced features:
   #  est_track.add_feature('EST4','join(34..53,153..191)')
@@ -84,11 +90,7 @@ class Bio::Graphics::Track
   # * _glyph_ :: Glyph for the feature. Default = glyph of the track
   # * _colour_ :: Colour for the feature. Default = colour of the track
   # *Returns*:: Bio::Graphics::Feature object that was created or nil
-  def add_feature(feature_object, label = 'anonymous', link = nil, glyph = @glyph, colour = @colour)
-    if link == ''
-      link = nil
-    end
-
+  def add_feature(feature_object, opts = {})
     # Calculate the ultimate start and stop of the feature: the start
     # of the first subfeature (e.g. exon) and the stop of the last one.
     # The only reason we want to know these positions, is because we want
@@ -104,7 +106,7 @@ class Bio::Graphics::Track
     if stop <= self.panel.display_start or start >= self.panel.display_stop
       return nil
     else #elsif start >= panel.display_start and stop <= panel.display_stop
-      @features.push(Bio::Graphics::Feature.new(self, feature_object, label, link, glyph, colour))
+      @features.push(Bio::Graphics::Feature.new(self, feature_object, opts))
       return @features[-1]
     end
 

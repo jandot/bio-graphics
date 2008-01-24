@@ -1,28 +1,33 @@
 # 
 # = bio/graphics/subfeature.rb - subfeature class
 #
-# Copyright::   Copyright (C) 2007
+# Copyright::   Copyright (C) 2007, 2008
 #               Jan Aerts <jan.aerts@bbsrc.ac.uk>
 #               Charles Comstock <dgtized@gmail.com>
 # License::     The Ruby License
 # 
 
 # TODO: Documentation for SubFeature
-class Bio::Graphics::Feature::SubFeature
+class Bio::Graphics::SubFeature
   # !!Not to be used directly.
   # ---
   # *Arguments*:
   # * _feature_ (required) :: Bio::Graphics::Feature
   #   object that this subfeature belongs to
   # * _feature_ _object_ (required) :: A Bio::Feature object (see bioruby)
-  # * _glyph_ :: Glyph to use. Default = glyph of the track
-  # * _colour_ :: Colour. Default = colour of the track
-  # *Returns*:: Bio::Graphics::Feature::SubFeature object
-  def initialize(feature, feature_object, glyph = feature.glyph, colour = feature.colour)
+  # * :glyph :: Glyph to use. Default = glyph of the track
+  # * :colour :: Colour. Default = colour of the track
+  # *Returns*:: Bio::Graphics::SubFeature object
+  def initialize(feature, feature_object, opts = {})
     @feature = feature
     @feature_object = feature_object
-    @glyph = glyph
-    @colour = colour
+    opts = {
+      :glyph => @feature.glyph,
+      :colour => @feature.colour
+    }.merge(opts)
+    
+    @glyph = opts[:glyph]
+    @colour = opts[:colour]
 
     @locations = @feature_object.locations
 
@@ -161,6 +166,8 @@ class Bio::Graphics::Feature::SubFeature
       local_feature_glyph = :generic
     elsif @glyph == :directed_spliced and replace_directed_with_undirected
       local_feature_glyph = :spliced
+    elsif @glyph == :directed_box and replace_directed_with_undirected
+      local_feature_glyph = :box
     else
       local_feature_glyph = @glyph
     end

@@ -18,36 +18,36 @@ class TestPanel < Test::Unit::TestCase
     spliced_track = my_panel.add_track('spliced', :label => false, :glyph => :spliced, :colour => [1,0,0])
     directed_spliced_track = my_panel.add_track('directed_spliced', :label => false, :glyph => :directed_spliced, :colour => [1,0,1])
     
-    generic_track.add_feature(Bio::Feature.new('clone', '250..375'), 'clone1', 'http://www.newsforge.com')
-    generic_track.add_feature(Bio::Feature.new('clone', '54..124'), 'clone2', 'http://www.thearkdb.org')
-    generic_track.add_feature(Bio::Feature.new('clone', '100..449'), 'clone3', 'http://www.google.com')
+    generic_track.add_feature(Bio::Feature.new('clone', '250..375'), :label => 'clone1', :link => 'http://www.newsforge.com')
+    generic_track.add_feature(Bio::Feature.new('clone', '54..124'), :label => 'clone2', :link => 'http://www.thearkdb.org')
+    generic_track.add_feature(Bio::Feature.new('clone', '100..449'), :label => 'clone3', :link => 'http://www.google.com')
     
-    line_track.add_feature(Bio::Feature.new('primer', 'complement(200..320)'), 'primer1')
-    line_track.add_feature(Bio::Feature.new('primer', '355..480'), 'primer2', 'http://www.zdnet.co.uk')
+    line_track.add_feature(Bio::Feature.new('primer', 'complement(200..320)'), :label => 'primer1')
+    line_track.add_feature(Bio::Feature.new('primer', '355..480'), :label => 'primer2', :link => 'http://www.zdnet.co.uk')
 
-    line_with_handles_track.add_feature(Bio::Feature.new('primer', 'complement(200..320)'), 'primer1')
-    line_with_handles_track.add_feature(Bio::Feature.new('primer', '355..480'), 'primer2', 'http://www.zdnet.co.uk')
+    line_with_handles_track.add_feature(Bio::Feature.new('primer', 'complement(200..320)'), :label => 'primer1')
+    line_with_handles_track.add_feature(Bio::Feature.new('primer', '355..480'), :label => 'primer2', :link => 'http://www.zdnet.co.uk')
     
-    directed_track.add_feature(Bio::Feature.new('marker', '50..60'), 'marker1', 'http://www.google.com')
-    directed_track.add_feature(Bio::Feature.new('marker','complement(80..120)'), 'marker2', 'http://www.sourceforge.net')
+    directed_track.add_feature(Bio::Feature.new('marker', '50..60'), :label => 'marker1', :link => 'http://www.google.com')
+    directed_track.add_feature(Bio::Feature.new('marker','complement(80..120)'), :label => 'marker2', :link => 'http://www.sourceforge.net')
     
-    triangle_track.add_feature(Bio::Feature.new('marker', '56'),'snp1')
-    triangle_track.add_feature(Bio::Feature.new('marker', '103'), 'snp2','http://digg.com')
+    triangle_track.add_feature(Bio::Feature.new('marker', '56'), :label => 'snp1')
+    triangle_track.add_feature(Bio::Feature.new('marker', '103'), :label => 'snp2', :link => 'http://digg.com')
     
-    dot_track.add_feature(Bio::Feature.new('marker', '56'), 'thing1')
-    dot_track.add_feature(Bio::Feature.new('marker', '57'), 'thing3')
-    dot_track.add_feature(Bio::Feature.new('marker', '114'), 'thing2','http://digg.com')
+    dot_track.add_feature(Bio::Feature.new('marker', '56'), :label => 'thing1')
+    dot_track.add_feature(Bio::Feature.new('marker', '57'), :label => 'thing3')
+    dot_track.add_feature(Bio::Feature.new('marker', '114'), :label => 'thing2', :link => 'http://digg.com')
 
-    spliced_track.add_feature(Bio::Feature.new('gene','join(34..52,109..183)'), 'gene1','http://news.bbc.co.uk')
-    spliced_track.add_feature(Bio::Feature.new('gene','complement(join(170..231,264..299,350..360,409..445))'), 'gene2')
-    spliced_track.add_feature(Bio::Feature.new('gene','join(134..152,209..283)'), 'gene3')
+    spliced_track.add_feature(Bio::Feature.new('gene','join(34..52,109..183)'), :label => 'gene1', :link => 'http://news.bbc.co.uk')
+    spliced_track.add_feature(Bio::Feature.new('gene','complement(join(170..231,264..299,350..360,409..445))'), :label => 'gene2')
+    spliced_track.add_feature(Bio::Feature.new('gene','join(134..152,209..283)'), :label => 'gene3')
     
-    directed_spliced_track.add_feature(Bio::Feature.new('gene','join(34..52,109..183)'), 'gene4', 'http://www.vrtnieuws.net')
-    directed_spliced_track.add_feature(Bio::Feature.new('gene','complement(join(170..231,264..299,350..360,409..445))'), 'gene5', 'http://bioinformatics.roslin.ac.uk')
-    directed_spliced_track.add_feature(Bio::Feature.new('gene','join(134..152,209..283)'), 'gene6')
+    directed_spliced_track.add_feature(Bio::Feature.new('gene','join(34..52,109..183)'), :label => 'gene4', :link => 'http://www.vrtnieuws.net')
+    directed_spliced_track.add_feature(Bio::Feature.new('gene','complement(join(170..231,264..299,350..360,409..445))'), :label => 'gene5', :link => 'http://bioinformatics.roslin.ac.uk')
+    directed_spliced_track.add_feature(Bio::Feature.new('gene','join(134..152,209..283)'), :label => 'gene6')
     
     output_file = File.dirname(__FILE__) + '/' + @method_name + '.png'
-#    @generated_pictures.push(output_file)
+    @generated_pictures.push(output_file)
     
     my_panel.draw(output_file)
     system("display " + output_file + "& sleep 2 && kill $!")
@@ -59,16 +59,16 @@ class TestPanel < Test::Unit::TestCase
     spliced_track = my_panel.add_track('spliced', :label => false, :glyph => :spliced, :colour => [1,0,0])
     directed_spliced_track = my_panel.add_track('directed_spliced', :label => false, :glyph => :directed_spliced, :colour => [1,0,1])
 
-    spliced_track.add_feature(Bio::Feature.new('gene','join(34..52,109..183)'), 'gene1','http://news.bbc.co.uk')
-    spliced_track.add_feature(Bio::Feature.new('gene','complement(join(170..231,264..299,350..360,409..445))'), 'gene2')
-    spliced_track.add_feature(Bio::Feature.new('gene','join(134..152,209..283)'), 'gene3')
+    spliced_track.add_feature(Bio::Feature.new('gene','join(34..52,109..183)'), :label => 'gene1',:link => 'http://news.bbc.co.uk')
+    spliced_track.add_feature(Bio::Feature.new('gene','complement(join(170..231,264..299,350..360,409..445))'), :label => 'gene2')
+    spliced_track.add_feature(Bio::Feature.new('gene','join(134..152,209..283)'), :label => 'gene3')
     
-    directed_spliced_track.add_feature(Bio::Feature.new('gene','join(34..52,109..183)'), 'gene4', 'http://www.vrtnieuws.net')
-    directed_spliced_track.add_feature(Bio::Feature.new('gene','complement(join(170..231,264..299,350..360,409..445))'), 'gene5', 'http://bioinformatics.roslin.ac.uk')
-    directed_spliced_track.add_feature(Bio::Feature.new('gene','join(134..152,209..283)'), 'gene6')
+    directed_spliced_track.add_feature(Bio::Feature.new('gene','join(34..52,109..183)'), :label => 'gene4', :link => 'http://www.vrtnieuws.net')
+    directed_spliced_track.add_feature(Bio::Feature.new('gene','complement(join(170..231,264..299,350..360,409..445))'), :label => 'gene5', :link => 'http://bioinformatics.roslin.ac.uk')
+    directed_spliced_track.add_feature(Bio::Feature.new('gene','join(134..152,209..283)'), :label => 'gene6')
     
     output_file = File.dirname(__FILE__) + '/' + @method_name + '.png'
-#    @generated_pictures.push(output_file)
+    @generated_pictures.push(output_file)
     
     my_panel.draw(output_file)
     system("display " + output_file + "& sleep 2 && kill $!")
@@ -93,15 +93,15 @@ class TestPanel < Test::Unit::TestCase
       accession, type, start, stop = line.split(/\t/)
       if type == 'scaffold'
         if start.nil?
-          scaffold_track.add_feature(Bio::Feature.new('scaffold', '1..4173015'), accession)
+          scaffold_track.add_feature(Bio::Feature.new('scaffold', '1..4173015'), :label => accession)
         else
-          scaffold_track.add_feature(Bio::Feature.new('scaffold', start + '..' + stop), accession, 'http://www.google.com')
+          scaffold_track.add_feature(Bio::Feature.new('scaffold', start + '..' + stop), :label => accession, :link => 'http://www.google.com')
         end
           
       elsif type == 'marker'
-        marker_track.add_feature(Bio::Feature.new('marker', ((start.to_i + stop.to_i)/2).to_s), accession, 'http://www.thearkdb.org/arkdb/do/getMarkerDetail?accession=' + accession)
+        marker_track.add_feature(Bio::Feature.new('marker', ((start.to_i + stop.to_i)/2).to_s), :label => accession, :link => 'http://www.thearkdb.org/arkdb/do/getMarkerDetail?accession=' + accession)
       elsif type == 'clone'
-        clone_track.add_feature(Bio::Feature.new('clone', start + '..' + stop), accession)
+        clone_track.add_feature(Bio::Feature.new('clone', start + '..' + stop), :label => accession)
       end
     end
 
@@ -133,15 +133,15 @@ class TestPanel < Test::Unit::TestCase
       accession, type, start, stop = line.split(/\t/)
       if type == 'scaffold'
         if start.nil?
-          scaffold_track.add_feature(Bio::Feature.new('scaffold', '1..4173015'), accession)
+          scaffold_track.add_feature(Bio::Feature.new('scaffold', '1..4173015'), :label => accession)
         else
-          scaffold_track.add_feature(Bio::Feature.new('scaffold', start + '..' + stop), accession, 'http://www.google.com')
+          scaffold_track.add_feature(Bio::Feature.new('scaffold', start + '..' + stop), :label => accession, :link => 'http://www.google.com')
         end
           
       elsif type == 'marker'
-        marker_track.add_feature(Bio::Feature.new('marker', ((start.to_i + stop.to_i)/2).to_s), accession, 'http://www.thearkdb.org/arkdb/do/getMarkerDetail?accession=' + accession)
+        marker_track.add_feature(Bio::Feature.new('marker', ((start.to_i + stop.to_i)/2).to_s), :label => accession, :link => 'http://www.thearkdb.org/arkdb/do/getMarkerDetail?accession=' + accession)
       elsif type == 'clone'
-        clone_track.add_feature(Bio::Feature.new('clone', start + '..' + stop), accession)
+        clone_track.add_feature(Bio::Feature.new('clone', start + '..' + stop), :label => accession)
       end
     end
 
@@ -169,7 +169,7 @@ class TestPanel < Test::Unit::TestCase
 
     transcript = Bio::Feature.new('transcript', 'join(100..225, 250..275, 310..375)', [], nil, [utr5, cds, utr3])
     
-    transcript_graphic = track.add_feature(transcript, 'my_transcript')
+    transcript_graphic = track.add_feature(transcript, :label => 'my_transcript')
     transcript_graphic.glyph = { 'utr' => :line, 'cds' => :spliced }
     
     # And draw
@@ -190,9 +190,9 @@ class TestPanel < Test::Unit::TestCase
     track.glyph = :spliced
     
     # Add data to tracks
-    track.add_feature(Bio::Feature.new('cds', 'join(100..200, 225..350)'), 'red_spliced')
-    track.add_feature(Bio::Feature.new('cds', 'join(100..200, 225..350)'), 'green_spliced', nil, track.glyph, [0,1,0])
-    track.add_feature(Bio::Feature.new('cds', 'join(100..200, 225..350)'), 'blue_generic', nil, :generic, [0,0,1])
+    track.add_feature(Bio::Feature.new('cds', 'join(100..200, 225..350)'), :label => 'red_spliced')
+    track.add_feature(Bio::Feature.new('cds', 'join(100..200, 225..350)'), :label => 'green_spliced', :colour => [0,1,0])
+    track.add_feature(Bio::Feature.new('cds', 'join(100..200, 225..350)'), :label => 'blue_generic', :colour => [0,0,1])
     
     # And draw
     output_file = File.dirname(__FILE__) + '/' + @method_name + '.png'

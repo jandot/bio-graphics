@@ -1,7 +1,7 @@
 # 
 # = bio/graphics/panel - panel class
 #
-# Copyright::   Copyright (C) 2007
+# Copyright::   Copyright (C) 2007, 2008
 #               Jan Aerts <jan.aerts@bbsrc.ac.uk>
 #               Charles Comstock <dgtized@gmail.com>
 # License::     The Ruby License
@@ -53,7 +53,19 @@ include Math
 #
 #   # Create the actual image as SVG text
 #   g.draw('my_picture.png')
-#
+# 
+# = NOTE ON ARGUMENTS
+# As there can be an overwhelming number of arguments for some methods in 
+# Bio::Graphics, any optional arguments have to be provided as a hash. For
+# example: the Track#add_feature method has only one mandatory argument (the
+# feature object) and several optional ones. This is how you can use that 
+# method:
+#   track.add_feature(my_feature_object,
+#                     :label => 'anonymous',
+#                     :link => 'http://www.google.com',
+#                     :glyph => :box,
+#                     :colour => [0,1,0]
+#                    )
 module Bio::Graphics
 
   # The defaults
@@ -84,7 +96,7 @@ module Bio::Graphics
     # ---
     # *Arguments*:
     # * _length_ :: length of the thing you want to visualize, e.g for
-    #   visualizing a sequence that is 3.24 kb long, use 324.
+    #   visualizing a sequence that is 3.24 kb long, use 324. (required)
     # * _:width_ :: width of the resulting image in pixels. (default: 800)
     # * _:clickable_ :: whether the picture should have clickable glyphs or not
     #   (default: false) If set to true, a html file will be created with
@@ -96,15 +108,15 @@ module Bio::Graphics
     #   (default: :png)
     # *Returns*:: Bio::Graphics::Panel object
     def initialize(length, opts = {})
-      @length = length.to_i
+      @length = length
       opts = {
         :width => DEFAULT_PANEL_WIDTH,
         :display_range => Range.new(0,@length),
         :vertical => false,
         :clickable => false,
         :format => :png
-      }.merge(opts)      
-
+      }.merge(opts)
+      
       @width = opts[:width].to_i
 
       @display_range = opts[:display_range]
@@ -138,23 +150,18 @@ module Bio::Graphics
     # logical grouping of features, e.g. (for sequence annotation:) genes,
     # polymorphisms, ESTs, etc.
     #
-    #  est_track = g.add_track('ESTs')
-    #  gene_track = g.add_track('genes')
+    #  est_track = g.add_track('ESTs', :label => false, :glyph => :directed_generic)
+    #  gene_track = g.add_track('genes', :label => true)
     #
     # ---
     # *Arguments*:
-    # * _name_ (required) :: Name of the track to be displayed (e.g. 'genes')
-    # * _label_ :: Whether the feature labels should be displayed or not.
-    #   Default = true
-    # * _glyph_ :: Glyph to use for drawing the features. Options are:
-    #   :generic, :directed_generic, :spliced, :directed_spliced, :dot
-    #   :triangle, :line and :line_with_handles. Default = :generic
-    #   Triangles and dots can be used
-    #   for features whose start and stop positions are the same (e.g. SNPs).
-    #   If you try to draw a feature that is longer with triangles, an error
-    #   will be shown.
-    # * _colour_ :: Colour to be used to draw the features within the track.
-    #   Default = [0,0,1] (i.e. blue)
+    # * _name_ :: Name to be displayed at the top of the track. (Required)
+    # * _:label_ :: boolean. Whether or not to display the labels for the features.
+    #   (Default = true)
+    # * _:glyph_ :: Default glyph for features in this track. For more info, see
+    #   the lib/bio/graphics/glyph directory. (Default = :generic)
+    # * _:colour_ :: Default colour for features in this track, in RGB
+    #   (Default = [0,0,1])
     # *Returns*:: Bio::Graphics::Track object that has just been created
     def add_track(name, opts = {})
       track = Bio::Graphics::Track.new(self, name, opts)

@@ -1,3 +1,11 @@
+# 
+# = bio/graphics/glyphs/directed_spliced - directed_spliced glyph
+#
+# Copyright::   Copyright (C) 2007, 2008
+#               Jan Aerts <jan.aerts@bbsrc.ac.uk>
+# License::     The Ruby License
+#
+
 module Bio::Graphics::Glyph
   class Bio::Graphics::Glyph::DirectedSpliced < Bio::Graphics::Glyph::Common
     def draw

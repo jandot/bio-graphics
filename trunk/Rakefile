@@ -17,7 +17,7 @@ file_list = Dir.glob("lib/**/*.rb")
 desc "Create RDoc documentation"
 file 'doc/index.html' => file_list do
   puts "######## Creating RDoc documentation"
-  system "rdoc --title 'Bio::Graphics documentation' -m TUTORIAL TUTORIAL README.DEV lib/"
+  system "rdoc --force --title 'Bio::Graphics documentation' -m TUTORIAL TUTORIAL README.DEV lib/"
   tmp_file = File.open('doc/tmp.html', 'w')
   File.open('doc/files/TUTORIAL.html').each do |line|
     line.chomp!
@@ -28,10 +28,8 @@ file 'doc/index.html' => file_list do
       tmp_file.puts '_uacct = "UA-2131816-4";'
       tmp_file.puts 'urchinTracker();'
       tmp_file.puts '</script>'
-      tmp_file.puts line
-    else
-      tmp_file.puts line
     end
+    tmp_file.puts line
   end
   File.move('doc/tmp.html', 'doc/files/TUTORIAL.html')
 end

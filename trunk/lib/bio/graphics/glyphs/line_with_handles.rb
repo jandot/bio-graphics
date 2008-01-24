@@ -1,3 +1,11 @@
+# 
+# = bio/graphics/glyphs/line_with_handles - line_with_handles glyph
+#
+# Copyright::   Copyright (C) 2007, 2008
+#               Jan Aerts <jan.aerts@bbsrc.ac.uk>
+# License::     The Ruby License
+#
+
 module Bio::Graphics::Glyph
   class Bio::Graphics::Glyph::LineWithHandles < Bio::Graphics::Glyph::Common
     def draw

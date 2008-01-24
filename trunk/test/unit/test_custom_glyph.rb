@@ -19,7 +19,7 @@ class TestCustomGlyph < Test::Unit::TestCase
     panel = Bio::Graphics::Panel.new(500, :width => 250, :clickable => false,
                                      :display_range => 0..1000)
     track = panel.add_track('test_track', :label => false, :glyph => :custom_test_glyph, :colour => [0,0,1])
-    track.add_feature(Bio::Feature.new('type', '123..456'), 'test_feature')
+    track.add_feature(Bio::Feature.new('type', '123..456'), :label => 'test_feature')
     
     panel.draw('output.png')
     system("display output.png & sleep 2 && kill $!")
@@ -37,7 +37,7 @@ class TestCustomGlyphInFile < Test::Unit::TestCase
     panel = Bio::Graphics::Panel.new(500, :width => 250, :clickable => false,
                                      :display_range => 0..1000)
     track = panel.add_track('test_track', :label => false, :glyph => :custom_test_glyph_in_file, :colour => [0,0,1])
-    track.add_feature(Bio::Feature.new('type', '123..456'), 'test_feature')
+    track.add_feature(Bio::Feature.new('type', '123..456'), :label =>'test_feature')
 
     panel.draw('output.png')
     system("display output.png & sleep 2 && kill $!")

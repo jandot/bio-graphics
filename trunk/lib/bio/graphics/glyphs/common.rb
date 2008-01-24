@@ -1,3 +1,11 @@
+# 
+# = bio/graphics/glyphs/common - common methods for all glyphs
+#
+# Copyright::   Copyright (C) 2007, 2008
+#               Jan Aerts <jan.aerts@bbsrc.ac.uk>
+# License::     The Ruby License
+#
+
 module Bio::Graphics::Glyph
   class Bio::Graphics::Glyph::Common
     def initialize(subfeature, feature_context)
@@ -97,6 +105,33 @@ module Bio::Graphics::Glyph
       end
     end
 
+    # Method to draw the arrows of directed glyphs. Not to be used
+    # directly, but called by Feature#draw.
+    def open_arrow(feature_context,direction,x,y,size)
+      case direction
+      when :right
+        feature_context.move_to(x,y)
+        feature_context.rel_line_to(size,size)
+        feature_context.rel_line_to(-size,size)
+        feature_context.stroke
+      when :left
+        feature_context.move_to(x,y)
+        feature_context.rel_line_to(-size,size)
+        feature_context.rel_line_to(size,size)
+        feature_context.stroke
+      when :north
+        feature_context.move_to(x-size,y+size)
+        feature_context.rel_line_to(size,-size)
+        feature_context.rel_line_to(size,size)
+        feature_context.stroke
+      when :south
+        feature_context.move_to(x-size,y-size)
+        feature_context.rel_line_to(size,size)
+        feature_context.rel_line_to(size,-size)
+        feature_context.stroke
+      end
+    end
+    
     # Method to draw the connections (introns) of spliced glyphs. Not to
     # be used directly, but called by Feature#draw.
     def connector(feature_context,from,to)

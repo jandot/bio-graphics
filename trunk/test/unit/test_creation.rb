@@ -73,7 +73,7 @@ class TestFeature < Test::Unit::TestCase
   end
   
   def test_feature_creation
-    feature = @track.add_feature(Bio::Feature.new('type', '123..456'), 'test_feature')
+    feature = @track.add_feature(Bio::Feature.new('type', '123..456'), :label => 'test_feature')
     assert_equal('test_feature', feature.name)
     assert_equal(123, feature.locations[0].from)
     assert_equal(456, feature.locations[-1].to)

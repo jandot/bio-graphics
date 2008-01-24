@@ -1,7 +1,7 @@
  # 
  # = README.DEV - Information for developers
  #
- # Copyright::   Copyright (C) 2007
+ # Copyright::   Copyright (C) 2007, 2008
  #               Jan Aerts <jan.aerts@bbsrc.ac.uk>
  # License::     The Ruby License
  #
@@ -9,7 +9,44 @@
 = README for developers
 This README is mainly meant to explain (a) how the code works (rather than how to _use_ the library), and (b) how to contribute to the project.
 
-== A. HOW FLOW OF THE CODE
+== ABOUT ARGUMENTS
+
+As there can be a host of optional arguments for several of the methods (e.g. Track#add_feature), it becomes unwieldy to have them all defined using the standard ruby way. The Track#add_feature method for example would then have been defined like this:
+
+  def add_feature(feature_object, label = 'anonymous', link = nil, glyph = @glyph, colour = @colour)
+    ...
+  end
+  
+So if the user would like to use all default settings except for the colour, he'd have to specify all those defaults:
+
+  my_track.add_feature(my_feature_object, 'anonymous', nil, my_track.glyph, [0,1,1])
+  
+To make the library a bit more userfriendly, I've decided to use keyword arguments for all optional arguments. The above line then becomes:
+
+  my_track.add_feature(my_feature_object, :colour => [0,1,1])
+  
+The construct you'll see for this is as follows (for Track#new):
+
+  def initialize(panel, name, opts = {})
+    @panel = panel
+    @name = name
+  
+    opts = {
+      :label => true,
+      :glyph => :generic,
+      :colour => [0,0,1]
+    }.merge(opts)
+    
+    @show_label = opts[:label]
+    @glyph = opts[:glyph]
+    @colour = opts[:colour]
+    
+    ...
+  end
+
+Basically, this means that the 'panel' and 'name' arguments are mandatory and the other ones are optional. Which optional arguments are excepted should be listed in the description comments just above the method code. The Hash#merge that's used here just assigns default values for each arguments that is not mentioned.
+
+== A. FLOW OF THE CODE
 
 === Overview
 I've tried to document as much as possible in the code itself, see for example the comments that accompany the setting of the defaults for Bio::Graphics in the panel.rb file. However, the bigger picture can not be explained that way.
@@ -17,20 +54,13 @@ I've tried to document as much as possible in the code itself, see for example t
 === The files
 There's one file for each class: panel, track, feature, subfeature, ruler and image_map. See the tutorial on a breakdown what each of these do. All of these except the image_map make up a picture. The image_map is used to describe the HTML map that can be created to make a picture clickable.
 
-Classes are embedded in each other: instead of
+Classes are:
   Bio::Graphics::Panel
   Bio::Graphics::Ruler
   Bio::Graphics::Track
   Bio::Graphics::Feature
   Bio::Graphics::SubFeature
-we have:
-  Bio::Graphics::Panel
-  Bio::Graphics::Panel::Ruler
-  Bio::Graphics::Panel::Track
-  Bio::Graphics::Panel::Track::Feature
-  Bio::Graphics::Panel::Track::Feature::SubFeature
-
-There's a reason for this. A track can only exist within the confines of a panel (i.e. a panel is a container for tracks), and a feature can only exist within the confines of a track. In addition, there are quite some instances where information from the panel is necessary for the track, and from the track for the features.
+  several Bio::Graphics::Glyph::<something>
 
 === The workflow
 ==== 1. Creating the panel
@@ -123,11 +153,12 @@ If we'd like to draw a new feature from 125..175 (which overlaps the first of th
   grid = { 1 => [(100..150),(200..225)],
            2 => [(125..175)] }
 
-So now we know what the vertical coordinates of the glyph should be.
+So now we know what the vertical coordinates of the glyph should be. But the Bio::Graphics::Feature does not do the drawing... The reason for this is that a Feature can have SubFeatures (e.g. a transcript feature can have UTR and CDS subfeatures). If that's not the case, the Feature is seen as having one SubFeature.
 
-The actual drawing is redirected to the subfeatures. Next step is to check if there's reasons we would like to *change* *the* *requested* *glyph* *type* *from* *directed* *to* *undirected*. If the user asks for directed glyphs (i.e. ones with an arrow at the end), but the view is zoomed _way_ out, there's no way the arrow will be visible. If we'd try to draw that arrow anyway, it would become bigger than the feature itself. Another reason would be if the feature's 3' end extends outwith the picture.
+Next step is to check if there's reasons we would like to *change* *the* *requested* *glyph* *type* *from* *directed* *to* *undirected*. If the user asks for directed glyphs (i.e. ones with an arrow at the end), but the view is zoomed _way_ out, there's no way the arrow will be visible. If we'd try to draw that arrow anyway, it would become bigger than the feature itself. Another reason would be if the feature's 3' end extends outwith the picture.
 
-Finally, we can *draw*. The actual drawing bit should be quite self-explanatory (_move_to_, _line_to_, ...).
+Finally, we can *draw*. As there are several types of glyphs, this is handled by a Glyph object. These are defined in the lib/bio/graphics/glyphs directory. These files are automatically read when requiring lib/bio-graphics.
+The actual drawing bit should be quite self-explanatory (_move_to_, _line_to_, ...).
 
 For the spliced features (:spliced and :directed_spliced), we first draw the components (i.e. the exons) keeping track of the start and stop positions of the gaps (i.e. introns). We then add the connections in those gaps. In addition, we draw a line that extends to the side of the picture if there are exons out of view. This flag was set when the feature was created (see above: @hidden_subfeatures_at_start and @hidden_subfeatures_at_stop).
 
@@ -143,16 +174,14 @@ And we just write the PNG to a file. If the user wanted a clickable map, also cr
 == B. CONTRIBUTING TO THE PROJECT
 (This text is adapted from the bioruby README.DEV)
 
-There are many possible ways to contribute to the Bio::Graphics project,
-such as:
+There are many possible ways to contribute to the Bio::Graphics project, such as:
 
 * Join the discussion on the BioRuby mailing list
 * Send a bug report or write a bug fix patch
 * Add and correct documentation
 * Develop code for new features, etc.
 
-All of these are welcome!  However, this document describes the last option,
-how to contribute your code to Bio::Graphics.
+All of these are welcome!  However, this document describes the last option, how to contribute your code to Bio::Graphics.
 
 == Coding style
 
@@ -172,14 +201,11 @@ You will need to follow the typical coding styles of the BioRuby modules:
 
 === Comments
 
-Don't use <tt>=begin</tt> and <tt>=end</tt> blocks for comments.  If you need to add
-comments, include it in the RDoc documentation.
+Don't use <tt>=begin</tt> and <tt>=end</tt> blocks for comments.  If you need to add comments, include it in the RDoc documentation.
 
 === Tutorials
 
-Additional tutorial documentation and working examples are encouraged
-with your contribution.  You may use the header part of the file for
-this purpose.
+Additional tutorial documentation and working examples are encouraged with your contribution.  You may use the header part of the file for this purpose.
 
 === Standard documentation
 
@@ -215,8 +241,7 @@ The header should be formatted as follows:
 
 ==== of classes and methods within those files
 
-Classes and methods should be documented in a standardized format, as in the
-following example (from bioruby's lib/bio/graphics/sequence.rb):
+Classes and methods should be documented in a standardized format, as in the following example (from bioruby's lib/bio/graphics/sequence.rb):
 
   # == Description
   #
@@ -276,16 +301,11 @@ following example (from bioruby's lib/bio/graphics/sequence.rb):
     attr_accessor :features
   end # Sequence
 
-Preceding the class definition (<tt>class Sequence</tt>), there is at least a 
-description and a usage example. Please use the +Description+ and +Usage+
-headings. If appropriate, refer to other classes that interact with or are
+Preceding the class definition (<tt>class Sequence</tt>), there is at least a description and a usage example. Please use the +Description+ and +Usage+ headings. If appropriate, refer to other classes that interact with or are
 related to the class.
 
-The code in the usage example should, if possible, be in a format that a user
-can copy-and-paste into a new script to run. It should illustrate the most
-important uses of the class. If possible and if it would not clutter up the
-example too much, try to provide any input data directly into the usage example,
-instead of refering to ARGV or ARGF for input.
+The code in the usage example should, if possible, be in a format that a user can copy-and-paste into a new script to run. It should illustrate the most important uses of the class. If possible and if it would not clutter up the
+example too much, try to provide any input data directly into the usage example, instead of refering to ARGV or ARGF for input.
 
   dna = Bio::Sequence.auto('atgcatgcATGCATGCAAAA')
 
@@ -294,11 +314,7 @@ Otherwise, describe the input shortly, for example:
   # input should be string consisting of nucleotides
   dna = Bio::Sequence.auto(ARGF.read)
 
-Methods should be preceded by a comment that describes what the method does, 
-including any relevant usage examples. (In contrast to the documentation for
-the class itself, headings are not required.) In addition, any arguments should
-be listed, as well as the type of thing that is returned by the method. The
-format of this information is as follows:
+Methods should be preceded by a comment that describes what the method does, including any relevant usage examples. (In contrast to the documentation for the class itself, headings are not required.) In addition, any arguments should be listed, as well as the type of thing that is returned by the method. The format of this information is as follows:
 
   # ---
   # *Arguments*:
@@ -314,14 +330,11 @@ Don't use
 
   $stderr.puts "WARNING"
 
-in your code. Instead, try to avoid printing error messages. For fatal errors,
-use +raise+ with an appropriate message.
+in your code. Instead, try to avoid printing error messages. For fatal errors, use +raise+ with an appropriate message.
 
 === Testing code should use 'test/unit'
 
-Unit tests should come with your modules by which you can assure what
-you meant to do with each method.  The test code is useful to make
-maintenance easy and ensure stability. The use of
+Unit tests should come with your modules by which you can assure what you meant to do with each method.  The test code is useful to make maintenance easy and ensure stability. The use of
 
   if __FILE__ == $0
 
@@ -329,5 +342,4 @@ is deprecated.
 
 == Maintenance
 
-Finally, please maintain the code you've contributed. Please let us know
-(on the bioruby list) before you commit, so that users can discuss on the change.
+Finally, please maintain the code you've contributed. Please let us know (on the bioruby list) before you commit, so that users can discuss on the change.

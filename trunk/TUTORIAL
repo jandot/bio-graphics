@@ -2,7 +2,7 @@
 link:images/example_labels.png
 
 = Bio::Graphics tutorial
-Copyright (C) 2007 Jan Aerts <jan.aerts@bbsrc.ac.uk>
+Copyright (C) 2007, 2008 Jan Aerts <jan.aerts@bbsrc.ac.uk>
 
 License: The Ruby License
 
@@ -57,49 +57,49 @@ For an explanation of the arguments with each method for this example, see the B
   2   require 'bio-graphics' # or require_gem 'bio-graphics' or gem 'bio-graphics'
   3
   4   # Create the panel
-  5   my_panel = Bio::Graphics::Panel.new(500, 1000, false)
+  5   my_panel = Bio::Graphics::Panel.new(500, :width => 1000)
   6   
   7   # Create the tracks
-  8   generic_track = my_panel.add_track('generic', false)
-  9   line_track = my_panel.add_track('line', false, :line, [0,0,1])
- 10   line_with_handles_track = my_panel.add_track('line_with_handles', false, :line_with_handles, [1,0,0])
- 11   directed_track = my_panel.add_track('directed', false, :directed_generic, [0,1,0])
- 12   triangle_track = my_panel.add_track('triangle', false, :triangle, [1,0,0])
- 13   spliced_track = my_panel.add_track('spliced', false, :spliced, [1,0,0])
- 14   directed_spliced_track = my_panel.add_track('directed_spliced', false, :directed_spliced, [1,0,1])
- 15   composite_track = my_panel.add_track('composite_features', false, { 'utr' => :line, 'cds' => :directed_spliced})
+  8   generic_track = my_panel.add_track('generic', :label => false)
+  9   line_track = my_panel.add_track('line', :label => false, :glyph => :line, :colour => [0,0,1])
+ 10   line_with_handles_track = my_panel.add_track('line_with_handles', :label => false, :glyph => :line_with_handles, [1,0,0])
+ 11   directed_track = my_panel.add_track('directed', :label => false, :glyph => :directed_generic, :colour => [0,1,0])
+ 12   triangle_track = my_panel.add_track('triangle', :label => false, :glyph => :triangle, :colour => [1,0,0])
+ 13   spliced_track = my_panel.add_track('spliced', :label => false, :glyph => :spliced, :colour => [1,0,0])
+ 14   directed_spliced_track = my_panel.add_track('directed_spliced', :label => false, :glyph => :directed_spliced, :colour => [1,0,1])
+ 15   composite_track = my_panel.add_track('composite_features', :label => false, :glyph => { 'utr' => :line, 'cds' => :directed_spliced})
  16   
  17   # Add features to each track
- 18   generic_track.add_feature(Bio::Feature.new('clone', '250..375'), 'anonymous', 'http://www.newsforge.com')
- 19   generic_track.add_feature(Bio::Feature.new('clone', '54..124'), 'anonymous', 'http://www.thearkdb.org')
- 20   generic_track.add_feature(Bio::Feature.new('clone', '100..449'), 'anonymous', 'http://www.google.com')
+ 18   generic_track.add_feature(Bio::Feature.new('clone', '250..375'), :link => 'http://www.newsforge.com')
+ 19   generic_track.add_feature(Bio::Feature.new('clone', '54..124'), :link => 'http://www.thearkdb.org')
+ 20   generic_track.add_feature(Bio::Feature.new('clone', '100..449'), :link => 'http://www.google.com')
  21   
- 22   line_track.add_feature(Bio::Feature.new('utr', 'complement(200..320)'), 'anonymous')
- 23   line_track.add_feature(Bio::Feature.new('utr', '355..480'), 'anonymous', 'http://www.zdnet.co.uk')
+ 22   line_track.add_feature(Bio::Feature.new('utr', 'complement(200..320)'))
+ 23   line_track.add_feature(Bio::Feature.new('utr', '355..480'), :link => 'http://www.zdnet.co.uk')
  24   
- 25   line_with_handles_track.add_feature(Bio::Feature.new('utr', 'complement(200..320)'), 'anonymous')
- 26   line_with_handles_track.add_feature(Bio::Feature.new('utr', '355..480', 'http://www.zdnet.co.uk'), 'anonymous')
+ 25   line_with_handles_track.add_feature(Bio::Feature.new('utr', 'complement(200..320)'))
+ 26   line_with_handles_track.add_feature(Bio::Feature.new('utr', '355..480'), :link => 'http://www.zdnet.co.uk')
  27   
- 28   directed_track.add_feature(Bio::Feature.new('primer', '50..60', 'http://www.google.com'), 'anonymous')
- 29   directed_track.add_feature(Bio::Feature.new('primer', 'complement(80..120)'), 'anonymous', 'http://www.sourceforge.net')
+ 28   directed_track.add_feature(Bio::Feature.new('primer', '50..60'), :link => 'http://www.google.com')
+ 29   directed_track.add_feature(Bio::Feature.new('primer', 'complement(80..120)'), :link => 'http://www.sourceforge.net')
  30   
- 31   triangle_track.add_feature(Bio::Feature.new('snp', '56'), 'anonymous')
- 32   triangle_track.add_feature(Bio::Feature.new('snp', '103','http://digg.com'), 'anonymous')
+ 31   triangle_track.add_feature(Bio::Feature.new('snp', '56'))
+ 32   triangle_track.add_feature(Bio::Feature.new('snp', '103'), :link => 'http://digg.com')
  33   
- 34   spliced_track.add_feature(Bio::Feature.new('spliced', 'join(34..52,109..183)'), 'anonymous','http://news.bbc.co.uk')
- 35   spliced_track.add_feature(Bio::Feature.new('spliced', 'complement(join(170..231,264..299,350..360,409..445))'), 'anonymous')
- 36   spliced_track.add_feature(Bio::Feature.new('spliced', 'join(134..152,209..283)'), 'anonymous')
+ 34   spliced_track.add_feature(Bio::Feature.new('spliced', 'join(34..52,109..183)'), :link => 'http://news.bbc.co.uk')
+ 35   spliced_track.add_feature(Bio::Feature.new('spliced', 'complement(join(170..231,264..299,350..360,409..445))'))
+ 36   spliced_track.add_feature(Bio::Feature.new('spliced', 'join(134..152,209..283)'))
  37   
- 38   directed_spliced_track.add_feature(Bio::Feature.new('cds', 'join(34..52,109..183)'), 'anonymous', 'http://www.vrtnieuws.net')
- 39   directed_spliced_track.add_feature(Bio::Feature.new('cds', 'complement(join(170..231,264..299,350..360,409..445))'), 'anonymous', 'http://bioinformatics.roslin.ac.uk')
- 40   directed_spliced_track.add_feature(Bio::Feature.new('cds', 'join(134..152,209..283)'), 'anonymous')
+ 38   directed_spliced_track.add_feature(Bio::Feature.new('cds', 'join(34..52,109..183)'), :link => 'http://www.vrtnieuws.net')
+ 39   directed_spliced_track.add_feature(Bio::Feature.new('cds', 'complement(join(170..231,264..299,350..360,409..445))'), :link => 'http://bioinformatics.roslin.ac.uk')
+ 40   directed_spliced_track.add_feature(Bio::Feature.new('cds', 'join(134..152,209..283)'))
  41   
  42   utr5 = Bio::Feature.new('utr', '100..150')
  43   cds = Bio::Feature.new('cds', 'join(150..225, 250..275, 310..330)')
  44   utr3 = Bio::Feature.new('utr', '330..375')
  45   
  46   transcript = Bio::Feature.new('transcript', 'join(100..150, 150..225, 250..275, 310..330, 330..375)', [], nil, [utr5,cds,utr3])
- 47   composite_track.add_feature(transcript, 'my_transcript')
+ 47   composite_track.add_feature(transcript, :label => 'my_transcript')
  48   
  49   # Draw the thing
  50   my_panel.draw('glyph_showcase.png')
@@ -116,9 +116,9 @@ Let's walk through this:
   * the default colour for features in this track. This can also be overridden on a feature-by-feature basis. At the moment in RGB. (This will probably change to colour names in the future).
 * Lines 18-47: Add features to each track. Parameters are:
   * a Bio::Feature object. (See bioruby documentation at http://www.bioruby.org)
-  * the label to be used (here: all are 'anonymous')
+  * the label to be used
   * link.
-* Line 50: Create the actual picture. If the third parameter to the initial Panel#new call (in line 5) is 'true', a HTML file is created as well.
+* Line 50: Create the actual picture. If the the initial Panel#new call contains the parameter ":clickable => true" (in line 5), a HTML file is created as well.
 
 That's pretty clear, but what's happening with the composite_track (on lines 15 and 42-47)?
 
@@ -127,6 +127,25 @@ How does this work? See lines 42 to 47. If the feature you're adding to a track 
 
 === Hyperlinks
 There are no graphic formats that are inherently clickable (SVG is a special case and the _display_ of it is not the SVG itself). Therefore, in case the user wants a clickable graphic, an accompanying HTML file is created with the same name as the picture but obviously the .html extension. This file contains the map and will display a clickable picture when loaded in a webbrowser.
+
+=== Custom glyphs
+
+The user can easily create custom glyphs to add to the functionality of the Bio::Graphics library. The only thing that has to be done is add a file to lib/bio/graphics/glyphs. The file should look like this:
+
+  module Bio::Graphics::Glyph
+    class Bio::Graphics::Glyph::SomeName < Bio::Graphics::Glyph::Common
+      def draw
+        @feature_context.rectangle(x1, y1, x2, y2).fill
+      end
+    end
+  end
+
+What are the properties of that file?
+* It's name has to be the same as the class name specified on the second line, but in snake_case instead of CamelCase. The above file therefore should be called some_name.rb.
+* Give the class a sensible name (in CamelCase).
+* Just define the draw method. Have a look at the other files in the glyphs/ directory for examples. Some values you can use:
+  * Bio::Graphics::FEATURE_HEIGHT = default height in pixels for a glyph
+  * Bio::Graphics::FEATURE_ARROW_LENGTH = default width in pixels of arrows on features
 
 == Download and installation
 Development of the library is at http://rubyforge.org/projects/bio-graphics/

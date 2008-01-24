@@ -1,7 +1,7 @@
 # 
 # = bio/graphics/feature.rb - feature class
 #
-# Copyright::   Copyright (C) 2007
+# Copyright::   Copyright (C) 2007, 2008
 #               Jan Aerts <jan.aerts@bbsrc.ac.uk>
 #               Charles Comstock <dgtized@gmail.com>
 # License::     The Ruby License
@@ -31,19 +31,26 @@ class Bio::Graphics::Feature
   # * _track_ (required) :: Bio::Graphics::Track object that this
   #   feature belongs to
   # * _feature_ _object_ (required) :: A Bio::Feature object (see bioruby)
-  # * _label_ :: Label of the feature. Default = 'anonymous'
-  # * _link_ :: URL for clickable images. Default = nil
-  # * _glyph_ :: Glyph to use. Default = glyph of the track
-  # * _colour_ :: Colour. Default = colour of the track
+  # * _:label_ :: Label of the feature. Default = 'anonymous'
+  # * _:link_ :: URL for clickable images. Default = nil
+  # * _:glyph_ :: Glyph to use. Default = glyph of the track
+  # * _:colour_ :: Colour. Default = colour of the track
   # *Returns*:: Bio::Graphics::Feature object
-  def initialize(track, feature_object, label = 'anonymous', link = nil, glyph = track.glyph, colour = track.colour)
+  def initialize(track, feature_object, opts = {})
     @track = track
     @feature_object = feature_object
-    @label = label
-    @link = link
-    @glyph = glyph
-    @colour = colour
-
+    opts = {
+      :label => 'anonymous',
+      :link => nil,
+      :glyph => @track.glyph,
+      :colour => @track.colour
+    }.merge(opts)
+    
+    @label = opts[:label]
+    @link = opts[:link]
+    @glyph = opts[:glyph]
+    @colour = opts[:colour]
+    
     @locations = @feature_object.locations
 
     @start = @locations.collect{|l| l.from}.min.to_i
@@ -56,10 +63,10 @@ class Bio::Graphics::Feature
     @subfeatures = Array.new
     if ! @feature_object.subfeatures.empty?
       @feature_object.subfeatures.each do |subfeature|
-        @subfeatures.push(SubFeature.new(self, subfeature, @glyph, @colour))
+        @subfeatures.push(Bio::Graphics::SubFeature.new(self, subfeature, :glyph => @glyph, :colour => @colour))
       end
     else
-      @subfeatures.push(SubFeature.new(self, @feature_object, @glyph, @colour))
+      @subfeatures.push(Bio::Graphics::SubFeature.new(self, @feature_object, :glyph => @glyph, :colour => @colour))
     end
 
     @left_pixel_of_subfeatures = Array.new
@@ -115,7 +122,6 @@ class Bio::Graphics::Feature
     
     feature_context.translate(0, @vertical_offset)
 
-    
     # Let the subfeatures do the drawing.
     @subfeatures.each do |subfeature|
       subfeature.draw(feature_context)

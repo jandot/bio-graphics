@@ -61,15 +61,15 @@ END_OF_STRING
       accession, type, start, stop = line.split(/\t/)
       if type == 'scaffold'
         if start.nil?
-          scaffold_track.add_feature(Bio::Feature.new('scaffold', '1..4173015'), accession)
+          scaffold_track.add_feature(Bio::Feature.new('scaffold', '1..4173015'), :label => accession)
         else
-          scaffold_track.add_feature(Bio::Feature.new('scaffold', start + '..' + stop), accession, 'http://www.google.com')
+          scaffold_track.add_feature(Bio::Feature.new('scaffold', start + '..' + stop), :label => accession, :link => 'http://www.google.com')
         end
           
       elsif type == 'marker'
-        marker_track.add_feature(Bio::Feature.new('marker', ((start.to_i + stop.to_i)/2).to_s), accession, 'http://www.thearkdb.org/arkdb/do/getMarkerDetail?accession=' + accession)
+        marker_track.add_feature(Bio::Feature.new('marker', ((start.to_i + stop.to_i)/2).to_s), :label => accession, :link => 'http://www.thearkdb.org/arkdb/do/getMarkerDetail?accession=' + accession)
       elsif type == 'clone'
-        clone_track.add_feature(Bio::Feature.new('clone', start + '..' + stop), accession)
+        clone_track.add_feature(Bio::Feature.new('clone', start + '..' + stop), :label => accession)
       end
     end
 
@@ -103,15 +103,15 @@ END_OF_STRING
       accession, type, start, stop = line.split(/\t/)
       if type == 'scaffold'
         if start.nil?
-          scaffold_track.add_feature(Bio::Feature.new('scaffold', '1..4173015'), accession)
+          scaffold_track.add_feature(Bio::Feature.new('scaffold', '1..4173015'), :label => accession)
         else
-          scaffold_track.add_feature(Bio::Feature.new('scaffold', start + '..' + stop), accession, 'http://www.google.com')
+          scaffold_track.add_feature(Bio::Feature.new('scaffold', start + '..' + stop), :label => accession, :link => 'http://www.google.com')
         end
           
       elsif type == 'marker'
-        marker_track.add_feature(Bio::Feature.new('marker', ((start.to_i + stop.to_i)/2).to_s), accession, 'http://www.thearkdb.org/arkdb/do/getMarkerDetail?accession=' + accession)
+        marker_track.add_feature(Bio::Feature.new('marker', ((start.to_i + stop.to_i)/2).to_s), :label => accession, :link => 'http://www.thearkdb.org/arkdb/do/getMarkerDetail?accession=' + accession)
       elsif type == 'clone'
-        clone_track.add_feature(Bio::Feature.new('clone', start + '..' + stop), accession)
+        clone_track.add_feature(Bio::Feature.new('clone', start + '..' + stop), :label => accession)
       end
     end
 
