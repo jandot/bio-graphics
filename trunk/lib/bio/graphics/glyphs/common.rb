@@ -3,6 +3,7 @@
 #
 # Copyright::   Copyright (C) 2007, 2008
 #               Jan Aerts <jan.aerts@bbsrc.ac.uk>
+#               Charles Comstock <dgtized@gmail.com>
 # License::     The Ruby License
 #
 
@@ -14,23 +15,11 @@ module Bio::Graphics::Glyph
     attr_accessor :subfeature, :feature_context
 
     def left_pixel
-      if self.class == Bio::Graphics::Glyph::Triangle
-        return @subfeature.pixel_range_collection[0].lend - Bio::Graphics::FEATURE_ARROW_LENGTH
-      elsif self.class == Bio::Graphics::Glyph::Dot
-        return @subfeature.pixel_range_collection[0].lend - @radius
-      else
-        return @subfeature.pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
-      end
+      return @subfeature.pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
     end
     
     def right_pixel
-      if self.class == Bio::Graphics::Glyph::Triangle
-        return @subfeature.pixel_range_collection[0].rend + Bio::Graphics::FEATURE_ARROW_LENGTH
-      elsif self.class == Bio::Graphics::Glyph::Dot
-        return @subfeature.pixel_range_collection[0].rend + @radius
-      else
-        return @subfeature.pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
-      end
+      return @subfeature.pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
     end
     
     private
