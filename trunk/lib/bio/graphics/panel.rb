@@ -206,21 +206,8 @@ module Bio::Graphics
         @height = ruler.height
         @height += 20*@number_of_feature_rows
         @height += 10*@tracks.length #To correct for the track headers
-
-        if @vertical
-          @image_map.flip_orientation(@width)
-          
-          max_size = [@height, @width].max
-          rotated_destination = Cairo::ImageSurface.new(1, max_size, max_size)
-          rotated_context = Cairo::Context.new(rotated_destination)
-          rotated_context.rotate(3*PI/2)
-          rotated_context.translate(-@width, 0)
-          rotated_context.set_source(huge_panel_destination, 0, 0)
-          rotated_context.rectangle(0,0,max_size, max_size).fill
-
-          @width, @height = @height, @width
-          huge_panel_destination = rotated_destination
-        end
+        
+        huge_panel_destination = flip_orientation(huge_panel_destination) if @vertical
 
         @final_panel_destination = Cairo::ImageSurface.new(1, @width, @height)
         resized_context = Cairo::Context.new(@final_panel_destination)
@@ -246,21 +233,22 @@ module Bio::Graphics
         output_context.rectangle(0,0,@width, @height).fill
       end
       
-
-      if @clickable # create png and map
-        html_filename = file_name.sub(/\.[^.]+$/, '.html')
-        html = File.open(html_filename,'w')
-        html.puts "<html>"
-        html.puts "<body>"
-        html.puts @image_map.to_s
-        html.puts "<img border='1' src='" + file_name + "' usemap='#image_map' />"
-        html.puts "</body>"
-        html.puts "</html>"
-        html.close
-      end
+      @image_map.save(file_name) if @clickable # create png and map
     end
-
-
-
+    
+    def flip_orientation(huge_panel_destination)
+      @image_map.flip_orientation(@width)
+      
+      max_size = [@height, @width].max
+      rotated_destination = Cairo::ImageSurface.new(1, max_size, max_size)
+      rotated_context = Cairo::Context.new(rotated_destination)
+      rotated_context.rotate(3*PI/2)
+      rotated_context.translate(-@width, 0)
+      rotated_context.set_source(huge_panel_destination, 0, 0)
+      rotated_context.rectangle(0,0,max_size, max_size).fill
+      @width, @height = @height, @width
+      return rotated_destination      
+    end
+    private :flip_orientation
   end #Panel
 end #Graphics

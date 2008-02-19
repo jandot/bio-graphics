@@ -28,7 +28,18 @@ class Bio::Graphics::ImageMap
     return output.join("\n")
   end
 
-
+  def save(file_name)
+    html_filename = file_name.sub(/\.[^.]+$/, '.html')
+    html = File.open(html_filename,'w')
+    html.puts "<html>"
+    html.puts "<body>"
+    html.puts self.to_s
+    html.puts "<img border='1' src='" + file_name + "' usemap='#image_map' />"
+    html.puts "</body>"
+    html.puts "</html>"
+    html.close      
+  end
+  
   # Switch horizontal to vertical orientation
   def flip_orientation(width)
     @elements.each do |element|
