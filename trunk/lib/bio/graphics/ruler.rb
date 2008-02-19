@@ -71,48 +71,50 @@ class Bio::Graphics::Ruler
     ruler_drawing.line_to(panel.width, 10)
     ruler_drawing.stroke
 
-    # Draw ticks
-    #  * And start drawing the rest.
+    # Draw ticks and vertical grid lines
     first_tick_position.step(@panel.display_stop, @minor_tick_distance) do |tick|
-      tick_pixel_position = (tick - panel.display_start) / @panel.rescale_factor
-      ruler_drawing.move_to(tick_pixel_position.floor, @min_pixels_per_tick)
-      if tick.modulo(@major_tick_distance) == 0
-        # Draw major tick
-        ruler_drawing.rel_line_to(0, 3*@tick_height)
-        ruler_drawing.stroke
-        
-        # Draw major vertical grid line
-        ruler_drawing.set_source_rgb(0.8,0.8,0.8)
-        ruler_drawing.move_to(tick_pixel_position.floor, 3*@tick_height)
-        ruler_drawing.rel_line_to(0, 2000)
-        ruler_drawing.stroke
-        ruler_drawing.set_source_rgb(0,0,0)
-        
-        # Draw tick number
-        ruler_drawing.select_font_face(*Bio::Graphics::FONT)
-        ruler_drawing.set_font_size(@tick_text_height)
-        ruler_drawing.move_to(tick_pixel_position.floor, 4*@tick_height + @tick_text_height)
-        ruler_drawing.show_text(tick.to_i.to_s)
-      else
-        # Draw minor tick
-        ruler_drawing.rel_line_to(0, @tick_height)
-        ruler_drawing.stroke
-        
-        # Draw minor vertical grid line
-        line_width = ruler_drawing.line_width
-        ruler_drawing.set_source_rgb(0.8,0.8,0.8)
-        ruler_drawing.set_line_width(0.5)
-        ruler_drawing.move_to(tick_pixel_position.floor, 3*@tick_height)
-        ruler_drawing.rel_line_to(0, 2000)
-        ruler_drawing.stroke
-        ruler_drawing.set_line_width(line_width)
-        ruler_drawing.set_source_rgb(0,0,0)
-        
+      tick_pixel_position = ((tick - panel.display_start) / @panel.rescale_factor).floor
+      ruler_drawing.move_to(tick_pixel_position, @min_pixels_per_tick)
+      if tick.modulo(@major_tick_distance) == 0 # major tick
+        tick(ruler_drawing,3*@tick_height)
+        grid_line(ruler_drawing, tick_pixel_position)        
+        tick_number(ruler_drawing,tick_pixel_position,tick)
+      else # minor tick
+        tick(ruler_drawing,@tick_height)        
+        grid_line(ruler_drawing, tick_pixel_position, 0.5)
       end
       ruler_drawing.stroke
     end
 
     @height = 5*@tick_height + @tick_text_height          
   end
+
+  def grid_line(surface,position,line_width = surface.line_width)
+    old_line_width = surface.line_width
+    
+    surface.set_source_rgb(0.8,0.8,0.8)
+    surface.set_line_width(line_width)
+    surface.move_to(position, 3*@tick_height)
+    surface.rel_line_to(0, 2000)
+    surface.stroke
+    surface.set_source_rgb(0,0,0)
+
+    surface.set_line_width(old_line_width)    
+  end
+  private :grid_line
+
+  def tick(surface,height)
+    surface.rel_line_to(0, height)
+    surface.stroke
+  end
+  private :tick
+
+  def tick_number(surface, position, tick)
+    surface.select_font_face(*Bio::Graphics::FONT)
+    surface.set_font_size(@tick_text_height)
+    surface.move_to(position, 4*@tick_height + @tick_text_height)
+    surface.show_text(tick.to_i.to_s)    
+  end
+  private :tick_number
 end
 
