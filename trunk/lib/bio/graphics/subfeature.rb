@@ -174,9 +174,11 @@ class Bio::Graphics::SubFeature
 
     # And draw the thing.
 
-    feature_context.set_source_rgb(@colour)
+     feature_context.set_source_rgb(@colour)
 
-    glyph = ("Bio::Graphics::Glyph::" + local_feature_glyph.to_s.camel_case).to_class.new(self, feature_context)
+    glyph_name = 'Bio::Graphics::Glyph::' + local_feature_glyph.to_s.camel_case
+    glyph_class = glyph_name.to_class
+    glyph = glyph_class.new(self, feature_context)
     glyph.draw
 
     @feature.left_pixel_of_subfeatures.push(glyph.left_pixel)

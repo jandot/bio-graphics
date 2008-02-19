@@ -124,10 +124,10 @@ class Bio::Graphics::Track
     track_context = Cairo::Context.new(panel_destination)
 
     # Draw thin line above title
-    track_context.set_source_rgb(0.75,0.75,0.75)
-    track_context.move_to(0, self.vertical_offset)
-    track_context.line_to(self.panel.width, self.vertical_offset)
-    track_context.stroke
+#    track_context.set_source_rgb(0.75,0.75,0.75)
+#    track_context.move_to(0, self.vertical_offset)
+#    track_context.line_to(self.panel.width, self.vertical_offset)
+#    track_context.stroke
 
     # Draw track title
     track_context.set_source_rgb(0,0,0)

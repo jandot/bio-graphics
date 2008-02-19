@@ -45,7 +45,9 @@ require File.dirname(__FILE__) + '/bio/graphics/subfeature.rb'
 require File.dirname(__FILE__) + '/bio/graphics/ruler.rb'
 
 # Load all the glyphs
-require File.dirname(__FILE__) + '/bio/graphics/glyphs/common.rb'
-Dir.new(File.dirname(__FILE__) + '/bio/graphics/glyphs').reject{|f| f == 'common.rb'}.select{|f| f =~ /\.rb$/}.each do |glyph_file_name|
-  require File.dirname(__FILE__) + '/bio/graphics/glyphs/' + glyph_file_name
+glyph_dir = File.dirname(__FILE__) + '/bio/graphics/glyphs/'
+require glyph_dir + '/common.rb'
+full_pattern = File.join(glyph_dir, '*.rb')
+Dir.glob(full_pattern).each do |file|
+  require file
 end

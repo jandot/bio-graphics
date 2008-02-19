@@ -61,6 +61,8 @@ class Bio::Graphics::Ruler
     start + (modulo_from_tick > 0 ? (minor_tick - modulo_from_tick + 1) : 0)
   end
   
+  # Draw the ruler, including the faint vertical lines that go from top to
+  # bottom on the panel.
   def draw(panel_drawing)
     ruler_drawing = Cairo::Context.new(panel_drawing)
 
@@ -75,7 +77,16 @@ class Bio::Graphics::Ruler
       tick_pixel_position = (tick - panel.display_start) / @panel.rescale_factor
       ruler_drawing.move_to(tick_pixel_position.floor, @min_pixels_per_tick)
       if tick.modulo(@major_tick_distance) == 0
+        # Draw major tick
         ruler_drawing.rel_line_to(0, 3*@tick_height)
+        ruler_drawing.stroke
+        
+        # Draw major vertical grid line
+        ruler_drawing.set_source_rgb(0.8,0.8,0.8)
+        ruler_drawing.move_to(tick_pixel_position.floor, 3*@tick_height)
+        ruler_drawing.rel_line_to(0, 2000)
+        ruler_drawing.stroke
+        ruler_drawing.set_source_rgb(0,0,0)
         
         # Draw tick number
         ruler_drawing.select_font_face(*Bio::Graphics::FONT)
@@ -83,7 +94,19 @@ class Bio::Graphics::Ruler
         ruler_drawing.move_to(tick_pixel_position.floor, 4*@tick_height + @tick_text_height)
         ruler_drawing.show_text(tick.to_i.to_s)
       else
+        # Draw minor tick
         ruler_drawing.rel_line_to(0, @tick_height)
+        ruler_drawing.stroke
+        
+        # Draw minor vertical grid line
+        line_width = ruler_drawing.line_width
+        ruler_drawing.set_source_rgb(0.8,0.8,0.8)
+        ruler_drawing.set_line_width(0.5)
+        ruler_drawing.move_to(tick_pixel_position.floor, 3*@tick_height)
+        ruler_drawing.rel_line_to(0, 2000)
+        ruler_drawing.stroke
+        ruler_drawing.set_line_width(line_width)
+        ruler_drawing.set_source_rgb(0,0,0)
         
       end
       ruler_drawing.stroke

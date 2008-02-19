@@ -46,16 +46,16 @@ class Bio::Graphics::Feature
       :colour => @track.colour
     }.merge(opts)
     
-    @label = opts[:label]
-    @link = opts[:link]
-    @glyph = opts[:glyph]
-    @colour = opts[:colour]
-    
     @locations = @feature_object.locations
 
     @start = @locations.collect{|l| l.from}.min.to_i
     @stop = @locations.collect{|l| l.to}.max.to_i
 
+    @label = opts[:label]
+    @link = opts[:link]
+    @glyph = opts[:glyph]
+    @colour = opts[:colour].class == Proc ? opts[:colour].call(self) : opts[:colour]
+    
     # Create Bio::Graphics SubFeatures
     # The drawing is handled by subfeatures. If there are no defined, the
     # subfeatures array will just hold one element: the @feature_object of

@@ -3,19 +3,32 @@ require File.dirname(__FILE__) + '/../lib/bio-graphics'
 #Initialize graphic for a nucleotide sequence of 4173015 bp, zooming in on the
 #region 11111..3333333
 my_panel = Bio::Graphics::Panel.new(4173015, :width => 600, :clickable => true,
-                                    :display_range => 11111..3333333,
-                                    :vertical => true)
+                                    :display_range => 11111..3333333)#,
+#                                    :vertical => true)
 #my_panel = Bio::Graphics::Panel.new(4173015, 800, false, 1, 4173015)
 
 #Create and configure tracks
 scaffold_track = my_panel.add_track('scaffold', :label => false)
-marker_track = my_panel.add_track('marker')
-clone_track = my_panel.add_track('clone', :label => false)
+marker_track = my_panel.add_track('marker',
+                                  :colour => lambda do |feature|
+                                    if feature.label =~ /3$/
+                                      [1,0,0]
+                                    else
+                                      [0,1,1]
+                                    end
+                                  end
+                                  )
+clone_track = my_panel.add_track('clone', :label => false,
+                                    :colour => lambda do |feature|
+                                      b = (feature.stop - feature.start).to_f/289058
+                                      return [0,0,b]
+                                    end
+)
 
-scaffold_track.colour = [1,0,0]
-marker_track.colour = [0,1,0]
+#scaffold_track.colour = [1,0,0]
+#marker_track.colour = [0,1,0]
 marker_track.glyph = :triangle
-clone_track.colour = [0,0,1]
+#clone_track.colour = [0,0,1]
 
 # Add data to tracks
 File.open('data.txt').each do |line|
