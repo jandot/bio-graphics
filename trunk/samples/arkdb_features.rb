@@ -20,8 +20,7 @@ marker_track = my_panel.add_track('marker',
                                   )
 clone_track = my_panel.add_track('clone', :label => false,
                                     :colour => lambda do |feature|
-                                      b = (feature.stop - feature.start).to_f/289058
-                                      return [0,0,b]
+                                      return [rand,rand,0]
                                     end
 )
 

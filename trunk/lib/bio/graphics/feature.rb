@@ -54,7 +54,7 @@ class Bio::Graphics::Feature
     @label = opts[:label]
     @link = opts[:link]
     @glyph = opts[:glyph]
-    @colour = opts[:colour].class == Proc ? opts[:colour].call(self) : opts[:colour]
+    @colour = opts[:colour].respond_to?(:call) ? opts[:colour].call(self) : opts[:colour]
     
     # Create Bio::Graphics SubFeatures
     # The drawing is handled by subfeatures. If there are no defined, the
