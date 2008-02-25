@@ -39,11 +39,13 @@ class Bio::Graphics::Feature
   def initialize(track, feature_object, opts = {})
     @track = track
     @feature_object = feature_object
+    # Note: we don't set the glyph and colour here just yet. They are set at
+    # draw-time.
     opts = {
       :label => 'anonymous',
       :link => nil,
-      :glyph => @track.glyph,
-      :colour => @track.colour
+      :glyph => nil,
+      :colour => nil
     }.merge(opts)
     
     @locations = @feature_object.locations
@@ -111,6 +113,13 @@ class Bio::Graphics::Feature
   # * _track_drawing_ (required) :: the track cairo object
   # *Returns*:: FIXME: I don't know
   def draw(panel_destination)
+    # First we want to set some parameters of Track at draw-time instead of
+    # at initialization time
+    @glyph = @glyph.nil? ? @track.glyph : @glyph
+    
+    @colour = @colour.nil? ? @track.colour : @colour
+    @colour = @colour.respond_to?(:call) ? @colour.call(self) : @colour
+    
     feature_context = Cairo::Context.new(panel_destination)
 
     # Move the feature drawing down based on track it's in and the number

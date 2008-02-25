@@ -21,9 +21,11 @@ class Bio::Graphics::SubFeature
   def initialize(feature, feature_object, opts = {})
     @feature = feature
     @feature_object = feature_object
+    # Note: we don't set the glyph and colour just yet. Those are set at draw-
+    # time.
     opts = {
-      :glyph => @feature.glyph,
-      :colour => @feature.colour
+      :glyph => nil,
+      :colour => nil
     }.merge(opts)
     
     @glyph = opts[:glyph]
@@ -131,6 +133,7 @@ class Bio::Graphics::SubFeature
   # * _track_drawing_ (required) :: the track cairo object
   # *Returns*:: FIXME: I don't know
   def draw(feature_context)
+    # Set some parameters at draw time instead of initialization.
     # Set the glyph to be used. The glyph can be set as a symbol (e.g. :generic)
     # or as a hash (e.g. {'utr' => :line, 'cds' => :directed_spliced}).
     if @feature.glyph.class == Hash
@@ -138,6 +141,10 @@ class Bio::Graphics::SubFeature
     else
       @glyph = @feature.glyph
     end
+    
+    @colour = @colour.nil? ? @feature.colour : @colour
+    @colour = @colour.respond_to?(:call) ? @colour.call(self) : @colour
+
 
     # We have to check if we want to change the glyph type from directed to
     #    undirected
@@ -173,9 +180,7 @@ class Bio::Graphics::SubFeature
     end
 
     # And draw the thing.
-
-    colour = @colour.respond_to?(:call) ? @colour.call(self) : @colour
-    feature_context.set_source_rgb(colour)
+    feature_context.set_source_rgb(@colour)
 
     glyph_name = 'Bio::Graphics::Glyph::' + local_feature_glyph.to_s.camel_case
     glyph_class = glyph_name.to_class

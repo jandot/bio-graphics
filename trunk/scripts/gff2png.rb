@@ -33,6 +33,7 @@ require '../lib/bio-graphics'
 require 'rdoc/usage'
 require 'optparse'
 require 'ostruct'
+require 'yaml'
 
 ### Get the script arguments and open relevant files
 options = OpenStruct.new()
@@ -41,6 +42,8 @@ opts.on("-h","--help",
         "Display the usage information") {RDoc::usage}
 opts.on("-l","--length", "=LENGTH",
         "Length of the sequence") {|argument| options.seq_length = argument.to_i}
+opts.on("-c","--config", "=CONFIG",
+        "Name of config file") {|argument| options.config_file = argument}
 opts.on("-i","--infile", "=INFILE",
         "Input file name") {|argument| options.infile = argument}
 opts.on("-o","--outfile", "=OUTFILE",
@@ -60,12 +63,12 @@ end
 output_stream = File.new(options.outfile,'w')
 
 ### Actually do some stuff
-features = Array.new
+tracks = Hash.new
 my_panel = Bio::Graphics::Panel.new(options.seq_length)
 input_stream.each_line do |line|
   next if line =~ /^#/
   line.chomp!
-  seqid, source, type, start, stop, score, strand, phase, attributes_string = line.split(/\t/)
+  seqid, source, feature_type, start, stop, score, strand, phase, attributes_string = line.split(/\t/)
   
   attributes_hash = Hash.new
   attributes_string.gsub!(/ +; +/,';')
@@ -74,16 +77,25 @@ input_stream.each_line do |line|
     key, value = a.split(/=/)
     attributes_hash[key] = value
   end
-
-  features.push([Bio::Feature.new(type, start + '..' + stop), attributes_hash['Name']])
+  
+  if ! tracks.has_key?(feature_type)
+    tracks[feature_type] = my_panel.add_track(feature_type)
+  end
+  
+  location = start + '..' + stop
+  if strand == '-'
+    location = 'complement(' + location + ')'
+  end
+  tracks[feature_type].add_feature(Bio::Feature.new(feature_type, location), :label => attributes_hash['Name'])
 end
 
-my_track = my_panel.add_track('data')
-my_track.glyph = :generic
-
-features.each do |f|
-  my_track.add_feature(f[0], f[1])
+if options.config_file
+  YAML::load_documents(File.open(options.config_file)) do |p|
+    tracks[p['track']].glyph = p['glyph'] unless p['glyph'].nil?
+    tracks[p['track']].colour = p['colour'] unless p['colour'].nil?
+  end
 end
+
 my_panel.draw(options.outfile)
 
 ### Wrap everything up
