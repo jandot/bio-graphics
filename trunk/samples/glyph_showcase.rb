@@ -7,6 +7,7 @@ box_track = my_panel.add_track('box', :label => false, :glyph => :box)
 line_track = my_panel.add_track('line', :label => false, :glyph => :line, :colour => [0,0,1])
 line_with_handles_track = my_panel.add_track('line_with_handles', :label => false, :glyph => :line_with_handles, :colour => [1,0,0])
 directed_track = my_panel.add_track('directed', :label => false, :glyph => :directed_generic, :colour => [0,1,0])
+arrow_track = my_panel.add_track('arrow', :label => false, :glyph => :arrow)
 directed_box_track = my_panel.add_track('directed_box', :label => false, :glyph => :directed_box, :colour => [0,1,0])
 triangle_track = my_panel.add_track('triangle', :label => false, :glyph => :triangle, :colour => [1,0,0])
 spliced_track = my_panel.add_track('spliced', :label => false, :glyph => :spliced, :colour => [1,0,0])
@@ -26,6 +27,9 @@ line_with_handles_track.add_feature(Bio::Feature.new('utr', '355..480'), :link =
 
 directed_track.add_feature(Bio::Feature.new('primer', '50..60'), :link => 'http://www.google.com')
 directed_track.add_feature(Bio::Feature.new('primer', 'complement(80..120)'), :link => 'http://www.sourceforge.net')
+
+arrow_track.add_feature(Bio::Feature.new('sheet', '50..60'))
+arrow_track.add_feature(Bio::Feature.new('sheet', 'complement(80..120)'))
 
 directed_box_track.add_feature(Bio::Feature.new('primer', '50..60'), :link => 'http://www.google.com')
 directed_box_track.add_feature(Bio::Feature.new('primer', 'complement(80..120)'), :link => 'http://www.sourceforge.net')

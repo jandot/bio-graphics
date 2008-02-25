@@ -58,7 +58,7 @@ class Bio::Graphics::Ruler
     #    343, 353, 363, 373 and so on. Instead, we want 350, 360, 370, 380.
     #    So we want to find the position of the first tick.
     modulo_from_tick = (start % minor_tick)
-    start + (modulo_from_tick > 0 ? (minor_tick - modulo_from_tick + 1) : 0)
+    return (start + (modulo_from_tick > 0 ? (minor_tick - modulo_from_tick) : 0))
   end
   
   # Draw the ruler, including the faint vertical lines that go from top to
@@ -68,12 +68,12 @@ class Bio::Graphics::Ruler
 
     # Draw line
     ruler_drawing.move_to(0,10)
-    ruler_drawing.line_to(panel.width, 10)
+    ruler_drawing.line_to(@panel.width, 10)
     ruler_drawing.stroke
 
     # Draw ticks and vertical grid lines
-    first_tick_position.step(@panel.display_stop, @minor_tick_distance) do |tick|
-      tick_pixel_position = ((tick - panel.display_start) / @panel.rescale_factor).floor
+    self.first_tick_position.step(@panel.display_stop, @minor_tick_distance) do |tick|
+      tick_pixel_position = ((tick - @panel.display_start) / @panel.rescale_factor).floor
       ruler_drawing.move_to(tick_pixel_position, @min_pixels_per_tick)
       if tick.modulo(@major_tick_distance) == 0 # major tick
         tick(ruler_drawing,3*@tick_height)
@@ -113,7 +113,7 @@ class Bio::Graphics::Ruler
     surface.select_font_face(*Bio::Graphics::FONT)
     surface.set_font_size(@tick_text_height)
     surface.move_to(position, 4*@tick_height + @tick_text_height)
-    surface.show_text(tick.to_i.to_s)    
+    surface.show_text(tick.to_i.commify)
   end
   private :tick_number
 end

@@ -85,7 +85,9 @@ class TestPanel < Test::Unit::TestCase
     scaffold_track.colour = [1,0,0]
     marker_track.colour = [0,1,0]
     marker_track.glyph = :triangle
-    clone_track.colour = [0,0,1]
+    clone_track.colour = lambda do |feature|
+                           return [rand,rand,0]
+                         end
     
     # Add data to tracks
     File.open(File.dirname(__FILE__) + '/data.txt').each do |line|

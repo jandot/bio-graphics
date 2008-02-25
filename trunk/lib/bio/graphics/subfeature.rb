@@ -174,7 +174,8 @@ class Bio::Graphics::SubFeature
 
     # And draw the thing.
 
-     feature_context.set_source_rgb(@colour)
+    colour = @colour.respond_to?(:call) ? @colour.call(self) : @colour
+    feature_context.set_source_rgb(colour)
 
     glyph_name = 'Bio::Graphics::Glyph::' + local_feature_glyph.to_s.camel_case
     glyph_class = glyph_name.to_class

@@ -54,7 +54,7 @@ class Bio::Graphics::Feature
     @label = opts[:label]
     @link = opts[:link]
     @glyph = opts[:glyph]
-    @colour = opts[:colour].respond_to?(:call) ? opts[:colour].call(self) : opts[:colour]
+    @colour = opts[:colour]
     
     # Create Bio::Graphics SubFeatures
     # The drawing is handled by subfeatures. If there are no defined, the
@@ -147,7 +147,7 @@ class Bio::Graphics::Feature
       feature_context.move_to(@left_pixel_of_feature, Bio::Graphics::TRACK_HEADER_HEIGHT)
       feature_context.set_source_rgb(0,0,0)
       feature_context.show_pango_layout(pango_layout)
-      feature_context.set_source_rgb(@colour)
+#      feature_context.set_source_rgb(@colour)
     end
 
 
