@@ -1,4 +1,4 @@
-require '../lib/bio-graphics'
+require File.dirname(__FILE__) + '/../lib/bio-graphics'
 
 my_panel = Bio::Graphics::Panel.new(500, :width => 1000, :format => :svg)
 

@@ -1,4 +1,4 @@
-require '../lib/bio-graphics'
+require File.dirname(__FILE__) + '/../lib/bio-graphics'
 my_panel = Bio::Graphics::Panel.new(700, :width => 600)
 
 track = my_panel.add_track('transcripts')
