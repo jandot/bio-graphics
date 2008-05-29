@@ -1,0 +1,12 @@
+seq	.	transcript	1050	9000	.	+	.	ID=transcript1;Name=Transcript1
+seq	.	transcript	3500	8500	.	-	.	ID=transcript2;Name=Transcript2
+seq	.	utr	1050	1200	.	.	.	ID=utr1;Parent=transcript1
+seq	.	CDS	1201	3200	.	+	.	ID=cds1;Parent=transcript1
+seq	.	CDS	4150	5700	.	+	.	ID=cds1;Parent=transcript1
+seq	.	CDS	7200	8100	.	+	.	ID=cds1;Parent=transcript1
+seq	.	utr	8101	9000	.	.	.	ID=utr2;Parent=transcript1
+seq	.	utr	3500	4000	.	.	.	ID=utr3;Parent=transcript2
+seq	.	CDS	4001	6200	.	-	.	ID=cds2;Parent=transcript2
+seq	.	CDS	7100	7900	.	-	.	ID=cds2;Parent=transcript2
+seq	.	CDS	8100	8400	.	-	.	ID=cds2;Parent=transcript2
+seq	.	utr	8401	8500	.	.	.	ID=utr4;Parent=transcript2

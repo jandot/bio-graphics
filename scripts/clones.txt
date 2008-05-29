@@ -1,0 +1,6 @@
+seq	.	clone	1000	2000	.	+	.	Name=clone1
+seq	.	clone	1850	3500	.	+	.	Name=clone2
+seq	.	clone	2200	4500	.	-	.	Name=clone3
+seq	.	clone	5200	6100	.	+	.	Name=clone4
+seq	.	scaffold	521	5920	.	.	.	Name=scaffold_1
+seq	.	scaffold	6000	7245	.	.	.	Name=scaffold_2
