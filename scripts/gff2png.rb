@@ -26,8 +26,7 @@
 #
 # == AUTHOR
 #  Dr Jan Aerts
-#  Bioinformatics Group
-#  Roslin Institute
+#  jan.aerts@gmail.com
 
 require '../lib/bio-graphics'
 require 'rdoc/usage'

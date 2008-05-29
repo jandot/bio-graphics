@@ -5,7 +5,7 @@ spec = Gem::Specification.new do |s|
   s.version = "1.4"
 
   s.author = "Jan Aerts"
-  s.email = "jan.aerts@bbsrc.ac.uk"
+  s.email = "jan.aerts@gmail.com"
   s.homepage = "http://bio-graphics.rubyforge.org/"
   s.summary = "Library for visualizing genomic regions"
 

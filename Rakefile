@@ -1,7 +1,7 @@
 # 
 # Rakefile.rb
 # 
-# Copyright (C)::   Jan Aerts <jan.aerts@bbsrc.ac.uk>
+# Copyright (C)::   Jan Aerts <jan.aerts@gmail.com>
 # License::         The Ruby License
 # 
  

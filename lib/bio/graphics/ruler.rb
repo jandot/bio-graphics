@@ -2,7 +2,7 @@
 # = bio/graphics/ruler - ruler class
 #
 # Copyright::   Copyright (C) 2007
-#               Jan Aerts <jan.aerts@bbsrc.ac.uk>
+#               Jan Aerts <jan.aerts@gmail.com>
 #               Charles Comstock <dgtized@gmail.com>
 # License::     The Ruby License
 #
