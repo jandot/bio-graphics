@@ -161,11 +161,11 @@ An example. Suppose we want to show a bunch of features that should be red if th
                                      )
 
 == Download and installation
-Development of the library is at http://rubyforge.org/projects/bio-graphics/
+As of May 2008, development of the library has moved from rubyforge to github at http://github.com/jandot/bio-graphics. I've moved away from SVN and embraced git as the new source control system.
 
 There are different ways to install the library.
-* The easy way: gem install bio-graphics
-* The hard (but cutting-edge) way: from SVN: svn checkout svn://rubyforge.org/var/svn/bio-graphics
+* The easiest way: gem install bio-graphics (although this will get you the last version on rubyforge which will probably not be updated)
+* The other way: "git clone git://github.com/jandot/bio-graphics.git" or use the download button at http://github.com/jandot/bio-graphics
 
 == Prerequisites
 You'll need to have the following installed to use this library:
