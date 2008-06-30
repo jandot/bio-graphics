@@ -184,6 +184,7 @@ Install Ruby-GNOME2 Win32 GUI Installer, which contains rcairo-1.2.6. Get it fro
 
 During installation, check the "Register enviroment variables" option.
 
-=== Mac OSX (thanks to Ed Allen)
+=== Mac OSX (thanks to Ed Allen and _why)
 
-We haven't figured out yet how to install cairo and pango separately on a Mac. However, if you install Why The Lucky Stiff‘s Shoes GUI for Ruby toolkit, you get the pango and ruby-pango bindings for free. Get it from code.whytheluckystiff.net/shoes/wiki/DownloadShoes
+I've been successful in installing Bio::Graphics on a Mac by meticulously following the steps from http://code.whytheluckystiff.net/shoes/wiki/BuildingShoesOnOsx. After that, I got the ruby-bindings for pango by installing ruby-gnome2 from http://ruby-gnome2.sourceforge.jp. Unfortunately, the compilation step returns an error, complaining about a file rbpangolayoutiter.c. Changing line 22 in that file to "#if 0" solves this problem.
+YMMV.
