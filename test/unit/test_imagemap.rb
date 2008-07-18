@@ -18,7 +18,7 @@ class TestImageMap < Test::Unit::TestCase
 <area shape="rect" coords="217.47799253058 257 227.47799253058 267" href="http://www.thearkdb.org/arkdb/do/getMarkerDetail?accession=ARKMKR00050962"/>
 <area shape="rect" coords="430.77140269086 137 440.77140269086 147" href="http://www.thearkdb.org/arkdb/do/getMarkerDetail?accession=ARKMKR00049746"/>
 </map>
-<img border='1' src='./test_horizontal_imagemap.png' usemap='#image_map' />
+<img border='1' src='#{File.dirname(__FILE__)}/test_horizontal_imagemap.png' usemap='#image_map' />
 </body>
 </html>
 END_OF_STRING
@@ -36,7 +36,7 @@ END_OF_STRING
 <area shape="rect" coords="257 372.52200746942 267 382.52200746942" href="http://www.thearkdb.org/arkdb/do/getMarkerDetail?accession=ARKMKR00050962"/>
 <area shape="rect" coords="137 159.22859730914 147 169.22859730914" href="http://www.thearkdb.org/arkdb/do/getMarkerDetail?accession=ARKMKR00049746"/>
 </map>
-<img border='1' src='./test_vertical_imagemap.png' usemap='#image_map' />
+<img border='1' src='#{File.dirname(__FILE__)}/test_vertical_imagemap.png' usemap='#image_map' />
 </body>
 </html>
 END_OF_STRING
