@@ -45,33 +45,33 @@ class Bio::Graphics::SubFeature
     # Get all pixel ranges for the subfeatures
     @locations.each do |l|
       #   xxxxxx  [          ]
-      if l.to < @feature.track.panel.display_start
+      if l.to < @feature.track.panel.lend
         @hidden_subfeatures_at_start = true
         next
       #           [          ]   xxxxx
-      elsif l.from > @feature.track.panel.display_stop
+      elsif l.from > @feature.track.panel.rend
         @hidden_subfeatures_at_stop = true
         next
       #      xxxx[xxx       ]
-      elsif l.from < @feature.track.panel.display_start and l.to > @feature.track.panel.display_start
+      elsif l.from < @feature.track.panel.lend and l.to > @feature.track.panel.lend
         start_pixel = 1
-        stop_pixel = ( l.to - @feature.track.panel.display_start ).to_f / @feature.track.panel.rescale_factor
+        stop_pixel = ( l.to - @feature.track.panel.lend ).to_f / @feature.track.panel.rescale_factor
         @chopped_at_start = true
       #          [      xxxx]xxxx
-      elsif l.from < @feature.track.panel.display_stop and l.to > @feature.track.panel.display_stop
-        start_pixel = ( l.from - @feature.track.panel.display_start ).to_f / @feature.track.panel.rescale_factor
+      elsif l.from < @feature.track.panel.rend and l.to > @feature.track.panel.rend
+        start_pixel = ( l.from - @feature.track.panel.lend ).to_f / @feature.track.panel.rescale_factor
         stop_pixel = @feature.track.panel.width
         @chopped_at_stop = true
       #      xxxx[xxxxxxxxxx]xxxx
-      elsif l.from < @feature.track.panel.display_start and l.to > @feature.track.panel.display_stop
+      elsif l.from < @feature.track.panel.lend and l.to > @feature.track.panel.rend
         start_pixel = 1
         stop_pixel = @feature.track.panel.width
         @chopped_at_start = true
         @chopped_at_stop = true
       #          [   xxxxx  ]
       else
-        start_pixel = ( l.from - @feature.track.panel.display_start ).to_f / @feature.track.panel.rescale_factor
-        stop_pixel = ( l.to - @feature.track.panel.display_start ).to_f / @feature.track.panel.rescale_factor
+        start_pixel = ( l.from - @feature.track.panel.lend ).to_f / @feature.track.panel.rescale_factor
+        stop_pixel = ( l.to - @feature.track.panel.lend ).to_f / @feature.track.panel.rescale_factor
       end
 
       @pixel_range_collection.push(Range.new(start_pixel, stop_pixel))

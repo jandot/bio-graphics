@@ -34,7 +34,7 @@ include Math
 # = USAGE
 #   # Create a panel for something with a length of 653. This could be a
 #   # sequence of 653 bp, but also a genetic map of 653 cM.
-#   g = Bio::Graphics::Panel.new(653)
+#   g = Bio::Graphics::Panel.new(0..653)
 #
 #   # Add the first track (e.g. 'genes')
 #   track1 = g.add_track('genes')
@@ -82,50 +82,50 @@ module Bio::Graphics
   class Bio::Graphics::Panel
     # Create a new Bio::Graphics::Panel object
     #
-    #   g = Bio::Graphics::Panel.new(456)
+    #   g = Bio::Graphics::Panel.new(0..456)
     #
     # The height of the image is calculated automatically depending on how many
     # tracks and features it contains. The width of the image defaults to 800 pt
     # but can be set manually by using the width argument to the opts hash:
     #
-    #   g = Bio::Graphics::Panel.new(456, :width => 1200)
+    #   g = Bio::Graphics::Panel.new(0..456, :width => 1200)
     #
     #
     # See also: Bio::Graphics::Panel::Track,
     # Bio::Graphics::Panel::Track::Feature
     # ---
     # *Arguments*:
-    # * _length_ :: length of the thing you want to visualize, e.g for
-    #   visualizing a sequence that is 3.24 kb long, use 324. (required)
+    # * _display_range_ :: the coordinate range to visualize.
+    #   (required) If a number is specified instead of a range, the range is 
+    #   assumed to be from 0 to the number.
     # * _:width_ :: width of the resulting image in pixels. (default: 800)
     # * _:clickable_ :: whether the picture should have clickable glyphs or not
     #   (default: false) If set to true, a html file will be created with
     #   the map.
-    # * _:display_start_ :: start coordinate to be displayed (default: 1)
-    # * _:display_stop_ :: stop coordinate to be displayed (default: length of sequence)
     # * _:vertical_ :: Boolean: false = horizontal (= default)
     # * _:format_ :: File format of the picture. Can be :png, :svg, :pdf or :ps
     #   (default: :png)
     # *Returns*:: Bio::Graphics::Panel object
-    def initialize(length, opts = {})
-      @length = length
+    def initialize(display_range, opts = {})
       opts = {
         :width => DEFAULT_PANEL_WIDTH,
-        :display_range => Range.new(0,@length),
         :vertical => false,
         :clickable => false,
         :format => :png
       }.merge(opts)
-      
-      @width = opts[:width].to_i
 
-      @display_range = opts[:display_range]
-      @display_start = [0, @display_range.lend].max
-      @display_stop = [@length,@display_range.rend].min
-      if @display_stop <= @display_start
-        raise "[ERROR] Start coordinate to be displayed has to be smaller than stop coordinate."
+      if(display_range.kind_of?(Numeric))
+        @display_range = 0..display_range
+      else
+        @display_range = [0,display_range.lend].max..display_range.rend
+      end            
+
+      if @display_range.rend <= @display_range.lend
+        raise "[ERROR] Start coordinate to be displayed has to be smaller than stop coordinate. (%p)" % [@display_range]
       end
-      @display_range = Range.new(@display_start,@display_stop)
+
+      @length = @display_range.rend - @display_range.lend
+      @width = opts[:width].to_i
       
       @vertical = opts[:vertical]
       @clickable = opts[:clickable]
@@ -139,13 +139,23 @@ module Bio::Graphics
       @number_of_feature_rows = 0
       @image_map = ImageMap.new
 
-      @rescale_factor = (@display_stop - @display_start).to_f / @width
+      @rescale_factor = @length.to_f / @width
       
       # To prevent that we do the whole drawing thing multiple times
       @final_panel_destination = nil
     end
-    attr_accessor :length, :width, :height, :rescale_factor, :tracks, :number_of_feature_rows, :clickable, :image_map, :display_start, :display_stop, :display_range, :vertical, :format, :final_panel_destination
+    attr_accessor(:length, :width, :height, :rescale_factor, :tracks,
+                  :number_of_feature_rows, :clickable, :image_map,
+                  :display_range, :vertical, :format, :final_panel_destination)
 
+    def lend
+      @display_range.lend
+    end
+
+    def rend
+      @display_range.rend
+    end    
+    
     # Adds a Bio::Graphics::Track container to this panel. A panel contains a
     # logical grouping of features, e.g. (for sequence annotation:) genes,
     # polymorphisms, ESTs, etc.
@@ -171,7 +181,7 @@ module Bio::Graphics
 
     # Create the drawing
     #--
-    # The fact that display_start and display_stop can be set has two
+    # The fact that display_range can be set has two
     # consequences:
     #  1. not all features are drawn
     #  2. the x-coordinate of all glyphs has to be corrected

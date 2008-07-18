@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../lib/bio-graphics'
 
-my_panel = Bio::Graphics::Panel.new(500, :width => 1000, :format => :svg)
+my_panel = Bio::Graphics::Panel.new(0..500, :width => 1000, :format => :svg)
 
 generic_track = my_panel.add_track('generic', :label => false)
 box_track = my_panel.add_track('box', :label => false, :glyph => :box)

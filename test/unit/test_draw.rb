@@ -7,7 +7,7 @@ class TestPanel < Test::Unit::TestCase
   end
   
   def test_draw_showcase
-    my_panel = Bio::Graphics::Panel.new(500, :width => 1000)
+    my_panel = Bio::Graphics::Panel.new(0..500, :width => 1000)
     
     generic_track = my_panel.add_track('generic', :label => false)
     line_track = my_panel.add_track('line', :label => false, :glyph => :line, :colour => [0,0,1])
@@ -54,7 +54,7 @@ class TestPanel < Test::Unit::TestCase
   end
 
   def test_outside_border
-    my_panel = Bio::Graphics::Panel.new(500, :width => 1000, :display_range => 100..400)
+    my_panel = Bio::Graphics::Panel.new(0..500, :width => 1000, :display_range => 100..400)
     
     spliced_track = my_panel.add_track('spliced', :label => false, :glyph => :spliced, :colour => [1,0,0])
     directed_spliced_track = my_panel.add_track('directed_spliced', :label => false, :glyph => :directed_spliced, :colour => [1,0,1])
@@ -75,7 +75,7 @@ class TestPanel < Test::Unit::TestCase
   end
   
   def test_arkdb_features
-    my_panel = Bio::Graphics::Panel.new(4173015, :width => 600, :vertical => true)
+    my_panel = Bio::Graphics::Panel.new(0..4173015, :width => 600, :vertical => true)
     
     #Create and configure tracks
     scaffold_track = my_panel.add_track('scaffold', :label => false)
@@ -117,7 +117,7 @@ class TestPanel < Test::Unit::TestCase
   end
 
   def test_subregion
-    my_panel = Bio::Graphics::Panel.new(4173015, :display_range => 2500000..3500000, :width => 600)
+    my_panel = Bio::Graphics::Panel.new(2500000..3500000, :width => 600)
     
     #Create and configure tracks
     scaffold_track = my_panel.add_track('scaffold', :label => false)
@@ -157,7 +157,7 @@ class TestPanel < Test::Unit::TestCase
   end
 
   def test_subfeatures
-    my_panel = Bio::Graphics::Panel.new(500, :width => 600)
+    my_panel = Bio::Graphics::Panel.new(0..500, :width => 600)
     
     track = my_panel.add_track('mrna')
     
@@ -184,7 +184,7 @@ class TestPanel < Test::Unit::TestCase
   end
   
   def test_feature_specific_colouring
-    my_panel = Bio::Graphics::Panel.new(375, :display_range => 100..370, :width => 600)
+    my_panel = Bio::Graphics::Panel.new(100..370, :width => 600)
     
     track = my_panel.add_track('mrna')
     

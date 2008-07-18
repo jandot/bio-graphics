@@ -103,9 +103,9 @@ class Bio::Graphics::Track
     # looking at, don't bother storing the stuff. I think this makes huge
     # speed and memory differences if you've got a chromosome with
     # thousands of features.
-    if stop <= self.panel.display_start or start >= self.panel.display_stop
+    if stop <= @panel.lend or start >= @panel.rend
       return nil
-    else #elsif start >= panel.display_start and stop <= panel.display_stop
+    else 
       @features.push(Bio::Graphics::Feature.new(self, feature_object, opts))
       return @features[-1]
     end
@@ -139,7 +139,7 @@ class Bio::Graphics::Track
     # Draw the features
     @features.sort_by{|f| f.start}.each do |feature|
       # Don't even bother if the feature is not in the view
-      if feature.stop <= self.panel.display_start or feature.start >= self.panel.display_stop
+      if feature.stop <= @panel.lend or feature.start >= @panel.rend
         next
       else
         feature.draw(panel_destination)

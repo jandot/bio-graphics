@@ -63,7 +63,7 @@ output_stream = File.new(options.outfile,'w')
 
 ### Actually do some stuff
 tracks = Hash.new
-my_panel = Bio::Graphics::Panel.new(options.seq_length)
+my_panel = Bio::Graphics::Panel.new(0..options.seq_length)
 input_stream.each_line do |line|
   next if line =~ /^#/
   line.chomp!

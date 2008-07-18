@@ -49,7 +49,7 @@ class Bio::Graphics::Ruler
      Math.log(min_pixels_per_tick)).ceil 
   end
 
-  def first_tick_position(start = @panel.display_start,
+  def first_tick_position(start = @panel.lend,
                           minor_tick = @minor_tick_distance)
     #  * Find position of first tick.
     #    Most of the time, we don't want the first tick on the very first
@@ -72,8 +72,8 @@ class Bio::Graphics::Ruler
     ruler_drawing.stroke
 
     # Draw ticks and vertical grid lines
-    self.first_tick_position.step(@panel.display_stop, @minor_tick_distance) do |tick|
-      tick_pixel_position = ((tick - @panel.display_start) / @panel.rescale_factor).floor
+    self.first_tick_position.step(@panel.rend, @minor_tick_distance) do |tick|
+      tick_pixel_position = ((tick - @panel.lend) / @panel.rescale_factor).floor
       ruler_drawing.move_to(tick_pixel_position, @min_pixels_per_tick)
       if tick.modulo(@major_tick_distance) == 0 # major tick
         tick(ruler_drawing,3*@tick_height)

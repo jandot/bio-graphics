@@ -2,10 +2,7 @@ require File.dirname(__FILE__) + '/../lib/bio-graphics'
 
 #Initialize graphic for a nucleotide sequence of 4173015 bp, zooming in on the
 #region 11111..3333333
-my_panel = Bio::Graphics::Panel.new(4173015, :width => 600, :clickable => true,
-                                    :display_range => 11111..3333333)#,
-#                                    :vertical => true)
-#my_panel = Bio::Graphics::Panel.new(4173015, 800, false, 1, 4173015)
+my_panel = Bio::Graphics::Panel.new(11111..3333333, :width => 600, :clickable => true)
 
 #Create and configure tracks
 scaffold_track = my_panel.add_track('scaffold', :label => false)
