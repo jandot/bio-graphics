@@ -15,11 +15,11 @@ module Bio::Graphics::Glyph
     attr_accessor :subfeature, :feature_context
 
     def left_pixel
-      return @subfeature.pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
+      return @subfeature.pixel_range_collection.map {|x| x.lend }.min
     end
     
     def right_pixel
-      return @subfeature.pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
+      return @subfeature.pixel_range_collection.map {|x| x.rend }.max
     end
     
     private
@@ -51,18 +51,14 @@ module Bio::Graphics::Glyph
       end
 
       if @subfeature.hidden_subfeatures_at_stop
-        from = @subfeature.pixel_range_collection.sort_by{|pr| pr.lend}[-1].rend
-        to = @subfeature.feature.track.panel.width
-        feature_context.move_to(from, Bio::Graphics::FEATURE_ARROW_LENGTH)
-        feature_context.line_to(to, Bio::Graphics::FEATURE_ARROW_LENGTH)
+        feature_context.move_to(self.right_pixel, Bio::Graphics::FEATURE_ARROW_LENGTH)
+        feature_context.line_to(@subfeature.feature.track.panel.width, Bio::Graphics::FEATURE_ARROW_LENGTH)
         feature_context.stroke
       end
 
       if @subfeature.hidden_subfeatures_at_start
-        from = 1
-        to = @subfeature.pixel_range_collection.sort_by{|pr| pr.lend}[0].lend
-        feature_context.move_to(from, Bio::Graphics::FEATURE_ARROW_LENGTH)
-        feature_context.line_to(to, Bio::Graphics::FEATURE_ARROW_LENGTH)
+        feature_context.move_to(1, Bio::Graphics::FEATURE_ARROW_LENGTH)
+        feature_context.line_to(left_pixel, Bio::Graphics::FEATURE_ARROW_LENGTH)
         feature_context.stroke
       end
     end
