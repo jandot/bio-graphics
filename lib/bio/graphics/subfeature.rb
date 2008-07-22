@@ -141,10 +141,13 @@ class Bio::Graphics::SubFeature
     else
       @glyph = @feature.glyph
     end
-    
-    @colour = @colour.nil? ? @feature.colour : @colour
-    @colour = @colour.respond_to?(:call) ? @colour.call(self) : @colour
 
+    if @feature.colour.class == Hash
+      @colour = @feature.colour[@feature_object.feature]
+    else
+      @colour = @colour.nil? ? @feature.colour : @colour
+    end
+    @colour = @colour.respond_to?(:call) ? @colour.call(self) : @colour
 
     # We have to check if we want to change the glyph type from directed to
     #    undirected
