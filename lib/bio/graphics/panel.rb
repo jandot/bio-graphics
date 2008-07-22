@@ -126,15 +126,12 @@ module Bio::Graphics
 
       @length = @display_range.rend - @display_range.lend
       @width = opts[:width].to_i
+
+      self.format = opts[:format]
       
       @vertical = opts[:vertical]
       @clickable = opts[:clickable]
-      
-      @format = opts[:format]
-      if ! [:png, :svg, :pdf, :ps].include?(@format)
-        raise "[ERROR] Format has to be one of :png, :svg, :pdf or :ps."
-      end
-      
+            
       @tracks = Array.new
       @number_of_feature_rows = 0
       @image_map = ImageMap.new
@@ -155,6 +152,13 @@ module Bio::Graphics
     def rend
       @display_range.rend
     end    
+
+    def format=(fmt)
+      if ! [:png, :svg, :pdf, :ps].include?(fmt)
+        raise "[ERROR] Format has to be one of :png, :svg, :pdf or :ps."
+      end      
+      @format = fmt
+    end
     
     # Adds a Bio::Graphics::Track container to this panel. A panel contains a
     # logical grouping of features, e.g. (for sequence annotation:) genes,
