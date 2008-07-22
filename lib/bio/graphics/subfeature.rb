@@ -42,36 +42,38 @@ class Bio::Graphics::SubFeature
     @hidden_subfeatures_at_start = false
     @hidden_subfeatures_at_stop = false
 
+    panel = @feature.track.panel
+    
     # Get all pixel ranges for the subfeatures
     @locations.each do |l|
       #   xxxxxx  [          ]
-      if l.to < @feature.track.panel.lend
+      if l.to < panel.lend
         @hidden_subfeatures_at_start = true
         next
       #           [          ]   xxxxx
-      elsif l.from > @feature.track.panel.rend
+      elsif l.from > panel.rend
         @hidden_subfeatures_at_stop = true
         next
       #      xxxx[xxx       ]
-      elsif l.from < @feature.track.panel.lend and l.to > @feature.track.panel.lend
+      elsif l.from < panel.lend and l.to > panel.lend
         start_pixel = 1
-        stop_pixel = ( l.to - @feature.track.panel.lend ).to_f / @feature.track.panel.rescale_factor
+        stop_pixel = panel.pixel_position(l.to)
         @chopped_at_start = true
       #          [      xxxx]xxxx
-      elsif l.from < @feature.track.panel.rend and l.to > @feature.track.panel.rend
-        start_pixel = ( l.from - @feature.track.panel.lend ).to_f / @feature.track.panel.rescale_factor
-        stop_pixel = @feature.track.panel.width
+      elsif l.from < panel.rend and l.to > panel.rend
+        start_pixel = panel.pixel_position(l.from)
+        stop_pixel = panel.width
         @chopped_at_stop = true
       #      xxxx[xxxxxxxxxx]xxxx
-      elsif l.from < @feature.track.panel.lend and l.to > @feature.track.panel.rend
+      elsif l.from < panel.lend and l.to > panel.rend
         start_pixel = 1
-        stop_pixel = @feature.track.panel.width
+        stop_pixel = panel.width
         @chopped_at_start = true
         @chopped_at_stop = true
       #          [   xxxxx  ]
       else
-        start_pixel = ( l.from - @feature.track.panel.lend ).to_f / @feature.track.panel.rescale_factor
-        stop_pixel = ( l.to - @feature.track.panel.lend ).to_f / @feature.track.panel.rescale_factor
+        start_pixel = panel.pixel_position(l.from)
+        stop_pixel = panel.pixel_position(l.to)
       end
 
       @pixel_range_collection.push(Range.new(start_pixel, stop_pixel))

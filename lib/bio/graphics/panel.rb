@@ -159,6 +159,10 @@ module Bio::Graphics
       end      
       @format = fmt
     end
+
+    def pixel_position(pos)
+      (pos - self.lend) / self.rescale_factor
+    end
     
     # Adds a Bio::Graphics::Track container to this panel. A panel contains a
     # logical grouping of features, e.g. (for sequence annotation:) genes,
